@@ -1,0 +1,246 @@
+// WidgetPopup.module.scss
+
+// Overlay для мобильных
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+
+}
+
+// Базовые стили попапа
+.popup {
+  position: fixed;
+  z-index: 9999;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e0e0e0;
+  overflow-y: auto;
+  max-height: 80vh;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
+    border-radius: 8px 8px 0 0;
+
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+  }
+
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    color: #757575;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+
+    &:hover {
+      background: #f5f5f5;
+      color: #333;
+    }
+  }
+
+  .content {
+    padding: 16px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .card {
+    background: #fafafa;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 12px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: #2196f3;
+      box-shadow: 0 2px 8px rgba(33, 150, 243, 0.1);
+    }
+  }
+
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+
+    h4 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      flex: 1;
+    }
+  }
+
+  .type {
+    font-size: 10px;
+    color: #757575;
+    background: #eee;
+    padding: 2px 6px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .description {
+    margin: 0 0 12px 0;
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+    min-height: 32px;
+  }
+
+  .addButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 6px 12px;
+    background: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: #388e3c;
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  .footer {
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+  }
+
+  .hint {
+    margin: 0;
+    font-size: 12px;
+    color: #757575;
+    text-align: center;
+  }
+}
+
+// Десктоп версия (≥768px)
+.desktop {
+  width: 400px;
+  right: 1%;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: slideInRight 0.3s ease-out;
+
+
+  @media (min-width: 768px) {
+    width: 450px;
+  }
+}
+
+// Мобильная версия (<768px)
+.mobile {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: auto;
+  width: 100%;
+  max-width: 100%;
+  border-radius: 16px 16px 0 0;
+  animation: slideUp 0.3s ease-out;
+  max-height: 85vh;
+
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+
+  .card {
+    padding: 10px;
+  }
+
+  .addButton {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}
+
+// Анимации
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// Медиа-запросы для адаптивности
+@media (max-width: 767px) {
+  .popup {
+    border-radius: 16px 16px 0 0;
+  }
+}
