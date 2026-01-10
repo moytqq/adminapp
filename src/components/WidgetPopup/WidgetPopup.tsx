@@ -3,34 +3,145 @@
 import React, { forwardRef, useEffect, useState, useRef } from 'react';
 import styles from './WidgetPopup.module.scss';
 import { Plus } from 'lucide-react';
+import { TreeItemType, WidgetItem } from '@/types/tree.types';
 
 interface WidgetPopupProps {
   itemId: string;
+  itemType: TreeItemType;
   onAddWidget: (widgetType: string) => void;
   onClose: () => void;
 }
 
-const MOCK_WIDGETS = [
-  { id: '1', title: 'WidgetName', description: 'WidgetDescription', type: 'widgetType' },
-  { id: '2', title: 'WidgetName', description: 'WidgetDescription', type: 'widgetType' },
-  { id: '3', title: 'WidgetName', description: 'WidgetDescription', type: 'widgetType' },
-  { id: '4', title: 'WidgetName', description: 'WidgetDescription', type: 'widgetType' },
-  { id: '5', title: 'WidgetName', description: 'WidgetDescription', type: 'widgetType' },
-  { id: '6', title: 'WidgetName', description: 'WidgetDescription', type: 'widgetType' },
-  { id: '7', title: 'WidgetName', description: 'WidgetDescription', type: 'widgetType' },
-  { id: '8', title: 'WidgetName', description: 'WidgetDescription', type: 'widgetType' },
-  { id: '9', title: 'WidgetName', description: 'WidgetDescription', type: 'widgetType' },
-  { id: '10', title: 'WidgetName', description: 'WidgetDescription', type: 'widgetType' },
-  { id: '11', title: 'WidgetName', description: 'WidgetDescription', type: 'widgetType' },
-  { id: '12', title: 'WidgetName', description: 'WidgetDescription', type: 'widgetType' },
-];
+const WIDGETS_BY_TYPE: Record<TreeItemType, WidgetItem[]> = {
+  [TreeItemType.COMPANY]: [
+    {
+      id: 'company-1',
+      title: 'Финансовая отчетность',
+      description: 'Доходы и расходы компании',
+      type: 'finance',
+      availableFor: [TreeItemType.COMPANY]
+    } as WidgetItem,
+    {
+      id: 'company-2',
+      title: 'Статистика сотрудников',
+      description: 'Анализ штата компании',
+      type: 'employees',
+      availableFor: [TreeItemType.COMPANY, TreeItemType.DEPARTMENT]
+    } as WidgetItem,
+    {
+      id: 'company-3',
+      title: 'Карта магазинов',
+      description: 'Геолокация всех магазинов',
+      type: 'map',
+      availableFor: [TreeItemType.COMPANY, TreeItemType.DEPARTMENT]
+    } as WidgetItem,
+    {
+      id: 'company-4',
+      title: 'Ключевые показатели',
+      description: 'KPI компании',
+      type: 'kpi',
+      availableFor: [TreeItemType.COMPANY]
+    } as WidgetItem,
+  ],
+  [TreeItemType.DEPARTMENT]: [
+    {
+      id: 'dept-1',
+      title: 'Бюджет департамента',
+      description: 'Распределение бюджета',
+      type: 'budget',
+      availableFor: [TreeItemType.DEPARTMENT]
+    } as WidgetItem,
+    {
+      id: 'dept-2',
+      title: 'Производительность',
+      description: 'Эффективность работы отдела',
+      type: 'performance',
+      availableFor: [TreeItemType.DEPARTMENT]
+    } as WidgetItem,
+    {
+      id: 'dept-3',
+      title: 'Проекты департамента',
+      description: 'Текущие и завершенные проекты',
+      type: 'projects',
+      availableFor: [TreeItemType.DEPARTMENT]
+    } as WidgetItem,
+    {
+      id: 'dept-4',
+      title: 'Задачи команды',
+      description: 'Распределение задач',
+      type: 'tasks',
+      availableFor: [TreeItemType.DEPARTMENT, TreeItemType.STORE]
+    } as WidgetItem,
+  ],
+  [TreeItemType.STORE]: [
+    {
+      id: 'store-1',
+      title: 'Продажи магазина',
+      description: 'Ежедневные и еженедельные продажи',
+      type: 'sales',
+      availableFor: [TreeItemType.STORE]
+    } as WidgetItem,
+    {
+      id: 'store-2',
+      title: 'Инвентаризация',
+      description: 'Остатки товаров на складе',
+      type: 'inventory',
+      availableFor: [TreeItemType.STORE]
+    } as WidgetItem,
+    {
+      id: 'store-3',
+      title: 'График работы',
+      description: 'Расписание сотрудников',
+      type: 'schedule',
+      availableFor: [TreeItemType.STORE]
+    } as WidgetItem,
+    {
+      id: 'store-4',
+      title: 'Отзывы клиентов',
+      description: 'Обратная связь от покупателей',
+      type: 'reviews',
+      availableFor: [TreeItemType.STORE]
+    } as WidgetItem,
+  ],
+  [TreeItemType.PERSON]: [
+    {
+      id: 'person-1',
+      title: 'Рабочие задачи',
+      description: 'Текущие задачи сотрудника',
+      type: 'tasks',
+      availableFor: [TreeItemType.PERSON]
+    } as WidgetItem,
+    {
+      id: 'person-2',
+      title: 'График работы',
+      description: 'Расписание и отпуска',
+      type: 'schedule',
+      availableFor: [TreeItemType.PERSON]
+    } as WidgetItem,
+    {
+      id: 'person-3',
+      title: 'Производительность',
+      description: 'KPI сотрудника',
+      type: 'performance',
+      availableFor: [TreeItemType.PERSON]
+    } as WidgetItem,
+    {
+      id: 'person-4',
+      title: 'Документы',
+      description: 'Личные документы и договоры',
+      type: 'documents',
+      availableFor: [TreeItemType.PERSON]
+    } as WidgetItem,
+  ],
+};
 
 const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
-  ({ itemId, onAddWidget, onClose }, ref) => {
+  ({ itemId, itemType, onAddWidget, onClose }, ref) => {
     const [isMobile, setIsMobile] = useState(false);
     const popupRef = useRef<HTMLDivElement>(null);
 
-    // Определяем мобильное устройство
+    const availableWidgets = WIDGETS_BY_TYPE[itemType] || [];
+
     useEffect(() => {
       const checkMobile = () => {
         setIsMobile(window.innerWidth < 768);
@@ -44,7 +155,6 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
       };
     }, []);
 
-    // Блокируем скролл на мобильных
     useEffect(() => {
       if (isMobile) {
         document.body.style.overflow = 'hidden';
@@ -55,7 +165,6 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
       };
     }, [isMobile]);
 
-    // Кастомный хук для обработки клика вне элемента
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
         // Если попап не существует, выходим
@@ -81,7 +190,6 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
       };
     }, [onClose]);
 
-    // Обработчик Escape для закрытия
     useEffect(() => {
       const handleEscape = (event: KeyboardEvent) => {
         if (event.key === 'Escape') {
@@ -95,29 +203,19 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
       };
     }, [onClose]);
 
-    // Останавливаем всплытие на всех кликах внутри попапа
     const handlePopupMouseDown = (e: React.MouseEvent) => {
       e.stopPropagation();
       e.preventDefault();
-    };
-
-    const handleAddWidgetClick = (widgetType: string) => {
-      onAddWidget(widgetType);
     };
 
     const handleCloseClick = (e: React.MouseEvent) => {
       e.stopPropagation();
       onClose();
     };
-
     return (
       <>
-        {/* Overlay для мобильных - отдельный элемент, не связанный с обработчиком клика вне */}
         {isMobile && (
-          <div
-            className={styles.overlay}
-            onClick={onClose}
-          />
+          <div className={styles.overlay} onClick={onClose} />
         )}
 
         <div
@@ -127,7 +225,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
           onClick={(e) => e.stopPropagation()}
         >
           <div className={styles.header}>
-            <h3>Виджеты для элемента</h3>
+            <h3>Виджеты для typeDisplayName</h3>
             <button
               className={styles.closeButton}
               onClick={handleCloseClick}
@@ -139,19 +237,16 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
 
           <div className={styles.content}>
             <div className={styles.grid}>
-              {MOCK_WIDGETS.map(widget => (
-                <div
-                  key={widget.id}
-                  className={styles.card}
-                  onClick={(e) => e.stopPropagation()}
-                >
+              {availableWidgets.map(widget => (
+                <div key={widget.id} className={styles.card} onClick={(e) => e.stopPropagation()}>
                   <div className={styles.cardHeader}>
                     <h4>{widget.title}</h4>
+                    <span className={styles.widgetType}>{widget.type}</span>
                   </div>
                   <p className={styles.description}>{widget.description}</p>
                   <button
                     className={styles.addButton}
-                    onClick={() => handleAddWidgetClick(widget.type)}
+                    onClick={() => onAddWidget(widget.type)}
                   >
                     <Plus size={14} />
                     <span>Добавить</span>
@@ -162,7 +257,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
 
             <div className={styles.footer}>
               <p className={styles.hint}>
-                Выберите виджет для добавления к элементу {itemId}
+                Доступно для: <strong>typeDisplayName</strong> (ID: {itemId})
               </p>
             </div>
           </div>

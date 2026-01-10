@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { TreeItem, TreeState } from '@/types/tree.types';
-import { fetchTreeData, toggleItemExpanded } from '@/utils/treeHelpers';
+import { fetchTreeDataFromApi } from '@/utils/treeHelpers';
 
 const initialState: TreeState = {
   items: [],
@@ -13,12 +13,13 @@ export const loadTreeData = createAsyncThunk(
   'tree/loadData',
   async (_, { rejectWithValue }) => {
     try {
-      // В реальном приложении здесь будет API вызов
-      return await fetchTreeData();
-    } catch (error) {
-      return rejectWithValue('Failed to load data');
+      const data = await fetchTreeDataFromApi();
+      return data;
+    } catch (error: any) {
+      console.error('Error in loadTreeData:', error);
+      return rejectWithValue(error.message || 'Failed to load data from API');
     }
-  }
+  },
 );
 
 const treeSlice = createSlice({
@@ -26,16 +27,45 @@ const treeSlice = createSlice({
   initialState,
   reducers: {
     toggleExpand: (state, action: PayloadAction<string>) => {
-      state.items = toggleItemExpanded(state.items, action.payload);
+      const toggleItem = (items: TreeItem[]): TreeItem[] => {
+        return items.map(item => {
+          if (item.id === action.payload) {
+            return { ...item, isExpanded: !item.isExpanded } as TreeItem;
+          }
+          if (item.children) {
+            return {
+              ...item,
+              children: toggleItem(item.children),
+            } as TreeItem;
+          }
+          return item;
+        });
+      };
+      state.items = toggleItem(state.items);
     },
     selectItem: (state, action: PayloadAction<string>) => {
       state.selectedItemId = action.payload;
     },
-    addItem: (state, action: PayloadAction<{ parentId: string; label: string }>) => {
-      // Логика добавления нового элемента
+    updateItem: (state, action: PayloadAction<{ id: string; updates: Partial<TreeItem> }>) => {
+      const updateItemInTree = (items: TreeItem[]): TreeItem[] => {
+        return items.map(item => {
+          if (item.id === action.payload.id) {
+            return { ...item, ...action.payload.updates } as TreeItem;
+          }
+          if (item.children) {
+            return {
+              ...item,
+              children: updateItemInTree(item.children),
+            } as TreeItem;
+          }
+          return item;
+        });
+      };
+      state.items = updateItemInTree(state.items);
     },
-    deleteItem: (state, action: PayloadAction<string>) => {
-      // Логика удаления элемента
+
+    refreshTreeData: (state, action: PayloadAction<TreeItem[]>) => {
+      state.items = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -47,13 +77,17 @@ const treeSlice = createSlice({
       .addCase(loadTreeData.fulfilled, (state, action) => {
         state.loading = false;
         state.items = action.payload;
+        state.error = null;
       })
       .addCase(loadTreeData.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+        // state.items = [];
       });
   },
 });
 
-export const { toggleExpand, selectItem, addItem, deleteItem } = treeSlice.actions;
+export const {
+  toggleExpand,
+} = treeSlice.actions;
 export default treeSlice.reducer;

@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { loadTreeData, toggleExpand } from '@/store/slices/treeSlice';
 import TreeItem from './TreeItem';
 import styles from './TreeList.module.scss';
-import { FolderPlus, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 
 const TreeList: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -24,15 +24,20 @@ const TreeList: React.FC = () => {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await dispatch(loadTreeData());
-    setIsRefreshing(false);
+    try {
+      await dispatch(loadTreeData()).unwrap();
+    } catch (err) {
+      console.error('Failed to refresh data:', err);
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   if (loading && !isRefreshing) {
     return (
       <div className={styles.loading}>
         <div className={styles.spinner} />
-        <p>Загрузка дерева...</p>
+        <p>Загрузка данных...</p>
       </div>
     );
   }
@@ -55,23 +60,12 @@ const TreeList: React.FC = () => {
   return (
     <div className={styles.treeList}>
       <div className={styles.header}>
-        <h1>Список</h1>
+        <h1>Иерархия компании</h1>
         <div className={styles.actions}>
-          <button
-            className={styles.actionButton}
-            onClick={() => {
-              // Логика для добавления корневого элемента
-              console.log('Добавить корневой элемент');
-            }}
-            aria-label="Добавить корневой элемент"
-          >
-            <FolderPlus size={18} />
-            <span>Добавить корень</span>
-          </button>
           <button
             className={`${styles.actionButton} ${isRefreshing ? styles.refreshing : ''}`}
             onClick={handleRefresh}
-            disabled={isRefreshing}
+            disabled={isRefreshing || loading}
             aria-label="Обновить данные"
           >
             <RefreshCw size={18} className={isRefreshing ? styles.spin : ''} />
@@ -83,13 +77,12 @@ const TreeList: React.FC = () => {
       <div className={styles.treeContainer}>
         {items.length === 0 ? (
           <div className={styles.emptyState}>
-            <FolderPlus size={48} />
-            <p>Дерево пусто</p>
+            <p>Нет данных для отображения</p>
             <button
-              className={styles.addFirstButton}
-              onClick={() => console.log('Создать первый элемент')}
+              className={styles.refreshButton}
+              onClick={handleRefresh}
             >
-              Создать первый элемент
+              Загрузить данные
             </button>
           </div>
         ) : (

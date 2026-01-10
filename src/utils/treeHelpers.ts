@@ -1,165 +1,115 @@
-import { TreeItem } from '@/types/tree.types';
+import {
+  TreeItem,
+  TreeItemType,
+  CompanyItem,
+  DepartmentItem,
+  StoreItem,
+  PersonItem
+} from '@/types/tree.types';
+import { treeApi } from '@/services/api';
+import { buildTreeFromApiData, enhanceTreeDataWithMockInfo } from './apiTransformers';
 
-export const fetchTreeData = async (): Promise<TreeItem[]> => {
-  // Моковые данные для разработки
+export const fetchTreeDataFromApi = async (): Promise<TreeItem[]> => {
+  try {
+    console.log('Fetching tree data from API...');
+
+    const apiData = await treeApi.getHierarchyTree();
+    console.log('API data received:', apiData);
+
+    let treeData = buildTreeFromApiData(apiData);
+
+    treeData = enhanceTreeDataWithMockInfo(treeData);
+
+    console.log('Tree data built:', treeData);
+    return treeData;
+
+  } catch (error) {
+    console.error('Error fetching tree data from API:', error);
+
+    console.log('Using fallback mock data');
+    return fetchMockTreeData();
+  }
+};
+
+export const fetchMockTreeData = async (): Promise<TreeItem[]> => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   return [
     {
-      id: '1',
-      label: 'Root Item 1',
-      subLabel: '234 files',
+      id: 'company-1',
+      label: 'ООО "Вкусные решения"',
+      type: TreeItemType.COMPANY,
       level: 0,
-      isExpanded: false,
+      isExpanded: true,
+      parentId: '0',
+      data: {
+        companyName: 'ООО "Вкусные решения"',
+        foundedYear: 2010,
+        ceoId: 'person-1',
+        totalRevenue: 50000000,
+        employeeCount: 245
+      },
       children: [
         {
-          id: '1-1',
-          label: 'Child Item 1-1',
-          subLabel: '234 files',
+          id: 'person-1',
+          label: 'Иванов Иван Иванович',
+          type: TreeItemType.PERSON,
           level: 1,
           isExpanded: false,
-          children: [
-            {
-              id: '1-1-1',
-              label: 'Grandchild Item 1-1-1',
-              subLabel: '234 files',
-              level: 2,
-              isExpanded: false,
-            },
-            {
-              id: '1-1-2',
-              label: 'Grandchild Item 1-1-2',
-              subLabel: '234 files',
-              level: 2,
-              isExpanded: false,
-            },
-            {
-              id: '1-1-3',
-              label: 'Grandchild Item 1-1-3',
-              subLabel: '234 files',
-              level: 2,
-              isExpanded: false,
-              children: [
-                {
-                  id: '1-1-2-1',
-                  label: 'Grandchild Item 1-1-3-1',
-                  subLabel: '234 files',
-                  level: 3,
-                  isExpanded: false,
-                },
-                {
-                  id: '1-1-2-2',
-                  label: 'Grandchild Item 1-1-3-2',
-                  subLabel: '234 files',
-                  level: 3,
-                  isExpanded: false,
-                },
-              ]
-            },
-          ],
-        },
+          parentId: 'company-1',
+          subLabel: 'Генеральный директор',
+          data: {
+            firstName: 'Иван',
+            lastName: 'Иванов',
+            position: 'Генеральный директор',
+            email: 'ivanov@vkusno.ru',
+            phone: '+7 (999) 123-45-67',
+            hireDate: '2010-01-15',
+            salary: 300000,
+            isManager: true
+          }
+        } as PersonItem,
         {
-          id: '1-2',
-          label: 'Child Item 1-2',
-          subLabel: '234 files',
+          id: 'dept-1',
+          label: 'Департамент IT',
+          type: TreeItemType.DEPARTMENT,
           level: 1,
-          isExpanded: false,
+          isExpanded: true,
+          parentId: 'company-1',
+          data: {
+            departmentName: 'Департамент IT',
+            managerId: 'person-2',
+            budget: 10000000,
+            storeCount: 0,
+            employeeCount: 25,
+            description: 'Отвечает за IT-инфраструктуру компании'
+          },
           children: [
             {
-              id: '1-2-1',
-              label: 'Grandchild Item 1-2-1',
-              subLabel: '234 files',
+              id: 'person-2',
+              label: 'Петрова Анна Сергеевна',
+              type: TreeItemType.PERSON,
               level: 2,
               isExpanded: false,
-            },
-            {
-              id: '1-2-2',
-              label: 'Grandchild Item 1-2-1',
-              subLabel: '234 files',
-              level: 2,
-              isExpanded: false,
-            },
-            {
-              id: '1-2-3',
-              label: 'Grandchild Item 1-2-1',
-              subLabel: '234 files',
-              level: 2,
-              isExpanded: false,
-            },
+              parentId: 'dept-1',
+              subLabel: 'Руководитель IT-департамента',
+              data: {
+                firstName: 'Анна',
+                lastName: 'Петрова',
+                position: 'Руководитель IT-департамента',
+                email: 'petrova@vkusno.ru',
+                phone: '+7 (999) 234-56-78',
+                hireDate: '2015-03-20',
+                salary: 200000,
+                departmentId: 'dept-1',
+                isManager: true
+              }
+            } as PersonItem,
           ]
-        },
-        {
-          id: '1-3',
-          label: 'Child Item 1-3',
-          subLabel: '234 files',
-          level: 1,
-          isExpanded: false,
-        },
-      ],
-    },
-    {
-      id: '2',
-      label: 'Root Item 2',
-      subLabel: '234 files',
-      level: 0,
-      isExpanded: false,
-      children: [],
-    },
+        } as DepartmentItem,
+      ]
+    } as CompanyItem
   ];
 };
 
-export const toggleItemExpanded = (
-  items: TreeItem[],
-  itemId: string
-): TreeItem[] => {
-  return items.map(item => {
-    if (item.id === itemId) {
-      return { ...item, isExpanded: !item.isExpanded };
-    }
-    if (item.children) {
-      return {
-        ...item,
-        children: toggleItemExpanded(item.children, itemId),
-      };
-    }
-    return item;
-  });
-};
-
-export const findItemPath = (
-  items: TreeItem[],
-  targetId: string,
-  currentPath: string[] = []
-): string[] => {
-  for (const item of items) {
-    const newPath = [...currentPath, item.id];
-
-    if (item.id === targetId) {
-      return newPath;
-    }
-
-    if (item.children) {
-      const foundPath = findItemPath(item.children, targetId, newPath);
-      if (foundPath.length > 0) {
-        return foundPath;
-      }
-    }
-  }
-
-  return [];
-};
-
-/**
- * Находит элемент по ID
- */
-export const findItemById = (
-  items: TreeItem[],
-  id: string
-): TreeItem | undefined => {
-  for (const item of items) {
-    if (item.id === id) return item;
-    if (item.children) {
-      const found = findItemById(item.children, id);
-      if (found) return found;
-    }
-  }
-  return undefined;
-};
+export const fetchTreeData = fetchTreeDataFromApi;

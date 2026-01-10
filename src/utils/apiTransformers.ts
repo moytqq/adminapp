@@ -1,0 +1,224 @@
+import {
+  ApiTreeItem,
+  TreeItem,
+  TreeItemType,
+  CompanyItem,
+  DepartmentItem,
+  StoreItem,
+  PersonItem
+} from '@/types/tree.types';
+
+const mapApiTypeToTreeItemType = (apiType: string): TreeItemType => {
+  switch (apiType) {
+    case 'Company':
+      return TreeItemType.COMPANY;
+    case 'Department':
+      return TreeItemType.DEPARTMENT;
+    case 'Store':
+      return TreeItemType.STORE;
+    case 'Person':
+      return TreeItemType.PERSON;
+    default:
+      return TreeItemType.PERSON;
+  }
+};
+
+const transformApiItemToTreeItem = (apiItem: ApiTreeItem): TreeItem => {
+  const baseItem = {
+    id: apiItem.id.toString(),
+    label: apiItem.name,
+    parentId: apiItem.parent_id.toString(),
+    description: apiItem.description,
+    level: 0,
+    isExpanded: false,
+    hasChildren: false,
+  };
+
+  const type = mapApiTypeToTreeItemType(apiItem.type);
+
+  switch (type) {
+    case TreeItemType.COMPANY:
+      return {
+        ...baseItem,
+        type: TreeItemType.COMPANY,
+        data: {
+          companyName: apiItem.name,
+          ...(apiItem.data || {})
+        }
+      } as CompanyItem;
+
+    case TreeItemType.DEPARTMENT:
+      return {
+        ...baseItem,
+        type: TreeItemType.DEPARTMENT,
+        data: {
+          departmentName: apiItem.name,
+          description: apiItem.description,
+          ...(apiItem.data || {})
+        }
+      } as DepartmentItem;
+
+    case TreeItemType.STORE:
+      return {
+        ...baseItem,
+        type: TreeItemType.STORE,
+        data: {
+          storeName: apiItem.name,
+          description: apiItem.description,
+          ...(apiItem.data || {})
+        }
+      } as StoreItem;
+
+    case TreeItemType.PERSON:
+      const nameParts = apiItem.name.split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      return {
+        ...baseItem,
+        type: TreeItemType.PERSON,
+        subLabel: apiItem.description || '', // Используем description как должность
+        data: {
+          firstName,
+          lastName,
+          position: apiItem.description || 'Сотрудник',
+          email: '',
+          ...(apiItem.data || {})
+        }
+      } as PersonItem;
+
+    default:
+      return {
+        ...baseItem,
+        type: TreeItemType.PERSON,
+        data: {
+          firstName: apiItem.name,
+          lastName: '',
+          position: apiItem.description || 'Сотрудник',
+          email: '',
+        }
+      } as PersonItem;
+  }
+};
+
+export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
+  const itemsMap = new Map<string, TreeItem>();
+  const rootItems: TreeItem[] = [];
+
+  apiItems.forEach(apiItem => {
+    const treeItem = transformApiItemToTreeItem(apiItem);
+    itemsMap.set(treeItem.id, treeItem);
+  });
+
+  const calculateLevelsAndBuildTree = (itemId: string, level: number): TreeItem => {
+    const item = itemsMap.get(itemId);
+    if (!item) throw new Error(`Item ${itemId} not found`);
+
+    item.level = level;
+
+    const children = Array.from(itemsMap.values()).filter(
+      child => child.parentId === itemId
+    );
+
+    item.hasChildren = children.length > 0;
+
+    if (children.length > 0) {
+      item.children = children.map(child =>
+        calculateLevelsAndBuildTree(child.id, level + 1)
+      );
+    }
+
+    return item;
+  };
+
+  Array.from(itemsMap.values()).forEach(item => {
+    if (item.parentId === '0') {
+      rootItems.push(calculateLevelsAndBuildTree(item.id, 0));
+    }
+  });
+
+  if (rootItems.length === 0) {
+    const existingParentIds = new Set(
+      Array.from(itemsMap.values()).map(item => item.parentId)
+    );
+
+    Array.from(itemsMap.values()).forEach(item => {
+      if (!existingParentIds.has(item.id) && itemsMap.has(item.parentId)) {
+        return;
+      }
+
+      if (!itemsMap.has(item.parentId) || item.parentId === item.id) {
+        rootItems.push(calculateLevelsAndBuildTree(item.id, 0));
+      }
+    });
+  }
+
+  return rootItems;
+};
+
+export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
+  return items.map(item => {
+    let enhancedItem = { ...item };
+
+    switch (item.type) {
+      case TreeItemType.COMPANY:
+        enhancedItem = {
+          ...item,
+          data: {
+            ...item.data,
+            foundedYear: 2010,
+            employeeCount: Math.floor(Math.random() * 500) + 100,
+            totalRevenue: Math.floor(Math.random() * 100000000) + 10000000,
+          }
+        } as CompanyItem;
+        break;
+
+      case TreeItemType.DEPARTMENT:
+        enhancedItem = {
+          ...item,
+          data: {
+            ...item.data,
+            budget: Math.floor(Math.random() * 10000000) + 1000000,
+            storeCount: Math.floor(Math.random() * 20) + 1,
+            employeeCount: Math.floor(Math.random() * 100) + 10,
+          }
+        } as DepartmentItem;
+        break;
+
+      case TreeItemType.STORE:
+        enhancedItem = {
+          ...item,
+          data: {
+            ...item.data,
+            address: `г. Москва, ул. Примерная, д. ${Math.floor(Math.random() * 100) + 1}`,
+            phone: `+7 (495) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 90) + 10}-${Math.floor(Math.random() * 90) + 10}`,
+            email: `${item.data.storeName.toLowerCase().replace(/[^a-z0-9]/g, '')}@company.ru`,
+            revenue: Math.floor(Math.random() * 5000000) + 1000000,
+            employeeCount: Math.floor(Math.random() * 50) + 5,
+            openingDate: `202${Math.floor(Math.random() * 3)}-${(Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0')}-${(Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0')}`,
+          }
+        } as StoreItem;
+        break;
+
+      case TreeItemType.PERSON:
+        enhancedItem = {
+          ...item,
+          data: {
+            ...item.data,
+            email: `${item.data.firstName.toLowerCase()}.${item.data.lastName.toLowerCase()}@company.ru`,
+            phone: `+7 (999) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 90) + 10}-${Math.floor(Math.random() * 90) + 10}`,
+            hireDate: `202${Math.floor(Math.random() * 3)}-${(Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0')}-${(Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0')}`,
+            salary: Math.floor(Math.random() * 200000) + 50000,
+            isManager: Math.random() > 0.5,
+          }
+        } as PersonItem;
+        break;
+    }
+
+    if (item.children && item.children.length > 0) {
+      enhancedItem.children = enhanceTreeDataWithMockInfo(item.children);
+    }
+
+    return enhancedItem;
+  });
+};

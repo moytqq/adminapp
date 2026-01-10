@@ -1,11 +1,23 @@
 'use client';
 
 import React, { useCallback, useState, useRef, useEffect } from 'react';
-import { TreeItem as TreeItemType } from '@/types/tree.types';
-import { Folder, File, Plus, X } from 'lucide-react';
+import {
+  TreeItem as TreeItemType,
+  TreeItemType as ItemType,
+} from '@/types/tree.types';
+import {
+  Building2,
+  Users,
+  Store,
+  User,
+  Plus,
+  X,
+  ChevronRight,
+} from 'lucide-react';
 import styles from './TreeList.module.scss';
 import WidgetPopup from '../WidgetPopup/WidgetPopup';
 import { createPortal } from 'react-dom';
+import { getColorForType } from '@/utils/treeTypeHelpers';
 
 interface TreeItemProps {
   item: TreeItemType;
@@ -18,10 +30,21 @@ const TreeItem: React.FC<TreeItemProps> = ({
                                            }) => {
   const hasChildren = item.children && item.children.length > 0;
   const [showWidgets, setShowWidgets] = useState(false);
+  const [isActive, setIsActive] = useState(false);
   const widgetButtonRef = useRef<HTMLButtonElement>(null);
+  const itemRowRef = useRef<HTMLDivElement>(null);
+
+  const handleTouchStart = useCallback(() => {
+    setIsActive(true);
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    setTimeout(() => setIsActive(false), 150);
+  }, []);
 
   const handleItemClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
+    setIsActive(false);
     if (hasChildren) {
       onToggle(item.id);
     }
@@ -33,10 +56,9 @@ const TreeItem: React.FC<TreeItemProps> = ({
   }, []);
 
   const handleAddWidget = useCallback((widgetType: string) => {
-    console.log(`Add widget ${widgetType} to item ${item.id}`);
-  }, [item.id]);
+    console.log(`Add widget ${widgetType} to item ${item.id} of type ${item.type}`);
+  }, [item.id, item.type]);
 
-  // Закрытие попапа при клике вне его
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -56,56 +78,94 @@ const TreeItem: React.FC<TreeItemProps> = ({
     };
   }, [showWidgets]);
 
-  const getIndentStyle = () => {
+  const getIndentStyle = (itemLevel: number) => {
     const basePadding = 15;
-    const levelPadding = item.level * 10;
+    let levelPadding = 0;
+    switch (itemLevel) {
+      case 4:
+        levelPadding = 10;
+        break;
+      case 5:
+        levelPadding = 20;
+        break;
+      default:
+        levelPadding = 0;
+    }
     return {
       paddingLeft: `${basePadding + levelPadding}px`,
     } as React.CSSProperties;
   };
 
+  const getItemIcon = () => {
+    const iconColor = getColorForType(item.type);
+    switch (item.type) {
+      case ItemType.COMPANY:
+        return <Building2 size={18} color={iconColor} />;
+      case ItemType.DEPARTMENT:
+        return <Users size={18} color={iconColor} />;
+      case ItemType.STORE:
+        return <Store size={18} color={iconColor} />;
+      case ItemType.PERSON:
+        return <User size={18} color={iconColor} />;
+      default:
+        return <Store size={18} color={iconColor} />;
+    }
+  };
+
+  const itemColor = getColorForType(item.type);
+
   return (
     <>
-      <div className={styles.treeItem} data-level={item.level}>
-        {/* Контейнер строки элемента */}
+      <div className={styles.treeItem} data-level={item.level} data-type={item.type}>
         <div
-          className={`${styles.itemRow} ${item.isExpanded ? styles.expanded : ''}`}
-          style={getIndentStyle()}
+          ref={itemRowRef}
+          className={`${styles.itemRow} ${item.isExpanded ? styles.expanded : ''} ${isActive ? styles.active : ''}`}
+          style={getIndentStyle(item.level)}
           onClick={handleItemClick}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchEnd}
           data-item-id={item.id}
           data-has-children={hasChildren}
         >
-          {/* Иконка элемента */}
+          {hasChildren && (
+            <div className={styles.arrowWrapper}>
+              <ChevronRight
+                size={16}
+                className={`${styles.arrow} ${item.isExpanded ? styles.expanded : ''}`}
+                color={itemColor}
+              />
+            </div>
+          )}
+
+          {!hasChildren && <div className={styles.arrowSpacer} />}
+
           <div className={styles.iconWrapper}>
             <div className={styles.icon}>
-              {hasChildren ? (
-                <Folder size={18} />
-              ) : (
-                <File size={18} />
-              )}
+              {getItemIcon()}
             </div>
           </div>
 
-          {/* Основной текст элемента и subLabel */}
           <div className={styles.contentWrapper}>
             <span className={styles.label}>
               {item.label}
             </span>
 
-            {/* SubLabel */}
-            {item.subLabel && (
+            {item.type === ItemType.PERSON && item.subLabel && (
               <span className={styles.subLabel}>
                 {item.subLabel}
               </span>
             )}
 
-            {/* Кнопка для открытия виджетов */}
             <button
               ref={widgetButtonRef}
               className={styles.widgetButton}
               onClick={handleWidgetButtonClick}
               aria-label="Открыть виджеты"
               data-widget-open={showWidgets}
+              style={{
+                backgroundColor: showWidgets ? itemColor : undefined,
+              }}
             >
               {showWidgets ? (
                 <X size={14} />
@@ -114,18 +174,8 @@ const TreeItem: React.FC<TreeItemProps> = ({
               )}
             </button>
           </div>
-
-          {/* Бейдж с количеством детей */}
-          {hasChildren && item.children && (
-            <div className={styles.badgeWrapper}>
-              <span className={styles.badge}>
-                {item.isExpanded ? '−' : '+'} {item.children.length}
-              </span>
-            </div>
-          )}
         </div>
 
-        {/* Дочерние элементы */}
         {hasChildren && item.isExpanded && item.children && (
           <div className={styles.children}>
             {item.children.map(child => (
@@ -139,14 +189,14 @@ const TreeItem: React.FC<TreeItemProps> = ({
         )}
       </div>
 
-      {/* Рендерим попап через портал */}
       {showWidgets && createPortal(
         <WidgetPopup
           itemId={item.id}
+          itemType={item.type}
           onAddWidget={handleAddWidget}
           onClose={() => setShowWidgets(false)}
         />,
-        document.body
+        document.body,
       )}
     </>
   );

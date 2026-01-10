@@ -1,6 +1,4 @@
-// WidgetPopup.module.scss
 
-// Overlay для мобильных
 .overlay {
   position: fixed;
   top: 0;
@@ -15,7 +13,6 @@
 
 }
 
-// Базовые стили попапа
 .popup {
   position: fixed;
   z-index: 9999;
@@ -167,7 +164,7 @@
   }
 }
 
-// Десктоп версия (≥768px)
+// Десктоп
 .desktop {
   width: 400px;
   right: 1%;
@@ -181,7 +178,7 @@
   }
 }
 
-// Мобильная версия (<768px)
+// Мобильная
 .mobile {
   left: 0;
   right: 0;
@@ -208,7 +205,6 @@
   }
 }
 
-// Анимации
 @keyframes slideInRight {
   from {
     opacity: 0;
@@ -238,7 +234,6 @@
   }
 }
 
-// Медиа-запросы для адаптивности
 @media (max-width: 767px) {
   .popup {
     border-radius: 16px 16px 0 0;
