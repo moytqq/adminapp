@@ -167,19 +167,15 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
 
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
-        // Если попап не существует, выходим
         if (!popupRef.current) return;
 
-        // Проверяем, был ли клик на самом попапе или его дочерних элементах
         const isClickInside = popupRef.current.contains(event.target as Node);
 
-        // Если клик был ВНЕ попапа - закрываем
         if (!isClickInside) {
           onClose();
         }
       };
 
-      // Важно: добавляем обработчик с задержкой, чтобы не сработал на клик, который открыл попап
       const timer = setTimeout(() => {
         document.addEventListener('mousedown', handleClickOutside);
       }, 0);
@@ -225,7 +221,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
           onClick={(e) => e.stopPropagation()}
         >
           <div className={styles.header}>
-            <h3>Виджеты для typeDisplayName</h3>
+            <h3>Виджеты для {itemType}</h3>
             <button
               className={styles.closeButton}
               onClick={handleCloseClick}
@@ -257,7 +253,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
 
             <div className={styles.footer}>
               <p className={styles.hint}>
-                Доступно для: <strong>typeDisplayName</strong> (ID: {itemId})
+                Доступно для: <strong>{itemType}</strong> (ID: {itemId})
               </p>
             </div>
           </div>
