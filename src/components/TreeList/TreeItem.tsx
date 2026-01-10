@@ -30,21 +30,11 @@ const TreeItem: React.FC<TreeItemProps> = ({
                                            }) => {
   const hasChildren = item.children && item.children.length > 0;
   const [showWidgets, setShowWidgets] = useState(false);
-  const [isActive, setIsActive] = useState(false);
   const widgetButtonRef = useRef<HTMLButtonElement>(null);
   const itemRowRef = useRef<HTMLDivElement>(null);
 
-  const handleTouchStart = useCallback(() => {
-    setIsActive(true);
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    setTimeout(() => setIsActive(false), 150);
-  }, []);
-
   const handleItemClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsActive(false);
     if (hasChildren) {
       onToggle(item.id);
     }
@@ -119,12 +109,9 @@ const TreeItem: React.FC<TreeItemProps> = ({
       <div className={styles.treeItem} data-level={item.level} data-type={item.type}>
         <div
           ref={itemRowRef}
-          className={`${styles.itemRow} ${item.isExpanded ? styles.expanded : ''} ${isActive ? styles.active : ''}`}
+          className={`${styles.itemRow} ${item.isExpanded ? styles.expanded : ''}`}
           style={getIndentStyle(item.level)}
           onClick={handleItemClick}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-          onTouchCancel={handleTouchEnd}
           data-item-id={item.id}
           data-has-children={hasChildren}
         >
