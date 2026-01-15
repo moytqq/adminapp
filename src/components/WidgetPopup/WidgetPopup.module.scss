@@ -210,6 +210,8 @@
     transform: translateY(-50%);
     animation: slideInLeft 0.3s ease-out;
 
+    max-height: calc(100vh - 40px);
+
     @media (min-width: 768px) {
       right: calc(1% + 470px);
     }
@@ -225,7 +227,6 @@
     animation: slideUpFull 0.3s ease-out;
   }
 }
-
 @keyframes slideInRight {
   from {
     opacity: 0;
