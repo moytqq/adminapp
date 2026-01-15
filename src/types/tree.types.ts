@@ -96,4 +96,5 @@ export interface WidgetItem {
   description: string;
   type: string;
   availableFor?: TreeItemType[];
+  icon?: string;
 }
