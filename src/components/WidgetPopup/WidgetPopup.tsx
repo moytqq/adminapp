@@ -215,11 +215,9 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
     const getWidgetPosition = () => {
       if (isMobile) return 'mobile-bottom';
 
-      // Для десктопа: виджет появляется слева от popup
       return 'desktop-left';
     };
 
-    // Обработчик клика вне элементов
     useEffect(() => {
       const handleDocumentClick = (event: MouseEvent) => {
         const popupElement = popupRef.current;
@@ -231,7 +229,6 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
         const isClickInsideWidget = widgetElement?.contains(event.target as Node);
         const isClickOnOverlay = (event.target as HTMLElement)?.classList.contains(styles.overlay);
 
-        // Если клик на оверлей - закрываем всё
         if (isClickOnOverlay) {
           onClose();
           setShowPersonWidget(false);

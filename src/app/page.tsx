@@ -3,10 +3,10 @@
 import dynamic from 'next/dynamic';
 import { Provider } from 'react-redux';
 import { makeStore } from '@/store/store';
+import { loadTreeData } from '@/store/slices/treeSlice';
 
-// Динамический импорт для отключения SSR
 const TreeList = dynamic(() => import('@/components/TreeList/TreeList'), {
-  ssr: true,
+  ssr: false,
   loading: () => (
     <div style={{
       display: 'flex',
@@ -21,6 +21,13 @@ const TreeList = dynamic(() => import('@/components/TreeList/TreeList'), {
 
 export default function Home() {
   const store = makeStore();
+
+  if (typeof window !== 'undefined') {
+    const savedData = localStorage.getItem('company-tree-data');
+    if (!savedData) {
+      store.dispatch(loadTreeData());
+    }
+  }
 
   return (
     <Provider store={store}>

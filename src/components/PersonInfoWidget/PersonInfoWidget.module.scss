@@ -118,7 +118,6 @@
   }
 }
 
-// Базовые стили для круглых кнопок действий
 .actionButton {
   display: flex;
   align-items: center;
@@ -150,7 +149,6 @@
   }
 }
 
-// Кнопка редактирования (синяя, круглая)
 .editButton {
   composes: actionButton;
   background: #2196f3;
@@ -161,7 +159,6 @@
   }
 }
 
-// Кнопка сохранения (зеленая, круглая с галочкой)
 .saveButton {
   composes: actionButton;
   background: #4caf50;
@@ -172,7 +169,6 @@
   }
 }
 
-// Кнопка отмены редактирования (оранжевая, круглая со стрелкой возврата)
 .cancelButton {
   composes: actionButton;
   background: #ff9800;
@@ -183,7 +179,6 @@
   }
 }
 
-// Кнопка закрытия виджета (красная, круглая с крестиком)
 .closeWidgetButton {
   composes: actionButton;
   background: #f44336;
@@ -335,7 +330,6 @@
   }
 }
 
-// Увеличиваем размер кнопок на десктопе
 @media (min-width: 768px) {
   .actionButton,
   .editButton,

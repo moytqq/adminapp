@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { TreeItemType, PersonItem } from '@/types/tree.types';
 import { User, Edit2, Save, X, Mail, Phone, Calendar, Briefcase, DollarSign, ArrowLeft, Check, RotateCcw } from 'lucide-react';
 import styles from './PersonInfoWidget.module.scss';
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { updatePersonData } from '@/store/slices/treeSlice';
 
 interface PersonInfoWidgetProps {
   itemId: string;
@@ -18,7 +19,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
                                                              isMobile = false
                                                            }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState({
+  const [editedData, setEditedData] = useState<PersonItem['data']>({
     firstName: '',
     lastName: '',
     position: '',
@@ -30,16 +31,15 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
   });
   const [isLoading, setIsLoading] = useState(false);
 
+  const dispatch = useAppDispatch();
   const widgetRef = useRef<HTMLDivElement>(null);
-
   const treeItems = useAppSelector((state) => state.tree.items);
 
-  // Находим данные о человеке в дереве
-  const findPersonData = () => {
+  const findPersonData = (): PersonItem['data'] | null => {
     const findItem = (items: any[]): any => {
       for (const item of items) {
         if (item.id === itemId && item.type === TreeItemType.PERSON) {
-          return item;
+          return item.data || {};
         }
         if (item.children && item.children.length > 0) {
           const found = findItem(item.children);
@@ -49,18 +49,18 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
       return null;
     };
 
-    const personItem = findItem(treeItems);
+    const personData = findItem(treeItems);
 
-    if (personItem) {
+    if (personData) {
       return {
-        firstName: personItem.data?.firstName || 'Не указано',
-        lastName: personItem.data?.lastName || 'Не указано',
-        position: personItem.data?.position || personItem.subLabel || 'Сотрудник',
-        email: personItem.data?.email || 'Не указано',
-        phone: personItem.data?.phone || 'Не указано',
-        hireDate: personItem.data?.hireDate || 'Не указано',
-        salary: personItem.data?.salary || 0,
-        isManager: personItem.data?.isManager || false
+        firstName: personData.firstName || 'Не указано',
+        lastName: personData.lastName || 'Не указано',
+        position: personData.position || 'Сотрудник',
+        email: personData.email || 'Не указано',
+        phone: personData.phone || 'Не указано',
+        hireDate: personData.hireDate || 'Не указано',
+        salary: personData.salary || 0,
+        isManager: personData.isManager || false
       };
     }
 
@@ -68,27 +68,43 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
   };
 
   useEffect(() => {
-    const savedData = localStorage.getItem(`person-widget-${itemId}`);
-    if (savedData) {
-      setEditedData(JSON.parse(savedData));
-    } else {
-      const personData = findPersonData();
-      if (personData) {
-        setEditedData(personData);
-      } else {
+    const savedWidgetData = localStorage.getItem(`person-widget-${itemId}`);
+    const personData = findPersonData();
+
+    if (savedWidgetData) {
+      try {
+        const parsedData = JSON.parse(savedWidgetData);
         setEditedData({
-          firstName: 'Иван',
-          lastName: 'Иванов',
-          position: 'Сотрудник',
-          email: 'ivanov@example.com',
-          phone: '+7 (999) 123-45-67',
-          hireDate: '2023-01-15',
-          salary: 75000,
-          isManager: false
+          firstName: parsedData.firstName || '',
+          lastName: parsedData.lastName || '',
+          position: parsedData.position || '',
+          email: parsedData.email || '',
+          phone: parsedData.phone || '',
+          hireDate: parsedData.hireDate || '',
+          salary: parsedData.salary || 0,
+          isManager: parsedData.isManager || false
         });
+      } catch (error) {
+        console.error('Error parsing saved widget data:', error);
+        if (personData) {
+          setEditedData(personData);
+        }
       }
+    } else if (personData) {
+      setEditedData(personData);
+    } else {
+      setEditedData({
+        firstName: 'Иван',
+        lastName: 'Иванов',
+        position: 'Сотрудник',
+        email: 'ivanov@example.com',
+        phone: '+7 (999) 123-45-67',
+        hireDate: '2023-01-15',
+        salary: 75000,
+        isManager: false
+      });
     }
-  }, [itemId]);
+  }, [itemId, treeItems]);
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -99,7 +115,23 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
     e.stopPropagation();
     setIsLoading(true);
 
-    localStorage.setItem(`person-widget-${itemId}`, JSON.stringify(editedData));
+    const dataToSave = {
+      firstName: editedData.firstName || '',
+      lastName: editedData.lastName || '',
+      position: editedData.position || '',
+      email: editedData.email || '',
+      phone: editedData.phone || '',
+      hireDate: editedData.hireDate || '',
+      salary: editedData.salary || 0,
+      isManager: editedData.isManager || false
+    };
+
+    localStorage.setItem(`person-widget-${itemId}`, JSON.stringify(dataToSave));
+
+    dispatch(updatePersonData({
+      id: itemId,
+      data: dataToSave
+    }));
 
     setTimeout(() => {
       setIsLoading(false);
@@ -110,13 +142,33 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
   const handleCancel = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsEditing(false);
-    const savedData = localStorage.getItem(`person-widget-${itemId}`);
-    if (savedData) {
-      setEditedData(JSON.parse(savedData));
+    const savedWidgetData = localStorage.getItem(`person-widget-${itemId}`);
+    const personData = findPersonData();
+
+    if (savedWidgetData) {
+      try {
+        const parsedData = JSON.parse(savedWidgetData);
+        setEditedData({
+          firstName: parsedData.firstName || '',
+          lastName: parsedData.lastName || '',
+          position: parsedData.position || '',
+          email: parsedData.email || '',
+          phone: parsedData.phone || '',
+          hireDate: parsedData.hireDate || '',
+          salary: parsedData.salary || 0,
+          isManager: parsedData.isManager || false
+        });
+      } catch (error) {
+        if (personData) {
+          setEditedData(personData);
+        }
+      }
+    } else if (personData) {
+      setEditedData(personData);
     }
   };
 
-  const handleInputChange = (field: string, value: string | number | boolean) => {
+  const handleInputChange = (field: keyof PersonItem['data'], value: string | number | boolean) => {
     setEditedData(prev => ({
       ...prev,
       [field]: value
@@ -181,6 +233,15 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
       widgetElement.removeEventListener('mousedown', handleCaptureClick, true);
     };
   }, []);
+
+  const getFirstName = () => editedData.firstName || 'Не указано';
+  const getLastName = () => editedData.lastName || 'Не указано';
+  const getPosition = () => editedData.position || 'Не указано';
+  const getEmail = () => editedData.email || 'Не указано';
+  const getPhone = () => editedData.phone || 'Не указано';
+  const getHireDate = () => editedData.hireDate || 'Не указано';
+  const getSalary = () => editedData.salary || 0;
+  const getIsManager = () => editedData.isManager || false;
 
   return (
     <div
@@ -275,12 +336,12 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
                 <input
                   type="text"
                   className={styles.input}
-                  value={editedData.firstName}
+                  value={getFirstName()}
                   onChange={(e) => handleInputChange('firstName', e.target.value)}
                   onClick={handleInputClick}
                 />
               ) : (
-                <span className={styles.infoValue}>{editedData.firstName}</span>
+                <span className={styles.infoValue}>{getFirstName()}</span>
               )}
             </div>
 
@@ -290,12 +351,12 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
                 <input
                   type="text"
                   className={styles.input}
-                  value={editedData.lastName}
+                  value={getLastName()}
                   onChange={(e) => handleInputChange('lastName', e.target.value)}
                   onClick={handleInputClick}
                 />
               ) : (
-                <span className={styles.infoValue}>{editedData.lastName}</span>
+                <span className={styles.infoValue}>{getLastName()}</span>
               )}
             </div>
 
@@ -308,12 +369,12 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
                 <input
                   type="text"
                   className={styles.input}
-                  value={editedData.position}
+                  value={getPosition()}
                   onChange={(e) => handleInputChange('position', e.target.value)}
                   onClick={handleInputClick}
                 />
               ) : (
-                <span className={styles.infoValue}>{editedData.position}</span>
+                <span className={styles.infoValue}>{getPosition()}</span>
               )}
             </div>
           </div>
@@ -331,12 +392,12 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
                 <input
                   type="email"
                   className={styles.input}
-                  value={editedData.email}
+                  value={getEmail()}
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   onClick={handleInputClick}
                 />
               ) : (
-                <span className={styles.infoValue}>{editedData.email}</span>
+                <span className={styles.infoValue}>{getEmail()}</span>
               )}
             </div>
 
@@ -349,12 +410,12 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
                 <input
                   type="tel"
                   className={styles.input}
-                  value={editedData.phone}
+                  value={getPhone()}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
                   onClick={handleInputClick}
                 />
               ) : (
-                <span className={styles.infoValue}>{editedData.phone}</span>
+                <span className={styles.infoValue}>{getPhone()}</span>
               )}
             </div>
           </div>
@@ -372,12 +433,12 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
                 <input
                   type="date"
                   className={styles.input}
-                  value={editedData.hireDate}
+                  value={getHireDate()}
                   onChange={(e) => handleInputChange('hireDate', e.target.value)}
                   onClick={handleInputClick}
                 />
               ) : (
-                <span className={styles.infoValue}>{editedData.hireDate}</span>
+                <span className={styles.infoValue}>{getHireDate()}</span>
               )}
             </div>
 
@@ -390,8 +451,8 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
                 <input
                   type="number"
                   className={styles.input}
-                  value={editedData.salary}
-                  onChange={(e) => handleInputChange('salary', Number(e.target.value))}
+                  value={getSalary()}
+                  onChange={(e) => handleInputChange('salary', Number(e.target.value) || 0)}
                   onClick={handleInputClick}
                 />
               ) : (
@@ -400,7 +461,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
                     style: 'currency',
                     currency: 'RUB',
                     minimumFractionDigits: 0
-                  }).format(editedData.salary)}
+                  }).format(getSalary())}
                 </span>
               )}
             </div>
@@ -410,7 +471,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
               {isEditing ? (
                 <select
                   className={styles.select}
-                  value={editedData.isManager.toString()}
+                  value={getIsManager().toString()}
                   onChange={(e) => handleInputChange('isManager', e.target.value === 'true')}
                   onClick={handleInputClick}
                 >
@@ -419,7 +480,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
                 </select>
               ) : (
                 <span className={styles.infoValue}>
-                  {editedData.isManager ? 'Да' : 'Нет'}
+                  {getIsManager() ? 'Да' : 'Нет'}
                 </span>
               )}
             </div>
@@ -428,7 +489,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
 
         {isEditing && (
           <div className={styles.hint} onClick={handleInputClick}>
-            <p>Изменения будут сохранены в localStorage</p>
+            <p>Изменения будут сохранены в дереве и localStorage</p>
           </div>
         )}
       </div>

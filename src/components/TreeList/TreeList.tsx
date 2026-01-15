@@ -15,8 +15,10 @@ const TreeList: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    dispatch(loadTreeData());
-  }, [dispatch]);
+    if (items.length === 0) {
+      dispatch(loadTreeData());
+    }
+  }, [dispatch, items.length]);
 
   const handleToggle = (id: string) => {
     dispatch(toggleExpand(id));
