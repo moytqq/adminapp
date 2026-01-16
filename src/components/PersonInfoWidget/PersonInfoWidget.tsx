@@ -11,7 +11,7 @@ import {
   Phone,
   Calendar,
   Briefcase,
-  DollarSign,
+  BadgeRussianRuble ,
   ArrowLeft,
   Check,
   RotateCcw,
@@ -508,7 +508,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
 
             <div className={styles.infoItem}>
               <div className={styles.infoLabelWithIcon}>
-                <DollarSign size={14} />
+                <BadgeRussianRuble  size={14} />
                 <span>Зарплата:</span>
               </div>
               {isEditing ? (
