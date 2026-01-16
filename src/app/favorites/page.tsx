@@ -33,11 +33,9 @@ const FavoritesPage = () => {
   const dispatch = useAppDispatch();
   const mobileWidgetContainerRef = useRef<HTMLDivElement>(null);
 
-  // Получаем данные дерева для поиска информации о сотрудниках
   const treeItems = useAppSelector((state) => state.tree.items);
 
   useEffect(() => {
-    // Проверяем мобильное устройство
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -45,7 +43,6 @@ const FavoritesPage = () => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
 
-    // Загружаем данные дерева если их нет
     const loadData = async () => {
       if (typeof window !== 'undefined') {
         const savedData = localStorage.getItem('company-tree-data');
@@ -67,7 +64,6 @@ const FavoritesPage = () => {
     };
   }, [dispatch]);
 
-  // Функция для поиска данных о сотруднике в дереве
   const findPersonData = (itemId: string) => {
     const findItem = (items: any[]): any => {
       for (const item of items) {
@@ -95,14 +91,12 @@ const FavoritesPage = () => {
     return null;
   };
 
-  // Обновляем загрузку избранного с получением данных о сотрудниках
   const loadFavorites = () => {
     try {
       const savedFavorites = localStorage.getItem('favorite-widgets');
       if (savedFavorites) {
         const favoritesData: FavoriteWidget[] = JSON.parse(savedFavorites);
 
-        // Обогащаем данные о сотрудниках
         const enrichedFavorites = favoritesData.map(fav => {
           if (fav.type === 'person-info') {
             const personData = findPersonData(fav.itemId);
@@ -126,14 +120,12 @@ const FavoritesPage = () => {
     }
   };
 
-  // Обновляем favorites при изменении treeItems
   useEffect(() => {
     if (treeItems.length > 0) {
       loadFavorites();
     }
   }, [treeItems]);
 
-  // Добавим эффект для закрытия при клике вне виджета
   useEffect(() => {
     if (!showMobileWidget || !isMobile) return;
 
@@ -144,7 +136,6 @@ const FavoritesPage = () => {
       }
     };
 
-    // Добавляем обработчик с небольшой задержкой, чтобы не срабатывал на тот же клик
     const timeoutId = setTimeout(() => {
       document.addEventListener('mousedown', handleClickOutside);
     }, 100);
@@ -160,7 +151,6 @@ const FavoritesPage = () => {
     setFavorites(newFavorites);
     localStorage.setItem('favorite-widgets', JSON.stringify(newFavorites));
 
-    // Если удаляем выбранный виджет, сбрасываем selection
     if (selectedWidget?.id === favoriteId) {
       setSelectedWidget(null);
       setShowMobileWidget(false);
@@ -215,14 +205,12 @@ const FavoritesPage = () => {
 
   const handleCloseMobileWidget = () => {
     setShowMobileWidget(false);
-    // Сбрасываем выбранный виджет при закрытии
     setSelectedWidget(null);
   };
 
   const handleRemoveFromFavorites = () => {
     if (selectedWidget) {
       removeFromFavorites(selectedWidget.id);
-      // После удаления сбрасываем выбранный виджет
       setSelectedWidget(null);
       setShowMobileWidget(false);
     }
@@ -263,7 +251,6 @@ const FavoritesPage = () => {
     );
   };
 
-  // Функция для отображения информации на карточке
   const renderCardInfo = (widget: FavoriteWidget) => {
     if (widget.type === 'person-info') {
       return (
@@ -298,7 +285,6 @@ const FavoritesPage = () => {
       );
     }
 
-    // Для других виджетов
     return (
       <>
         <div className={styles.cardTitleRow}>
@@ -361,8 +347,6 @@ const FavoritesPage = () => {
                   <div
                     key={fav.id}
                     className={`${styles.favoriteItem} ${
-                      // Условие для подсветки: виджет выбран И показывается на десктопе
-                      // ИЛИ мобильный виджет открыт и это выбранный виджет
                       (!isMobile && selectedWidget?.id === fav.id) ||
                       (isMobile && showMobileWidget && selectedWidget?.id === fav.id)
                         ? styles.selected

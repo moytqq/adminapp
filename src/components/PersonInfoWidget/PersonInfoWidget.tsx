@@ -57,7 +57,6 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
   const widgetRef = useRef<HTMLDivElement>(null);
   const treeItems = useAppSelector((state) => state.tree.items);
 
-  // Проверяем, добавлен ли виджет в избранное
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const favorites = JSON.parse(localStorage.getItem('favorite-widgets') || '[]');
@@ -65,7 +64,6 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
     }
   }, [itemId]);
 
-  // Находим данные о человеке в дереве
   const findPersonData = (): PersonItem['data'] | null => {
     const findItem = (items: any[]): any => {
       for (const item of items) {
@@ -222,17 +220,14 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
     const favorites = JSON.parse(localStorage.getItem('favorite-widgets') || '[]');
 
     if (isFavorite) {
-      // Удаляем из избранного
       const newFavorites = favorites.filter((fav: any) => !(fav.id === itemId && fav.type === 'person-info'));
       localStorage.setItem('favorite-widgets', JSON.stringify(newFavorites));
       setIsFavorite(false);
 
-      // Вызываем callback если передан
       if (onRemoveFromFavorites) {
         onRemoveFromFavorites();
       }
     } else {
-      // Добавляем в избранное
       const personData = findPersonData();
       const newFavorite = {
         id: itemId,

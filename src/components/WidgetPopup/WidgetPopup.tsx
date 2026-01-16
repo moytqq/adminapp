@@ -14,7 +14,6 @@ interface WidgetPopupProps {
   onClose: () => void;
 }
 
-// Добавим интерфейс для избранных виджетов
 export interface FavoriteWidget {
   id: string;
   type: 'person-info' | string;
@@ -175,7 +174,6 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
       checkMobile();
       window.addEventListener('resize', checkMobile);
 
-      // Загружаем избранные виджеты из localStorage
       const loadFavorites = () => {
         try {
           const favorites = localStorage.getItem('favorite-widgets');
@@ -206,14 +204,12 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
       };
     }, [isMobile, showPersonWidget]);
 
-    // Функция для проверки, является ли виджет избранным
     const isWidgetFavorite = (widgetType: string): boolean => {
       return favoriteWidgets.some(fav =>
         fav.itemId === itemId && fav.type === widgetType
       );
     };
 
-    // Функция для добавления/удаления виджета из избранного
     const toggleWidgetFavorite = (widgetType: string, e: React.MouseEvent) => {
       e.stopPropagation();
 
@@ -226,10 +222,8 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
       );
 
       if (existingIndex > -1) {
-        // Удаляем из избранного
         newFavorites.splice(existingIndex, 1);
       } else {
-        // Добавляем в избранное
         const newFavorite: FavoriteWidget = {
           id: `${itemId}-${widgetType}-${Date.now()}`,
           type: widgetType,

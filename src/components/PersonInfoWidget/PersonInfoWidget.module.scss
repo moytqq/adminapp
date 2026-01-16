@@ -3,19 +3,18 @@
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   overflow: hidden;
-  min-width: 500px; // Увеличиваем минимальную ширину
-  max-width: 600px; // Устанавливаем максимальную ширину как на странице избранного
+  min-width: 500px;
+  max-width: 600px;
   margin: 0 auto;
   border: 1px solid #e0e0e0;
   animation: slideIn 0.3s ease-out;
   display: flex;
   flex-direction: column;
 
-  // Закругляем верх для мобильной версии
   &.isMobile {
     border-radius: 16px 16px 0 0;
     max-width: 100%;
-    min-width: 100%; // На мобильных занимаем всю ширину
+    min-width: 100%;
 
     .header {
       border-radius: 16px 16px 0 0;
@@ -23,9 +22,6 @@
     }
   }
 
-  // Убираем класс .wide, так как теперь это стандартный стиль
-
-  // Стандартный стиль для десктопа
   &:not(.isMobile) {
     .header {
       background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
@@ -47,7 +43,7 @@
   }
 
   @media (min-width: 768px) {
-    max-height: calc(100vh - 100px); // Увеличиваем высоту для десктопа
+    max-height: calc(100vh - 100px);
   }
 
   @media (max-width: 767px) {
@@ -80,12 +76,10 @@
   flex-shrink: 0;
   gap: 15px;
 
-  // Для десктопной версии
   .widget:not(.isMobile) & {
     padding: 20px 24px;
   }
 
-  // Закругляем верх для мобильной версии
   .isMobile & {
     border-radius: 16px 16px 0 0;
   }
@@ -243,7 +237,6 @@
   overflow-y: auto;
   flex: 1;
 
-  // Для десктопной версии
   .widget:not(.isMobile) & {
     padding: 24px;
   }
@@ -282,8 +275,8 @@
 
 .infoGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); // Две колонки всегда
-  gap: 16px; // Увеличиваем промежуток
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
 
   @media (max-width: 767px) {
     grid-template-columns: 1fr;
@@ -344,7 +337,7 @@
   overflow-wrap: break-word;
 
   .widget:not(.isMobile) & {
-    min-width: 200px; // Увеличиваем минимальную ширину для десктопа
+    min-width: 200px;
   }
 
   &:focus {
@@ -380,7 +373,6 @@
   border-top: 1px solid #e0e0e0;
   flex-shrink: 0;
 
-  // Для десктопной версии
   .widget:not(.isMobile) & {
     padding: 16px 24px;
   }
@@ -443,7 +435,6 @@
   width: 100%;
   gap: 12px;
 
-  // Для десктопной версии
   .widget:not(.isMobile) & {
     gap: 16px;
   }
@@ -488,7 +479,6 @@
     }
   }
 
-  // Для десктопной версии
   .widget:not(.isMobile) & {
     padding: 8px 14px;
     font-size: 13px;
@@ -526,8 +516,6 @@
   }
 }
 
-// Добавьте или обновите эти стили в существующих:
-
 .footer {
   padding: 12px 20px;
   background: #f9f9f9;
@@ -553,7 +541,6 @@
   }
 }
 
-// Стили для кнопки избранного в футере
 .footerActions .favoriteButton {
   display: flex;
   align-items: center;
@@ -585,7 +572,6 @@
   }
 }
 
-// Обновляем стили для мобильной версии
 @media (max-width: 767px) {
   .footerActions .favoriteButton {
     padding: 5px;
@@ -593,6 +579,42 @@
     svg {
       width: 16px;
       height: 16px;
+    }
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .widget:not(.isMobile) {
+    max-width: 450px;
+    min-width: 400px;
+
+    .header {
+      padding: 16px 20px;
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .footer {
+      padding: 12px 20px;
+    }
+
+    .infoGrid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+  }
+}
+
+@media (min-width: 767px) and (max-width: 900px) {
+  .widget:not(.isMobile) {
+    max-width: 400px;
+    min-width: 350px;
+
+    .infoGrid {
+      grid-template-columns: 1fr;
+      gap: 12px;
     }
   }
 }

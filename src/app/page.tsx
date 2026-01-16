@@ -17,7 +17,6 @@ const TreeList = dynamic(() => import('@/components/TreeList/TreeList'), {
   ),
 });
 
-// Создаем отдельный компонент для загрузки данных
 function TreeDataLoader() {
   const dispatch = useAppDispatch();
 

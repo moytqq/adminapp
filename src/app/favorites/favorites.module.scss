@@ -211,7 +211,7 @@
 
 .favoriteInfo {
   flex: 1;
-  min-width: 0; // Для правильного переноса текста
+  min-width: 0;
 }
 
 .cardTitleRow {
@@ -228,7 +228,7 @@
     color: #333;
     line-height: 1.3;
     flex: 1;
-    min-width: 0; // Для правильного переноса текста
+    min-width: 0;
 
     @media (max-width: 768px) {
       font-size: 13px;
@@ -409,13 +409,11 @@
 
   .personWidgetContainer {
     &.wide {
-      // Контейнер теперь просто центрирует виджет
       display: flex;
       justify-content: center;
       align-items: flex-start;
 
       .widget {
-        // Виджет сам определяет свою ширину
         flex: 0 0 auto;
       }
     }
@@ -524,7 +522,7 @@
   }
 }
 
-// Мобильная версия виджета
+// Мобильная версия
 .mobileWidgetOverlay {
   position: fixed;
   top: 0;
@@ -648,5 +646,61 @@
   }
   to {
     transform: translateY(0);
+  }
+}
+@media (min-width: 768px) and (max-width: 1024px) {
+  .content {
+    height: calc(100vh - 140px);
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .sidebar {
+    flex: 0 0 300px;
+  }
+
+  .personWidgetContainer.wide {
+    .widget {
+      max-width: 450px;
+      min-width: 400px;
+    }
+  }
+
+  .widgetPlaceholder.wide {
+    max-width: 450px;
+  }
+}
+
+@media (min-width: 767px) and (max-width: 900px) {
+  .content {
+    flex-direction: column;
+    height: auto;
+    padding: 12px;
+    gap: 0;
+  }
+
+  .sidebar {
+    flex: none;
+    width: 100%;
+    margin-bottom: 16px;
+
+    h2 {
+      display: block;
+    }
+  }
+
+  .mainContent {
+    min-height: 500px;
+
+    .personWidgetContainer.wide {
+      .widget {
+        max-width: 100%;
+        min-width: 100%;
+      }
+    }
+
+    .widgetPlaceholder.wide {
+      max-width: 100%;
+    }
   }
 }
