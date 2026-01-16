@@ -98,3 +98,13 @@ export interface WidgetItem {
   availableFor?: TreeItemType[];
   icon?: string;
 }
+export interface FavoriteWidget {
+  id: string;
+  type: string;
+  title: string;
+  itemId: string;
+  itemType: TreeItemType;
+  personName?: string;
+  position?: string;
+  addedDate: string;
+}

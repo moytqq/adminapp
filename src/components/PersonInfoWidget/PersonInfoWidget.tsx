@@ -2,21 +2,41 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { TreeItemType, PersonItem } from '@/types/tree.types';
-import { User, Edit2, Save, X, Mail, Phone, Calendar, Briefcase, DollarSign, ArrowLeft, Check, RotateCcw } from 'lucide-react';
+import {
+  User,
+  Edit2,
+  Save,
+  X,
+  Mail,
+  Phone,
+  Calendar,
+  Briefcase,
+  DollarSign,
+  ArrowLeft,
+  Check,
+  RotateCcw,
+  Star,
+  StarOff,
+} from 'lucide-react';
 import styles from './PersonInfoWidget.module.scss';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { updatePersonData } from '@/store/slices/treeSlice';
+import { useRouter } from 'next/navigation';
 
 interface PersonInfoWidgetProps {
   itemId: string;
   onClose: () => void;
   isMobile?: boolean;
+  showAddToFavorites?: boolean;
+  onRemoveFromFavorites?: () => void;
 }
 
 const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
                                                              itemId,
                                                              onClose,
-                                                             isMobile = false
+                                                             isMobile = false,
+                                                             showAddToFavorites = true,
+                                                             onRemoveFromFavorites,
                                                            }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<PersonItem['data']>({
@@ -27,14 +47,25 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
     phone: '',
     hireDate: '',
     salary: 0,
-    isManager: false
+    isManager: false,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const widgetRef = useRef<HTMLDivElement>(null);
   const treeItems = useAppSelector((state) => state.tree.items);
 
+  // Проверяем, добавлен ли виджет в избранное
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const favorites = JSON.parse(localStorage.getItem('favorite-widgets') || '[]');
+      setIsFavorite(favorites.some((fav: any) => fav.id === itemId && fav.type === 'person-info'));
+    }
+  }, [itemId]);
+
+  // Находим данные о человеке в дереве
   const findPersonData = (): PersonItem['data'] | null => {
     const findItem = (items: any[]): any => {
       for (const item of items) {
@@ -60,7 +91,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
         phone: personData.phone || 'Не указано',
         hireDate: personData.hireDate || 'Не указано',
         salary: personData.salary || 0,
-        isManager: personData.isManager || false
+        isManager: personData.isManager || false,
       };
     }
 
@@ -82,7 +113,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
           phone: parsedData.phone || '',
           hireDate: parsedData.hireDate || '',
           salary: parsedData.salary || 0,
-          isManager: parsedData.isManager || false
+          isManager: parsedData.isManager || false,
         });
       } catch (error) {
         console.error('Error parsing saved widget data:', error);
@@ -101,7 +132,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
         phone: '+7 (999) 123-45-67',
         hireDate: '2023-01-15',
         salary: 75000,
-        isManager: false
+        isManager: false,
       });
     }
   }, [itemId, treeItems]);
@@ -123,14 +154,14 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
       phone: editedData.phone || '',
       hireDate: editedData.hireDate || '',
       salary: editedData.salary || 0,
-      isManager: editedData.isManager || false
+      isManager: editedData.isManager || false,
     };
 
     localStorage.setItem(`person-widget-${itemId}`, JSON.stringify(dataToSave));
 
     dispatch(updatePersonData({
       id: itemId,
-      data: dataToSave
+      data: dataToSave,
     }));
 
     setTimeout(() => {
@@ -156,7 +187,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
           phone: parsedData.phone || '',
           hireDate: parsedData.hireDate || '',
           salary: parsedData.salary || 0,
-          isManager: parsedData.isManager || false
+          isManager: parsedData.isManager || false,
         });
       } catch (error) {
         if (personData) {
@@ -171,7 +202,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
   const handleInputChange = (field: keyof PersonItem['data'], value: string | number | boolean) => {
     setEditedData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -183,6 +214,44 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
   const handleCloseClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onClose();
+  };
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const favorites = JSON.parse(localStorage.getItem('favorite-widgets') || '[]');
+
+    if (isFavorite) {
+      // Удаляем из избранного
+      const newFavorites = favorites.filter((fav: any) => !(fav.id === itemId && fav.type === 'person-info'));
+      localStorage.setItem('favorite-widgets', JSON.stringify(newFavorites));
+      setIsFavorite(false);
+
+      // Вызываем callback если передан
+      if (onRemoveFromFavorites) {
+        onRemoveFromFavorites();
+      }
+    } else {
+      // Добавляем в избранное
+      const personData = findPersonData();
+      const newFavorite = {
+        id: itemId,
+        type: 'person-info',
+        title: 'Информация о сотруднике',
+        personName: `${personData?.firstName || ''} ${personData?.lastName || ''}`.trim() || 'Сотрудник',
+        position: personData?.position || 'Сотрудник',
+        addedDate: new Date().toISOString(),
+      };
+
+      favorites.push(newFavorite);
+      localStorage.setItem('favorite-widgets', JSON.stringify(favorites));
+      setIsFavorite(true);
+    }
+  };
+
+  const handleOpenInFavorites = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push('/favorites');
   };
 
   const handleWidgetClick = (e: React.MouseEvent) => {
@@ -246,7 +315,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
   return (
     <div
       ref={widgetRef}
-      className={styles.widget}
+      className={`${styles.widget} ${isMobile ? styles.isMobile : ''}`}
       onClick={handleWidgetClick}
     >
       <div className={styles.header}>
@@ -287,7 +356,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
                   aria-label="Закрыть виджет"
                   title="Закрыть"
                 >
-                  <X size={18}/>
+                  <X size={18} />
                 </button>
               )}
             </>
@@ -318,7 +387,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
                   aria-label="Закрыть виджет"
                   title="Закрыть"
                 >
-                  <X size={18}/>
+                  <X size={18} />
                 </button>
               )}
             </>
@@ -460,7 +529,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
                   {new Intl.NumberFormat('ru-RU', {
                     style: 'currency',
                     currency: 'RUB',
-                    minimumFractionDigits: 0
+                    minimumFractionDigits: 0,
                   }).format(getSalary())}
                 </span>
               )}
@@ -487,20 +556,19 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
           </div>
         </div>
 
-        {isEditing && (
-          <div className={styles.hint} onClick={handleInputClick}>
-            <p>Изменения будут сохранены в дереве и localStorage</p>
-          </div>
-        )}
       </div>
 
       <div className={styles.footer}>
-        <div className={styles.status}>
-          {isEditing ? (
-            <span className={styles.editingStatus}>Режим редактирования</span>
-          ) : (
-            <span className={styles.viewStatus}>Только просмотр</span>
-          )}
+        <div className={styles.footerContent}>
+          <div className={styles.status}>
+            {isEditing ? (
+              <span className={styles.editingStatus}>Режим редактирования</span>
+            ) : (
+              <span className={styles.viewStatus}>Режим просмотра</span>
+            )}
+          </div>
+
+
         </div>
       </div>
     </div>

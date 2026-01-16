@@ -163,9 +163,6 @@ const treeSlice = createSlice({
 
 export const {
   toggleExpand,
-  selectItem,
-  updateItem,
-  refreshTreeData,
   updatePersonData,
 } = treeSlice.actions;
 export default treeSlice.reducer;

@@ -61,7 +61,7 @@ const TreeList: React.FC = () => {
 
   return (
     <div className={styles.treeList}>
-      <div className={styles.header}>
+      {/*<div className={styles.header}>
         <h1>Иерархия компании</h1>
         <div className={styles.actions}>
           <button
@@ -74,7 +74,7 @@ const TreeList: React.FC = () => {
             <span>{isRefreshing ? 'Обновление...' : 'Обновить'}</span>
           </button>
         </div>
-      </div>
+      </div>*/}
 
       <div className={styles.treeContainer}>
         {items.length === 0 ? (

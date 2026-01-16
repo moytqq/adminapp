@@ -209,11 +209,20 @@
     top: 50%;
     transform: translateY(-50%);
     animation: slideInLeft 0.3s ease-out;
-
     max-height: calc(100vh - 40px);
 
     @media (min-width: 768px) {
       right: calc(1% + 470px);
+
+      // Так как виджет теперь шире, нужно отодвинуть его дальше от попапа
+      right: calc(1% + 480px);
+
+      .widget {
+        // Виджет теперь имеет фиксированную ширину 600px
+        width: 600px;
+        max-width: 600px;
+        min-width: 500px;
+      }
     }
   }
 
@@ -225,12 +234,25 @@
     width: 100%;
     max-width: 100%;
     animation: slideUpFull 0.3s ease-out;
+
+    .widget {
+      border-radius: 16px 16px 0 0;
+      max-height: 85vh;
+      overflow: hidden;
+
+      @media (max-width: 767px) {
+        height: auto;
+        max-height: 85vh;
+      }
+    }
   }
 }
-@keyframes slideInRight {
+
+// Обновляем анимацию для новой позиции
+@keyframes slideInLeft {
   from {
     opacity: 0;
-    transform: translateY(-50%) translateX(100px);
+    transform: translateY(-50%) translateX(-120px); // Немного больше смещение для более широкого виджета
   }
   to {
     opacity: 1;
@@ -298,6 +320,72 @@
       @media (max-width: 767px) {
         max-width: 100%;
         border-radius: 0;
+      }
+    }
+  }
+}
+// Добавьте эти стили в конец файла:
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  position: relative;
+
+  h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    flex: 1;
+    padding-right: 24px;
+  }
+
+  .favoriteButton {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+      transform: scale(1.1);
+    }
+
+    &.favorited {
+      color: #ffb300;
+
+      &:hover {
+        color: #ff8f00;
+      }
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+// Обновляем существующие стили для мобильной версии
+.mobile {
+  .cardHeader {
+    .favoriteButton {
+      padding: 3px;
+
+      svg {
+        width: 14px;
+        height: 14px;
       }
     }
   }

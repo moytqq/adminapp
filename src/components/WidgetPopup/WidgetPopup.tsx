@@ -5,13 +5,25 @@ import styles from './WidgetPopup.module.scss';
 import { TreeItemType, WidgetItem } from '@/types/tree.types';
 import PersonInfoWidget from '../PersonInfoWidget/PersonInfoWidget';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import { X, Star, StarOff } from 'lucide-react';
 
 interface WidgetPopupProps {
   itemId: string;
   itemType: TreeItemType;
   onAddWidget: (widgetType: string) => void;
   onClose: () => void;
+}
+
+// Добавим интерфейс для избранных виджетов
+export interface FavoriteWidget {
+  id: string;
+  type: 'person-info' | string;
+  title: string;
+  itemId: string;
+  itemType: TreeItemType;
+  personName?: string;
+  position?: string;
+  addedDate: string;
 }
 
 const WIDGETS_BY_TYPE: Record<TreeItemType, WidgetItem[]> = {
@@ -55,7 +67,7 @@ const WIDGETS_BY_TYPE: Record<TreeItemType, WidgetItem[]> = {
     },
     {
       id: 'dept-2',
-      title: 'Производительность',
+      title: 'Произв-сть',
       description: 'Эффективность работы отдела',
       type: 'performance',
       availableFor: [TreeItemType.DEPARTMENT]
@@ -129,7 +141,7 @@ const WIDGETS_BY_TYPE: Record<TreeItemType, WidgetItem[]> = {
     },
     {
       id: 'person-4',
-      title: 'Производительность',
+      title: 'Произв-сть',
       description: 'KPI сотрудника',
       type: 'performance',
       availableFor: [TreeItemType.PERSON]
@@ -148,6 +160,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
   ({ itemId, itemType, onAddWidget, onClose }, ref) => {
     const [isMobile, setIsMobile] = useState(false);
     const [showPersonWidget, setShowPersonWidget] = useState(false);
+    const [favoriteWidgets, setFavoriteWidgets] = useState<FavoriteWidget[]>([]);
     const popupRef = useRef<HTMLDivElement>(null);
     const widgetContainerRef = useRef<HTMLDivElement>(null);
     const clickOriginRef = useRef<'popup' | 'widget' | 'outside' | null>(null);
@@ -161,6 +174,20 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
 
       checkMobile();
       window.addEventListener('resize', checkMobile);
+
+      // Загружаем избранные виджеты из localStorage
+      const loadFavorites = () => {
+        try {
+          const favorites = localStorage.getItem('favorite-widgets');
+          if (favorites) {
+            setFavoriteWidgets(JSON.parse(favorites));
+          }
+        } catch (error) {
+          console.error('Error loading favorite widgets:', error);
+        }
+      };
+
+      loadFavorites();
 
       return () => {
         window.removeEventListener('resize', checkMobile);
@@ -178,6 +205,47 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
         document.body.style.overflow = '';
       };
     }, [isMobile, showPersonWidget]);
+
+    // Функция для проверки, является ли виджет избранным
+    const isWidgetFavorite = (widgetType: string): boolean => {
+      return favoriteWidgets.some(fav =>
+        fav.itemId === itemId && fav.type === widgetType
+      );
+    };
+
+    // Функция для добавления/удаления виджета из избранного
+    const toggleWidgetFavorite = (widgetType: string, e: React.MouseEvent) => {
+      e.stopPropagation();
+
+      const widget = availableWidgets.find(w => w.type === widgetType);
+      if (!widget) return;
+
+      const newFavorites = [...favoriteWidgets];
+      const existingIndex = newFavorites.findIndex(
+        fav => fav.itemId === itemId && fav.type === widgetType
+      );
+
+      if (existingIndex > -1) {
+        // Удаляем из избранного
+        newFavorites.splice(existingIndex, 1);
+      } else {
+        // Добавляем в избранное
+        const newFavorite: FavoriteWidget = {
+          id: `${itemId}-${widgetType}-${Date.now()}`,
+          type: widgetType,
+          title: widget.title,
+          itemId,
+          itemType,
+          personName: widgetType === 'person-info' ? itemId : undefined,
+          position: widgetType === 'person-info' ? 'Сотрудник' : undefined,
+          addedDate: new Date().toISOString()
+        };
+        newFavorites.push(newFavorite);
+      }
+
+      setFavoriteWidgets(newFavorites);
+      localStorage.setItem('favorite-widgets', JSON.stringify(newFavorites));
+    };
 
     const handleMouseDown = (e: React.MouseEvent, type: 'popup' | 'widget') => {
       e.stopPropagation();
@@ -214,7 +282,6 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
 
     const getWidgetPosition = () => {
       if (isMobile) return 'mobile-bottom';
-
       return 'desktop-left';
     };
 
@@ -280,24 +347,35 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
 
           <div className={styles.content}>
             <div className={styles.grid}>
-              {availableWidgets.map(widget => (
-                <div
-                  key={widget.id}
-                  className={`${styles.card} ${widget.type === 'person-info' ? styles.personCard : ''}`}
-                  onClick={(e) => handleWidgetClick(widget.type, e)}
-                  data-testid={`widget-card-${widget.id}`}
-                >
-                  <div className={styles.cardHeader}>
-                    <h4>{widget.title}</h4>
-                  </div>
-                  <p className={styles.description}>{widget.description}</p>
-                  {widget.type === 'person-info' && (
-                    <div className={styles.clickHint}>
-                      Нажмите, чтобы открыть
+              {availableWidgets.map(widget => {
+                const isFavorite = isWidgetFavorite(widget.type);
+                return (
+                  <div
+                    key={widget.id}
+                    className={`${styles.card} ${widget.type === 'person-info' ? styles.personCard : ''}`}
+                    onClick={(e) => handleWidgetClick(widget.type, e)}
+                    data-testid={`widget-card-${widget.id}`}
+                  >
+                    <div className={styles.cardHeader}>
+                      <h4>{widget.title}</h4>
+                      <button
+                        className={`${styles.favoriteButton} ${isFavorite ? styles.favorited : ''}`}
+                        onClick={(e) => toggleWidgetFavorite(widget.type, e)}
+                        aria-label={isFavorite ? "Убрать из избранного" : "Добавить в избранное"}
+                        title={isFavorite ? "Убрать из избранного" : "Добавить в избранное"}
+                      >
+                        {isFavorite ? <StarOff size={14} /> : <Star size={14} />}
+                      </button>
                     </div>
-                  )}
-                </div>
-              ))}
+                    <p className={styles.description}>{widget.description}</p>
+                    {widget.type === 'person-info' && (
+                      <div className={styles.clickHint}>
+                        Нажмите, чтобы открыть
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             <div className={styles.footer}>
@@ -320,6 +398,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
               itemId={itemId}
               onClose={handlePersonWidgetClose}
               isMobile={isMobile}
+              showAddToFavorites={true}
             />
           </div>,
           document.body
