@@ -1,6 +1,9 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { PersonItem, TreeItem, TreeState } from '@/types/tree.types';
-import { fetchTreeDataFromApi } from '@/utils/treeHelpers';
+import { PersonItem, TreeItem, TreeState, TreeViewMode } from '@/types/tree.types';
+import { fetchMockTreeData, fetchTreeDataFromApi } from '@/utils/treeHelpers';
+import { treeApi } from '@/services/api';
+import { buildTreeFromApiData, enhanceTreeDataWithMockInfo } from '@/utils/apiTransformers';
+import { transformTreeDataByViewMode } from '@/utils/storeDepartmentTransformer';
 
 const TREE_STORAGE_KEY = 'company-tree-data';
 
@@ -15,6 +18,7 @@ const getInitialState = (): TreeState => {
           selectedItemId: null,
           loading: false,
           error: null,
+          viewMode: 'hierarchy',
         };
       } catch (error) {
         console.error('Error parsing saved tree data:', error);
@@ -27,6 +31,7 @@ const getInitialState = (): TreeState => {
     selectedItemId: null,
     loading: false,
     error: null,
+    viewMode: 'hierarchy',
   };
 };
 
@@ -37,6 +42,7 @@ const saveTreeToLocalStorage = (items: TreeItem[]) => {
     localStorage.setItem(TREE_STORAGE_KEY, JSON.stringify(items));
   }
 };
+
 
 const updateItemInTree = (items: TreeItem[], itemId: string, updates: Partial<TreeItem>): TreeItem[] => {
   return items.map(item => {
@@ -55,16 +61,32 @@ const updateItemInTree = (items: TreeItem[], itemId: string, updates: Partial<Tr
 
 export const loadTreeData = createAsyncThunk(
   'tree/loadData',
-  async (_, { rejectWithValue, dispatch }) => {
+  async (_, { rejectWithValue, dispatch, getState }) => {
     try {
-      const data = await fetchTreeDataFromApi();
+      const state = getState() as { tree: TreeState };
+      const viewMode = state.tree.viewMode;
 
-      saveTreeToLocalStorage(data);
+      console.log('Loading tree data with viewMode:', viewMode);
 
-      return data;
+      const apiData = await treeApi.getHierarchyTree();
+
+      let treeData = buildTreeFromApiData(apiData);
+      treeData = enhanceTreeDataWithMockInfo(treeData);
+
+      if (viewMode === 'store-departments') {
+        treeData = transformTreeDataByViewMode(apiData, treeData, viewMode);
+      }
+
+      console.log('Tree data loaded:', treeData);
+      saveTreeToLocalStorage(treeData);
+      return treeData;
     } catch (error: any) {
       console.error('Error in loadTreeData:', error);
-      return rejectWithValue(error.message || 'Failed to load data from API');
+
+      const state = getState() as { tree: TreeState };
+      const viewMode = state.tree.viewMode;
+      const mockData = await fetchMockTreeData(viewMode);
+      return mockData;
     }
   },
 );
@@ -106,6 +128,23 @@ const treeSlice = createSlice({
       saveTreeToLocalStorage(state.items);
     },
 
+    setViewMode: (state, action: PayloadAction<TreeViewMode>) => {
+      state.viewMode = action.payload;
+    },
+
+    switchViewMode: (state, action: PayloadAction<TreeViewMode>) => {
+      state.viewMode = action.payload;
+      const resetExpanded = (items: TreeItem[]): TreeItem[] => {
+        return items.map(item => {
+          const newItem = { ...item, isExpanded: action.payload === 'store-departments' };
+          if (item.children && item.children.length > 0) {
+            newItem.children = resetExpanded(item.children);
+          }
+          return newItem;
+        });
+      };
+      state.items = resetExpanded(state.items);
+    },
     updatePersonData: (state, action: PayloadAction<{
       id: string;
       data: Partial<PersonItem['data']>
@@ -164,5 +203,6 @@ const treeSlice = createSlice({
 export const {
   toggleExpand,
   updatePersonData,
+  switchViewMode,
 } = treeSlice.actions;
 export default treeSlice.reducer;

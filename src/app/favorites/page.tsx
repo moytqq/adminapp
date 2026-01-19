@@ -411,10 +411,10 @@ const FavoritesPage = () => {
                     <User size={20} />
                     <span>Виджеты с информацией о сотрудниках поддерживают редактирование</span>
                   </div>
-                  <div className={styles.tip}>
+                  {/*<div className={styles.tip}>
                     <StarOff size={20} />
                     <span>Вы можете удалить виджет из избранного прямо из его интерфейса</span>
-                  </div>
+                  </div>*/}
                 </div>
               </div>
             )}

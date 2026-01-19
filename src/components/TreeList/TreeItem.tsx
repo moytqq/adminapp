@@ -18,6 +18,7 @@ import styles from './TreeList.module.scss';
 import WidgetPopup from '../WidgetPopup/WidgetPopup';
 import { createPortal } from 'react-dom';
 import { getColorForType } from '@/utils/treeTypeHelpers';
+import { useAppSelector } from '@/store/hooks';
 
 interface TreeItemProps {
   item: TreeItemType;
@@ -32,6 +33,7 @@ const TreeItem: React.FC<TreeItemProps> = ({
   const [showWidgets, setShowWidgets] = useState(false);
   const widgetButtonRef = useRef<HTMLButtonElement>(null);
   const itemRowRef = useRef<HTMLDivElement>(null);
+  const viewMode = useAppSelector((state) => state.tree.viewMode);
 
   const handleItemClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -71,16 +73,24 @@ const TreeItem: React.FC<TreeItemProps> = ({
   const getIndentStyle = (itemLevel: number) => {
     const basePadding = 15;
     let levelPadding = 0;
-    switch (itemLevel) {
-      case 4:
-        levelPadding = 10;
-        break;
-      case 5:
-        levelPadding = 20;
-        break;
-      default:
-        levelPadding = 0;
+
+    if (viewMode === 'store-departments') {
+      if (itemLevel === 1) {
+        levelPadding = 30;
+      }
+    } else {
+      switch (itemLevel) {
+        case 4:
+          levelPadding = 10;
+          break;
+        case 5:
+          levelPadding = 20;
+          break;
+        default:
+          levelPadding = 0;
+      }
     }
+
     return {
       paddingLeft: `${basePadding + levelPadding}px`,
     } as React.CSSProperties;

@@ -37,6 +37,7 @@ export interface DepartmentItem extends BaseTreeItem {
     storeCount?: number;
     employeeCount?: number;
     description?: string;
+    originalId?: number;
   };
 }
 
@@ -44,6 +45,8 @@ export interface StoreItem extends BaseTreeItem {
   type: TreeItemType.STORE;
   data: {
     storeName: string;
+    originalName: string;
+    description: string;
     address: string;
     managerId?: string;
     phone?: string;
@@ -51,7 +54,10 @@ export interface StoreItem extends BaseTreeItem {
     revenue?: number;
     employeeCount?: number;
     openingDate?: string;
-    departmentId: string;
+    originalId?: number;
+    originalIds?: number[];
+    departmentIds?: number[];
+    departmentNames: string[];
   };
 }
 
@@ -83,11 +89,14 @@ export interface ApiTreeItem {
   data?: any;
 }
 
+export type TreeViewMode = 'hierarchy' | 'store-departments';
+
 export interface TreeState {
   items: TreeItem[];
   selectedItemId: string | null;
   loading: boolean;
   error: string | null;
+  viewMode: TreeViewMode;
 }
 
 export interface WidgetItem {

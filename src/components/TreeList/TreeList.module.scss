@@ -398,3 +398,155 @@
     transform: rotate(360deg);
   }
 }
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    margin-bottom: 0;
+  }
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex: 1;
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+
+    @media (max-width: 768px) {
+      font-size: 20px;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 18px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .mobileToggleContainer {
+      display: none;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .mobileToggleContainer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+}
+
+.mobileToggleContainer {
+  .toggleContainer.mobile {
+    margin-left: auto;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  @media (max-width: 767px) {
+    width: 100%;
+    justify-content: space-between;
+
+    .toggleContainer.desktop {
+      display: none;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .toggleContainer.desktop {
+      display: flex;
+    }
+  }
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #1976d2;
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  svg {
+    transition: transform 0.2s ease;
+  }
+
+  &.refreshing {
+    background: #757575;
+  }
+
+  @media (max-width: 767px) {
+    padding: 10px;
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+
+    span {
+      display: none;
+    }
+  }
+}
+
+.viewModeDescription {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.4;
+
+  @media (max-width: 767px) {
+    display: none;
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
