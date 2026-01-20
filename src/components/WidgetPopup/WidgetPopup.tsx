@@ -7,6 +7,7 @@ import PersonInfoWidget from '../PersonInfoWidget/PersonInfoWidget';
 import { createPortal } from 'react-dom';
 import { X, Star, StarOff } from 'lucide-react';
 import StoreInfoWidget from '@/components/StoreInfoWidget/StoreInfoWidget';
+import { useAppSelector } from '@/store/hooks';
 
 interface WidgetPopupProps {
   itemId: string;
@@ -22,6 +23,7 @@ export interface FavoriteWidget {
   itemId: string;
   itemType: TreeItemType;
   personName?: string;
+  storeName?: string;
   position?: string;
   addedDate: string;
 }
@@ -147,6 +149,8 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
 
     const availableWidgets = WIDGETS_BY_TYPE[itemType] || [];
 
+    const treeItems = useAppSelector((state) => state.tree.items);
+
     useEffect(() => {
       const checkMobile = () => {
         setIsMobile(window.innerWidth < 768);
@@ -199,21 +203,68 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
 
       const newFavorites = [...favoriteWidgets];
       const existingIndex = newFavorites.findIndex(
-        fav => fav.itemId === itemId && fav.type === widgetType,
+        fav => fav.itemId === itemId && fav.type === widgetType
       );
 
       if (existingIndex > -1) {
         newFavorites.splice(existingIndex, 1);
       } else {
+        let widgetTitle = widget.title;
+        let storeName = '';
+
+        if (widgetType === 'store-info') {
+          const findStoreInTree = (items: any[]): any => {
+            for (const item of items) {
+              if (item.id === itemId && item.type === TreeItemType.STORE) {
+                return item;
+              }
+              if (item.children && item.children.length > 0) {
+                const found = findStoreInTree(item.children);
+                if (found) return found;
+              }
+            }
+            return null;
+          };
+
+          const storeItem = findStoreInTree(treeItems);
+          if (storeItem && storeItem.data && storeItem.data.storeName) {
+            storeName = storeItem.data.storeName;
+            widgetTitle = storeName;
+          }
+        } else if (widgetType === 'person-info') {
+          const findPersonInTree = (items: any[]): any => {
+            for (const item of items) {
+              if (item.id === itemId && item.type === TreeItemType.PERSON) {
+                return item;
+              }
+              if (item.children && item.children.length > 0) {
+                const found = findPersonInTree(item.children);
+                if (found) return found;
+              }
+            }
+            return null;
+          };
+
+          const personItem = findPersonInTree(treeItems);
+          if (personItem && personItem.data) {
+            const firstName = personItem.data.firstName || '';
+            const lastName = personItem.data.lastName || '';
+            if (firstName || lastName) {
+              widgetTitle = `${firstName} ${lastName}`.trim();
+            }
+          }
+        }
+
         const newFavorite: FavoriteWidget = {
           id: `${itemId}-${widgetType}-${Date.now()}`,
           type: widgetType,
-          title: widget.title,
+          title: widgetTitle,
           itemId,
           itemType,
-          personName: widgetType === 'person-info' ? itemId : undefined,
+          personName: widgetType === 'person-info' ? widgetTitle : undefined,
           position: widgetType === 'person-info' ? 'Сотрудник' : undefined,
-          addedDate: new Date().toISOString(),
+          storeName: widgetType === 'store-info' ? storeName : undefined,
+          addedDate: new Date().toISOString()
         };
         newFavorites.push(newFavorite);
       }

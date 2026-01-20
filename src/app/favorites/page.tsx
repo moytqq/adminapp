@@ -14,7 +14,7 @@ import StoreInfoWidget from '@/components/StoreInfoWidget/StoreInfoWidget';
 
 interface FavoriteWidget {
   id: string;
-  type: 'person-info' | string;
+  type: 'person-info' | 'store-info' | string;
   title: string;
   itemId: string;
   itemType: string;
@@ -22,6 +22,7 @@ interface FavoriteWidget {
   position?: string;
   firstName?: string;
   lastName?: string;
+  storeName?: string;
   addedDate: string;
 }
 
@@ -65,10 +66,10 @@ const FavoritesPage = () => {
     };
   }, [dispatch]);
 
-  const findPersonData = (itemId: string) => {
+  const findItemData = (itemId: string, type: string) => {
     const findItem = (items: any[]): any => {
       for (const item of items) {
-        if (item.id === itemId && item.type === TreeItemType.PERSON) {
+        if (item.id === itemId) {
           return item.data || {};
         }
         if (item.children && item.children.length > 0) {
@@ -79,14 +80,22 @@ const FavoritesPage = () => {
       return null;
     };
 
-    const personData = findItem(treeItems);
+    const itemData = findItem(treeItems);
 
-    if (personData) {
-      return {
-        firstName: personData.firstName || '',
-        lastName: personData.lastName || '',
-        position: personData.position || 'Сотрудник',
-      };
+    if (itemData) {
+      if (type === 'person-info') {
+        return {
+          firstName: itemData.firstName || '',
+          lastName: itemData.lastName || '',
+          position: itemData.position || 'Сотрудник',
+          personName: `${itemData.firstName || ''} ${itemData.lastName || ''}`.trim(),
+        };
+      } else if (type === 'store-info') {
+        return {
+          storeName: itemData.storeName || '',
+          address: itemData.address || '',
+        };
+      }
     }
 
     return null;
@@ -99,15 +108,23 @@ const FavoritesPage = () => {
         const favoritesData: FavoriteWidget[] = JSON.parse(savedFavorites);
 
         const enrichedFavorites = favoritesData.map(fav => {
-          if (fav.type === 'person-info') {
-            const personData = findPersonData(fav.itemId);
-            if (personData) {
+          const itemData = findItemData(fav.itemId, fav.type);
+
+          if (itemData) {
+            if (fav.type === 'person-info') {
               return {
                 ...fav,
-                firstName: personData.firstName,
-                lastName: personData.lastName,
-                position: personData.position,
-                personName: `${personData.firstName} ${personData.lastName}`.trim(),
+                firstName: itemData.firstName,
+                lastName: itemData.lastName,
+                position: itemData.position,
+                personName: itemData.personName || fav.title,
+                title: itemData.personName || fav.title,
+              };
+            } else if (fav.type === 'store-info') {
+              return {
+                ...fav,
+                storeName: itemData.storeName,
+                title: itemData.storeName || fav.title,
               };
             }
           }
@@ -334,9 +351,6 @@ const FavoritesPage = () => {
           >
             <Trash2 size={16} />
           </button>
-        </div>
-        <div className={styles.widgetType}>
-          <span className={styles.favoriteType}>{widget.type}</span>
         </div>
       </>
     );
