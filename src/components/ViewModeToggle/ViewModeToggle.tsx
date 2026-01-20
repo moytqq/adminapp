@@ -12,7 +12,7 @@ const ViewModeToggle: React.FC = () => {
   const dispatch = useAppDispatch();
   const viewMode = useAppSelector((state) => state.tree.viewMode);
   const loading = useAppSelector((state) => state.tree.loading);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -33,7 +33,7 @@ const ViewModeToggle: React.FC = () => {
   };
 
   return (
-    <div className={`${styles.toggleContainer} ${isMobile ? styles.mobile : styles.desktop}`}>
+    <div className={`${styles.toggleContainer} ${isMobile === null ? styles.hidden :  isMobile ? styles.mobile : styles.desktop}`}>
       <button
         className={`${styles.toggleButton} ${viewMode === 'hierarchy' ? styles.active : ''}`}
         onClick={() => handleSwitchView('hierarchy')}

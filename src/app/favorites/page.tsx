@@ -321,11 +321,11 @@ const FavoritesPage = () => {
             </button>
           </div>
           <div className={styles.personInfo}>
-            {widget.firstName && widget.lastName && (
-              <div className={styles.personName}>
-                {widget.firstName} {widget.lastName}
-              </div>
-            )}
+            {/*{widget.firstName && widget.lastName && (*/}
+            {/*  <div className={styles.personName}>*/}
+            {/*    {widget.firstName} {widget.lastName}*/}
+            {/*  </div>*/}
+            {/*)}*/}
             {widget.position && (
               <div className={styles.personPosition}>
                 {widget.position}
