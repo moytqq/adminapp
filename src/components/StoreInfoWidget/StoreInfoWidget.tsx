@@ -87,31 +87,9 @@ const StoreInfoWidget: React.FC<StoreInfoWidgetProps> = ({
   };
 
   useEffect(() => {
-    const savedWidgetData = localStorage.getItem(`store-widget-${itemId}`);
     const storeData = findStoreData();
 
-    if (savedWidgetData) {
-      try {
-        const parsedData = JSON.parse(savedWidgetData);
-        setEditedData({
-          storeName: parsedData.storeName || '',
-          description: parsedData.description || '',
-          address: parsedData.address || '',
-          phone: parsedData.phone || '',
-          email: parsedData.email || '',
-          revenue: parsedData.revenue || 0,
-          employeeCount: parsedData.employeeCount || 0,
-          openingDate: parsedData.openingDate || '',
-          originalIds: parsedData.originalIds || [],
-          departmentNames: parsedData.departmentNames || [],
-        });
-      } catch (error) {
-        console.error('Error parsing saved widget data:', error);
-        if (storeData) {
-          setEditedData(storeData);
-        }
-      }
-    } else if (storeData) {
+    if (storeData) {
       setEditedData(storeData);
     } else {
       setEditedData({
@@ -150,8 +128,6 @@ const StoreInfoWidget: React.FC<StoreInfoWidgetProps> = ({
       originalIds: editedData.originalIds || [],
       departmentNames: editedData.departmentNames || [],
     };
-
-    localStorage.setItem(`store-widget-${itemId}`, JSON.stringify(dataToSave));
 
     dispatch(updateItem({
       id: itemId,

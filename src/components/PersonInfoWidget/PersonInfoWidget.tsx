@@ -83,29 +83,9 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
   };
 
   useEffect(() => {
-    const savedWidgetData = localStorage.getItem(`person-widget-${itemId}`);
     const personData = findPersonData();
 
-    if (savedWidgetData) {
-      try {
-        const parsedData = JSON.parse(savedWidgetData);
-        setEditedData({
-          firstName: parsedData.firstName || '',
-          lastName: parsedData.lastName || '',
-          position: parsedData.position || '',
-          email: parsedData.email || '',
-          phone: parsedData.phone || '',
-          hireDate: parsedData.hireDate || '',
-          salary: parsedData.salary || 0,
-          isManager: parsedData.isManager || false,
-        });
-      } catch (error) {
-        console.error('Error parsing saved widget data:', error);
-        if (personData) {
-          setEditedData(personData);
-        }
-      }
-    } else if (personData) {
+    if (personData) {
       setEditedData(personData);
     } else {
       setEditedData({
@@ -141,8 +121,6 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
       isManager: editedData.isManager || false,
     };
 
-    localStorage.setItem(`person-widget-${itemId}`, JSON.stringify(dataToSave));
-
     dispatch(updatePersonData({
       id: itemId,
       data: dataToSave,
@@ -157,28 +135,9 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
   const handleCancel = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsEditing(false);
-    const savedWidgetData = localStorage.getItem(`person-widget-${itemId}`);
     const personData = findPersonData();
 
-    if (savedWidgetData) {
-      try {
-        const parsedData = JSON.parse(savedWidgetData);
-        setEditedData({
-          firstName: parsedData.firstName || '',
-          lastName: parsedData.lastName || '',
-          position: parsedData.position || '',
-          email: parsedData.email || '',
-          phone: parsedData.phone || '',
-          hireDate: parsedData.hireDate || '',
-          salary: parsedData.salary || 0,
-          isManager: parsedData.isManager || false,
-        });
-      } catch (error) {
-        if (personData) {
-          setEditedData(personData);
-        }
-      }
-    } else if (personData) {
+    if (personData) {
       setEditedData(personData);
     }
   };

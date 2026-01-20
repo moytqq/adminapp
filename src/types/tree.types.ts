@@ -1,3 +1,12 @@
+export interface TreeState {
+  items: TreeItem[];
+  originalApiData: ApiTreeItem[] | null;
+  selectedItemId: string | null;
+  loading: boolean;
+  error: string | null;
+  viewMode: TreeViewMode;
+}
+
 export interface BaseTreeItem {
   id: string;
   label: string;
