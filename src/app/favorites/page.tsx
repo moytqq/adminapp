@@ -335,25 +335,33 @@ const FavoritesPage = () => {
         </>
       );
     }
-
-    return (
-      <>
-        <div className={styles.cardTitleRow}>
-          <h3>{widget.title}</h3>
-          <button
-            className={styles.removeButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              removeFromFavorites(widget.id);
-            }}
-            aria-label="Удалить из избранного"
-            title="Удалить из избранного"
-          >
-            <Trash2 size={16} />
-          </button>
-        </div>
-      </>
-    );
+    if (widget.type === 'store-info') {
+      return (
+        <>
+          <div className={styles.cardTitleRow}>
+            <h3>{widget.title}</h3>
+            <button
+              className={styles.removeButton}
+              onClick={(e) => {
+                e.stopPropagation();
+                removeFromFavorites(widget.id);
+              }}
+              aria-label="Удалить из избранного"
+              title="Удалить из избранного"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+          <div className={styles.personInfo}>
+            {(
+              <div className={styles.personPosition}>
+                {widget.itemType === 'Store' ? ('Магазин') : ''}
+              </div>
+            )}
+          </div>
+        </>
+      );
+    }
   };
 
   return (
@@ -385,9 +393,6 @@ const FavoritesPage = () => {
               <div className={styles.emptyState}>
                 <Star size={48} className={styles.emptyIcon} />
                 <p>Вы еще не добавили ни одного виджета в избранное</p>
-                <p className={styles.emptyHint}>
-                  Нажмите на значок звездочки в виджете, чтобы добавить его сюда
-                </p>
               </div>
             ) : (
               <div className={styles.favoritesList}>
@@ -459,10 +464,6 @@ const FavoritesPage = () => {
                     <User size={20} />
                     <span>Виджеты с информацией о сотрудниках поддерживают редактирование</span>
                   </div>
-                  {/*<div className={styles.tip}>
-                    <StarOff size={20} />
-                    <span>Вы можете удалить виджет из избранного прямо из его интерфейса</span>
-                  </div>*/}
                 </div>
               </div>
             )}
