@@ -21,6 +21,10 @@
   overflow-y: auto;
   max-height: 80vh;
 
+  &.hidden{
+    display: none;
+  }
+
   .header {
     display: flex;
     justify-content: space-between;

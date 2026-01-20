@@ -14,7 +14,7 @@ export enum TreeItemType {
   COMPANY = 'Company',
   DEPARTMENT = 'Department',
   STORE = 'Store',
-  PERSON = 'Person'
+  PERSON = 'Person',
 }
 
 export interface CompanyItem extends BaseTreeItem {
@@ -45,7 +45,7 @@ export interface StoreItem extends BaseTreeItem {
   type: TreeItemType.STORE;
   data: {
     storeName: string;
-    originalName: string;
+    originalName?: string;
     description: string;
     address: string;
     managerId?: string;

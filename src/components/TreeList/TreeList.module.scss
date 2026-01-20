@@ -223,7 +223,7 @@
   }
 }
 
-// Mobile стили
+// Mobile
 @media (max-width: 767px) {
   .itemRow {
     padding: 10px 12px;
@@ -284,7 +284,7 @@
   }
 }
 
-// Desktop стили
+// Desktop
 @media (min-width: 768px) {
   .itemRow {
     padding: 14px 20px;
@@ -400,10 +400,10 @@
 }
 
 .headerTop {
+  margin: 5px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
   flex-wrap: wrap;
   gap: 12px;
 
@@ -411,7 +411,6 @@
     flex-direction: column;
     align-items: stretch;
     gap: 16px;
-    margin-bottom: 0;
   }
 }
 
@@ -448,6 +447,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      padding: 6px;
     }
   }
 }

@@ -10,6 +10,7 @@ import { loadTreeData } from '@/store/slices/treeSlice';
 import { createPortal } from 'react-dom';
 import { useAppSelector } from '@/store/hooks';
 import { TreeItemType, PersonItem } from '@/types/tree.types';
+import StoreInfoWidget from '@/components/StoreInfoWidget/StoreInfoWidget';
 
 interface FavoriteWidget {
   id: string;
@@ -84,7 +85,7 @@ const FavoritesPage = () => {
       return {
         firstName: personData.firstName || '',
         lastName: personData.lastName || '',
-        position: personData.position || 'Сотрудник'
+        position: personData.position || 'Сотрудник',
       };
     }
 
@@ -106,7 +107,7 @@ const FavoritesPage = () => {
                 firstName: personData.firstName,
                 lastName: personData.lastName,
                 position: personData.position,
-                personName: `${personData.firstName} ${personData.lastName}`.trim()
+                personName: `${personData.firstName} ${personData.lastName}`.trim(),
               };
             }
           }
@@ -160,7 +161,17 @@ const FavoritesPage = () => {
   const getIconForType = (type: string) => {
     switch (type) {
       case 'person-info':
-        return <User size={20} />;
+        return (
+          <div className={styles.favoriteIconPerson}>
+            <User size={20} />
+          </div>
+        );
+      case 'store-info':
+        return (
+          <div className={styles.favoriteIconStore}>
+            <Store size={20} />
+          </div>
+        );
       case 'finance':
       case 'kpi':
         return <Building2 size={20} />;
@@ -177,7 +188,11 @@ const FavoritesPage = () => {
       case 'map':
         return <Store size={20} />;
       default:
-        return <Star size={20} />;
+        return (
+          <div className={styles.favoriteIconDefault}>
+            <Star size={20} />
+          </div>
+        );
     }
   };
 
@@ -188,7 +203,7 @@ const FavoritesPage = () => {
       month: 'long',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -225,13 +240,32 @@ const FavoritesPage = () => {
             onClose={() => {
               if (isMobile) {
                 setShowMobileWidget(false);
-                setSelectedWidget(null); // Сбрасываем выбранный виджет
+                setSelectedWidget(null);
               } else {
                 setSelectedWidget(null);
               }
             }}
             isMobile={isMobile}
-            showAddToFavorites={true}
+            onRemoveFromFavorites={handleRemoveFromFavorites}
+          />
+        </div>
+      );
+    }
+
+    if (widget.type === 'store-info') {
+      return (
+        <div className={`${styles.personWidgetContainer} ${styles.wide}`}>
+          <StoreInfoWidget
+            itemId={widget.itemId}
+            onClose={() => {
+              if (isMobile) {
+                setShowMobileWidget(false);
+                setSelectedWidget(null);
+              } else {
+                setSelectedWidget(null);
+              }
+            }}
+            isMobile={isMobile}
             onRemoveFromFavorites={handleRemoveFromFavorites}
           />
         </div>
@@ -321,12 +355,12 @@ const FavoritesPage = () => {
               <Star size={24} />
               Избранные виджеты
             </h1>
-            <p className={styles.subtitle}>
+            <span className={styles.subtitle}>
               {favorites.length === 0
                 ? 'Нет избранных виджетов'
                 : `Всего избранных виджетов: ${favorites.length}`
               }
-            </p>
+            </span>
           </div>
         </header>
 
@@ -444,7 +478,16 @@ const FavoritesPage = () => {
                   itemId={selectedWidget.itemId}
                   onClose={handleCloseMobileWidget}
                   isMobile={true}
-                  showAddToFavorites={true}
+                  onRemoveFromFavorites={() => {
+                    removeFromFavorites(selectedWidget.id);
+                    handleCloseMobileWidget();
+                  }}
+                />
+              ) : selectedWidget.type === 'store-info' ? (
+                <StoreInfoWidget
+                  itemId={selectedWidget.itemId}
+                  onClose={handleCloseMobileWidget}
+                  isMobile={true}
                   onRemoveFromFavorites={() => {
                     removeFromFavorites(selectedWidget.id);
                     handleCloseMobileWidget();
@@ -463,7 +506,7 @@ const FavoritesPage = () => {
             </div>
           </div>
         </div>,
-        document.body
+        document.body,
       )}
     </>
   );

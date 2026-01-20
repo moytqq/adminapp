@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { PersonItem, TreeItem, TreeState, TreeViewMode } from '@/types/tree.types';
+import { PersonItem, StoreItem, TreeItem, TreeItemType, TreeState, TreeViewMode } from '@/types/tree.types';
 import { fetchMockTreeData, fetchTreeDataFromApi } from '@/utils/treeHelpers';
 import { treeApi } from '@/services/api';
 import { buildTreeFromApiData, enhanceTreeDataWithMockInfo } from '@/utils/apiTransformers';
@@ -145,6 +145,40 @@ const treeSlice = createSlice({
       };
       state.items = resetExpanded(state.items);
     },
+
+    updateStoreData: (state, action: PayloadAction<{
+      id: string;
+      data: Partial<StoreItem['data']>
+    }>) => {
+      const { id, data } = action.payload;
+
+      const updateStoreInTree = (items: TreeItem[]): TreeItem[] => {
+        return items.map(item => {
+          if (item.id === id && item.type === TreeItemType.STORE) {
+            const storeItem = item as StoreItem;
+            return {
+              ...storeItem,
+              data: {
+                ...storeItem.data,
+                ...data
+              },
+              label: data.storeName || storeItem.label,
+            } as StoreItem;
+          }
+          if (item.children && item.children.length > 0) {
+            return {
+              ...item,
+              children: updateStoreInTree(item.children),
+            } as TreeItem;
+          }
+          return item;
+        });
+      };
+
+      state.items = updateStoreInTree(state.items);
+      saveTreeToLocalStorage(state.items);
+    },
+
     updatePersonData: (state, action: PayloadAction<{
       id: string;
       data: Partial<PersonItem['data']>
@@ -204,5 +238,6 @@ export const {
   toggleExpand,
   updatePersonData,
   switchViewMode,
+  updateItem
 } = treeSlice.actions;
 export default treeSlice.reducer;

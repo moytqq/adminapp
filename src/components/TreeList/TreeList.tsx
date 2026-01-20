@@ -11,7 +11,7 @@ import ViewModeToggle from '@/components/ViewModeToggle/ViewModeToggle';
 const TreeList: React.FC = () => {
   const dispatch = useAppDispatch();
   const { items, loading, error, viewMode } = useAppSelector(
-    (state) => state.tree
+    (state) => state.tree,
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -87,30 +87,11 @@ const TreeList: React.FC = () => {
               </div>
             )}
           </div>
-
-          <div className={styles.actions}>
-            {!isMobile && <ViewModeToggle />}
-
-            <button
-              className={`${styles.actionButton} ${isRefreshing ? styles.refreshing : ''}`}
-              onClick={handleRefresh}
-              disabled={isRefreshing || loading}
-              aria-label="Обновить данные"
-            >
-              <RefreshCw size={isMobile ? 20 : 18} className={isRefreshing ? styles.spin : ''} />
-              {!isMobile && <span>{isRefreshing ? 'Обновление...' : 'Обновить'}</span>}
-            </button>
-          </div>
+          {!isMobile && (
+            <div className={styles.actions}>
+              <ViewModeToggle />
+            </div>)}
         </div>
-
-        {!isMobile && (
-          <p className={styles.viewModeDescription}>
-            {viewMode === 'hierarchy'
-              ? 'Традиционная иерархия от компании к сотрудникам'
-              : 'Сгруппировано по магазинам с соответствующими отделами'
-            }
-          </p>
-        )}
       </div>
 
       <div className={styles.treeContainer}>

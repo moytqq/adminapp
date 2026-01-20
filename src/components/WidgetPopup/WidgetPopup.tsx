@@ -6,6 +6,7 @@ import { TreeItemType, WidgetItem } from '@/types/tree.types';
 import PersonInfoWidget from '../PersonInfoWidget/PersonInfoWidget';
 import { createPortal } from 'react-dom';
 import { X, Star, StarOff } from 'lucide-react';
+import StoreInfoWidget from '@/components/StoreInfoWidget/StoreInfoWidget';
 
 interface WidgetPopupProps {
   itemId: string;
@@ -32,28 +33,28 @@ const WIDGETS_BY_TYPE: Record<TreeItemType, WidgetItem[]> = {
       title: 'Финансовая отчетность',
       description: 'Доходы и расходы компании',
       type: 'finance',
-      availableFor: [TreeItemType.COMPANY]
+      availableFor: [TreeItemType.COMPANY],
     },
     {
       id: 'company-2',
       title: 'Статистика сотрудников',
       description: 'Анализ штата компании',
       type: 'employees',
-      availableFor: [TreeItemType.COMPANY, TreeItemType.DEPARTMENT]
+      availableFor: [TreeItemType.COMPANY, TreeItemType.DEPARTMENT],
     },
     {
       id: 'company-3',
       title: 'Карта магазинов',
       description: 'Геолокация всех магазинов',
       type: 'map',
-      availableFor: [TreeItemType.COMPANY, TreeItemType.DEPARTMENT]
+      availableFor: [TreeItemType.COMPANY, TreeItemType.DEPARTMENT],
     },
     {
       id: 'company-4',
       title: 'Ключевые показатели',
       description: 'KPI компании',
       type: 'kpi',
-      availableFor: [TreeItemType.COMPANY]
+      availableFor: [TreeItemType.COMPANY],
     },
   ],
   [TreeItemType.DEPARTMENT]: [
@@ -62,57 +63,36 @@ const WIDGETS_BY_TYPE: Record<TreeItemType, WidgetItem[]> = {
       title: 'Бюджет департамента',
       description: 'Распределение бюджета',
       type: 'budget',
-      availableFor: [TreeItemType.DEPARTMENT]
+      availableFor: [TreeItemType.DEPARTMENT],
     },
     {
       id: 'dept-2',
       title: 'Произв-сть',
       description: 'Эффективность работы отдела',
       type: 'performance',
-      availableFor: [TreeItemType.DEPARTMENT]
+      availableFor: [TreeItemType.DEPARTMENT],
     },
     {
       id: 'dept-3',
       title: 'Проекты департамента',
       description: 'Текущие и завершенные проекты',
       type: 'projects',
-      availableFor: [TreeItemType.DEPARTMENT]
+      availableFor: [TreeItemType.DEPARTMENT],
     },
     {
       id: 'dept-4',
       title: 'Задачи команды',
       description: 'Распределение задач',
       type: 'tasks',
-      availableFor: [TreeItemType.DEPARTMENT, TreeItemType.STORE]
+      availableFor: [TreeItemType.DEPARTMENT, TreeItemType.STORE],
     },
   ],
   [TreeItemType.STORE]: [
     {
-      id: 'store-1',
-      title: 'Продажи магазина',
-      description: 'Ежедневные и еженедельные продажи',
-      type: 'sales',
-      availableFor: [TreeItemType.STORE]
-    },
-    {
-      id: 'store-2',
-      title: 'Инвентаризация',
-      description: 'Остатки товаров на складе',
-      type: 'inventory',
-      availableFor: [TreeItemType.STORE]
-    },
-    {
-      id: 'store-3',
-      title: 'График работы',
-      description: 'Расписание сотрудников',
-      type: 'schedule',
-      availableFor: [TreeItemType.STORE]
-    },
-    {
-      id: 'store-4',
-      title: 'Отзывы клиентов',
-      description: 'Обратная связь от покупателей',
-      type: 'reviews',
+      id: 'store-info',
+      title: 'Информация о магазине',
+      description: 'Основные данные и контакты магазина',
+      type: 'store-info',
       availableFor: [TreeItemType.STORE]
     },
   ],
@@ -122,43 +102,44 @@ const WIDGETS_BY_TYPE: Record<TreeItemType, WidgetItem[]> = {
       title: 'Информация о сотруднике',
       description: 'Основные данные и контакты сотрудника',
       type: 'person-info',
-      availableFor: [TreeItemType.PERSON]
+      availableFor: [TreeItemType.PERSON],
     },
     {
       id: 'person-2',
       title: 'Рабочие задачи',
       description: 'Текущие задачи сотрудника',
       type: 'tasks',
-      availableFor: [TreeItemType.PERSON]
+      availableFor: [TreeItemType.PERSON],
     },
     {
       id: 'person-3',
       title: 'График работы',
       description: 'Расписание и отпуска',
       type: 'schedule',
-      availableFor: [TreeItemType.PERSON]
+      availableFor: [TreeItemType.PERSON],
     },
     {
       id: 'person-4',
       title: 'Произв-сть',
       description: 'KPI сотрудника',
       type: 'performance',
-      availableFor: [TreeItemType.PERSON]
+      availableFor: [TreeItemType.PERSON],
     },
     {
       id: 'person-5',
       title: 'Документы',
       description: 'Личные документы и договоры',
       type: 'documents',
-      availableFor: [TreeItemType.PERSON]
+      availableFor: [TreeItemType.PERSON],
     },
   ],
 };
 
 const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
   ({ itemId, itemType, onAddWidget, onClose }, ref) => {
-    const [isMobile, setIsMobile] = useState(false);
+    const [isMobile, setIsMobile] = useState<boolean | null>(null);
     const [showPersonWidget, setShowPersonWidget] = useState(false);
+    const [showStoreWidget, setShowStoreWidget] = useState(false);
     const [favoriteWidgets, setFavoriteWidgets] = useState<FavoriteWidget[]>([]);
     const popupRef = useRef<HTMLDivElement>(null);
     const widgetContainerRef = useRef<HTMLDivElement>(null);
@@ -206,7 +187,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
 
     const isWidgetFavorite = (widgetType: string): boolean => {
       return favoriteWidgets.some(fav =>
-        fav.itemId === itemId && fav.type === widgetType
+        fav.itemId === itemId && fav.type === widgetType,
       );
     };
 
@@ -218,7 +199,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
 
       const newFavorites = [...favoriteWidgets];
       const existingIndex = newFavorites.findIndex(
-        fav => fav.itemId === itemId && fav.type === widgetType
+        fav => fav.itemId === itemId && fav.type === widgetType,
       );
 
       if (existingIndex > -1) {
@@ -232,7 +213,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
           itemType,
           personName: widgetType === 'person-info' ? itemId : undefined,
           position: widgetType === 'person-info' ? 'Сотрудник' : undefined,
-          addedDate: new Date().toISOString()
+          addedDate: new Date().toISOString(),
         };
         newFavorites.push(newFavorite);
       }
@@ -259,13 +240,20 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
       e.stopPropagation();
       if (widgetType === 'person-info') {
         setShowPersonWidget(true);
+      } else if (widgetType === 'store-info') {
+        setShowStoreWidget(true);
       } else {
         onAddWidget(widgetType);
       }
     };
 
+
     const handlePersonWidgetClose = () => {
       setShowPersonWidget(false);
+    };
+
+    const handleStoreWidgetClose = () => {
+      setShowStoreWidget(false);
     };
 
     const handleOverlayClick = (e: React.MouseEvent) => {
@@ -322,7 +310,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
 
         <div
           ref={popupRef}
-          className={`${styles.popup} ${isMobile ? styles.mobile : styles.desktop}`}
+          className={`${styles.popup} ${isMobile === null ? styles.hidden : isMobile? styles.mobile : styles.desktop}`}
           onMouseDown={(e) => handleMouseDown(e, 'popup')}
           onClick={handleClick}
           data-testid="widget-popup"
@@ -335,7 +323,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
               aria-label="Закрыть"
               data-testid="widget-close-button"
             >
-              <X size={18}/>
+              <X size={18} />
             </button>
           </div>
 
@@ -346,7 +334,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
                 return (
                   <div
                     key={widget.id}
-                    className={`${styles.card} ${widget.type === 'person-info' ? styles.personCard : ''}`}
+                    className={`${styles.card}`}
                     onClick={(e) => handleWidgetClick(widget.type, e)}
                     data-testid={`widget-card-${widget.id}`}
                   >
@@ -355,18 +343,13 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
                       <button
                         className={`${styles.favoriteButton} ${isFavorite ? styles.favorited : ''}`}
                         onClick={(e) => toggleWidgetFavorite(widget.type, e)}
-                        aria-label={isFavorite ? "Убрать из избранного" : "Добавить в избранное"}
-                        title={isFavorite ? "Убрать из избранного" : "Добавить в избранное"}
+                        aria-label={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
+                        title={isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
                       >
                         {isFavorite ? <StarOff size={14} /> : <Star size={14} />}
                       </button>
                     </div>
                     <p className={styles.description}>{widget.description}</p>
-                    {widget.type === 'person-info' && (
-                      <div className={styles.clickHint}>
-                        Нажмите, чтобы открыть
-                      </div>
-                    )}
                   </div>
                 );
               })}
@@ -392,14 +375,29 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
               itemId={itemId}
               onClose={handlePersonWidgetClose}
               isMobile={isMobile}
-              showAddToFavorites={true}
+            />
+          </div>,
+          document.body,
+        )}
+        {showStoreWidget && createPortal(
+          <div
+            ref={widgetContainerRef}
+            className={`${styles.personWidgetWrapper} ${styles[getWidgetPosition()]}`}
+            onMouseDown={(e) => handleMouseDown(e, 'widget')}
+            onClick={handleClick}
+            data-testid="store-widget-container"
+          >
+            <StoreInfoWidget
+              itemId={itemId}
+              onClose={handleStoreWidgetClose}
+              isMobile={isMobile}
             />
           </div>,
           document.body
         )}
       </>
     );
-  }
+  },
 );
 
 WidgetPopup.displayName = 'WidgetPopup';

@@ -41,11 +41,14 @@
   }
 
   .headerContent {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    flex-wrap: wrap;
     h1 {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin: 0 0 8px 0;
       font-size: 24px;
       font-weight: 600;
       color: #333;
@@ -56,6 +59,8 @@
     }
 
     .subtitle {
+      height: min-content;
+      align-self: center;
       margin: 0;
       font-size: 14px;
       color: #757575;
@@ -65,9 +70,9 @@
 
 .content {
   display: flex;
-  height: calc(100vh - 140px);
-  padding: 20px;
-  gap: 20px;
+  height: calc(100vh - 110px);
+  padding: 10px;
+  gap: 14px;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -200,13 +205,34 @@
   flex-shrink: 0;
 
   svg {
-    color: #757575;
+    color: white;
   }
 
   @media (max-width: 768px) {
     width: 36px;
     height: 36px;
   }
+}
+
+.favoriteIconPerson {
+  composes: favoriteIcon;
+  background: #c24add;
+  svg{
+    color: #ffffff;
+  }
+}
+
+.favoriteIconStore {
+  composes: favoriteIcon;
+  background: #ffa43c;
+  svg{
+    color: #ffffff;
+  }
+}
+
+.favoriteIconDefault {
+  composes: favoriteIcon;
+  background: #757575;
 }
 
 .favoriteInfo {
@@ -328,26 +354,7 @@
   }
 }
 
-.favoriteItem.personWidget {
-  .favoriteIcon {
-    background: #f3e5f5;
-
-    svg {
-      color: #9c27b0;
-    }
-  }
-
-  &.selected {
-    background: #f3e5f5;
-    border-color: #9c27b0;
-
-    .favoriteIcon {
-      background: #e1bee7;
-    }
-  }
-}
-
-// Десктоп версия
+// Десктоп
 .mainContent {
   flex: 1;
   background: white;
@@ -522,7 +529,7 @@
   }
 }
 
-// Мобильная версия
+// Мобильная
 .mobileWidgetOverlay {
   position: fixed;
   top: 0;

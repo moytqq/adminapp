@@ -11,23 +11,19 @@ import {
   Phone,
   Calendar,
   Briefcase,
-  BadgeRussianRuble ,
+  BadgeRussianRuble,
   ArrowLeft,
   Check,
   RotateCcw,
-  Star,
-  StarOff,
 } from 'lucide-react';
 import styles from './PersonInfoWidget.module.scss';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { updatePersonData } from '@/store/slices/treeSlice';
-import { useRouter } from 'next/navigation';
 
 interface PersonInfoWidgetProps {
   itemId: string;
   onClose: () => void;
-  isMobile?: boolean;
-  showAddToFavorites?: boolean;
+  isMobile?: boolean | null;
   onRemoveFromFavorites?: () => void;
 }
 
@@ -35,7 +31,6 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
                                                              itemId,
                                                              onClose,
                                                              isMobile = false,
-                                                             showAddToFavorites = true,
                                                              onRemoveFromFavorites,
                                                            }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -50,19 +45,10 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
     isManager: false,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
 
   const dispatch = useAppDispatch();
-  const router = useRouter();
   const widgetRef = useRef<HTMLDivElement>(null);
   const treeItems = useAppSelector((state) => state.tree.items);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const favorites = JSON.parse(localStorage.getItem('favorite-widgets') || '[]');
-      setIsFavorite(favorites.some((fav: any) => fav.id === itemId && fav.type === 'person-info'));
-    }
-  }, [itemId]);
 
   const findPersonData = (): PersonItem['data'] | null => {
     const findItem = (items: any[]): any => {
@@ -82,12 +68,12 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
 
     if (personData) {
       return {
-        firstName: personData.firstName || 'Не указано',
-        lastName: personData.lastName || 'Не указано',
-        position: personData.position || 'Сотрудник',
-        email: personData.email || 'Не указано',
-        phone: personData.phone || 'Не указано',
-        hireDate: personData.hireDate || 'Не указано',
+        firstName: personData.firstName || '',
+        lastName: personData.lastName || '',
+        position: personData.position || '',
+        email: personData.email || '',
+        phone: personData.phone || '',
+        hireDate: personData.hireDate || '',
         salary: personData.salary || 0,
         isManager: personData.isManager || false,
       };
@@ -212,41 +198,6 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
   const handleCloseClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onClose();
-  };
-
-  const handleToggleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation();
-
-    const favorites = JSON.parse(localStorage.getItem('favorite-widgets') || '[]');
-
-    if (isFavorite) {
-      const newFavorites = favorites.filter((fav: any) => !(fav.id === itemId && fav.type === 'person-info'));
-      localStorage.setItem('favorite-widgets', JSON.stringify(newFavorites));
-      setIsFavorite(false);
-
-      if (onRemoveFromFavorites) {
-        onRemoveFromFavorites();
-      }
-    } else {
-      const personData = findPersonData();
-      const newFavorite = {
-        id: itemId,
-        type: 'person-info',
-        title: 'Информация о сотруднике',
-        personName: `${personData?.firstName || ''} ${personData?.lastName || ''}`.trim() || 'Сотрудник',
-        position: personData?.position || 'Сотрудник',
-        addedDate: new Date().toISOString(),
-      };
-
-      favorites.push(newFavorite);
-      localStorage.setItem('favorite-widgets', JSON.stringify(favorites));
-      setIsFavorite(true);
-    }
-  };
-
-  const handleOpenInFavorites = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    router.push('/favorites');
   };
 
   const handleWidgetClick = (e: React.MouseEvent) => {
@@ -508,7 +459,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
 
             <div className={styles.infoItem}>
               <div className={styles.infoLabelWithIcon}>
-                <BadgeRussianRuble  size={14} />
+                <BadgeRussianRuble size={14} />
                 <span>Зарплата:</span>
               </div>
               {isEditing ? (
@@ -550,7 +501,6 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
             </div>
           </div>
         </div>
-
       </div>
 
       <div className={styles.footer}>
@@ -562,8 +512,6 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
               <span className={styles.viewStatus}>Режим просмотра</span>
             )}
           </div>
-
-
         </div>
       </div>
     </div>
