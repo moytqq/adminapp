@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 import treeReducer from './slices/treeSlice';
+import authReducer from './slices/authSlice';
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       tree: treeReducer,
+      auth: authReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({

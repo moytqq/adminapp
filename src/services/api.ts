@@ -12,6 +12,23 @@ const api = axios.create({
   },
 });
 
+export const authAPI = {
+  checkToken: async (token: string) => {
+    try {
+      const response = await api.get(`/check_token?token=${token}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error(error.response.data.message || 'Ошибка авторизации');
+      } else if (error.request) {
+        throw new Error('Нет ответа от сервера');
+      } else {
+        throw new Error('Ошибка при выполнении запроса');
+      }
+    }
+  }
+};
+
 export const treeApi = {
   getHierarchyTree: async (): Promise<ApiTreeItem[]> => {
     try {
