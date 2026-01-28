@@ -4,8 +4,8 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Provider } from 'react-redux';
 import { makeStore } from '@/store/store';
-import AuthInitializer from '@/components/AuthInitializer/AuthInitializer';
-import TokenHandler from '@/components/TokenHandler/TokenHandler';
+import { useEffect } from 'react';
+import { initializeAuth } from '@/store/slices/authSlice';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -16,15 +16,19 @@ export default function RootLayout({
 }>) {
   const store = makeStore();
 
+  useEffect(() => {
+    store.dispatch(initializeAuth());
+  }, [store]);
+
   return (
     <html lang="ru">
     <body className={inter.className}>
     <Provider store={store}>
-      <AuthInitializer />
-      <TokenHandler/>
       {children}
     </Provider>
     </body>
     </html>
   );
 }
+
+export const dynamic = 'force-dynamic';
