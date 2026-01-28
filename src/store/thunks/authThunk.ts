@@ -39,6 +39,7 @@ export const checkTokenFromUrl = createAsyncThunk(
   'auth/checkTokenFromUrl',
   async (token: string, { dispatch }) => {
     try {
+      dispatch(setLoading());
       const data: CheckTokenResponse = await authAPI.checkToken(token);
 
       if (data.status === 'valid' && data.userId && data.expiresAt) {
@@ -49,9 +50,11 @@ export const checkTokenFromUrl = createAsyncThunk(
         }));
         return { success: true, data };
       } else {
+        dispatch(setError(data.message || 'Неверный токен'));
         return { success: false, data };
       }
     } catch (error: any) {
+      dispatch(setError(error.message || 'Ошибка при проверке токена'));
       throw error;
     }
   }

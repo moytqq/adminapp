@@ -1,6 +1,10 @@
 import axios from 'axios';
 import { ApiTreeItem } from '@/types/tree.types';
 import Cookies from 'js-cookie';
+import { logout } from '@/store/slices/authSlice';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/store/store';
+
 
 export const API_BASE_URL = 'https://o4wb-xcdb-nu1f.gw-1a.dockhost.net/client_api';
 const API_PROXY_URL = '/api/proxy/client_api';
@@ -8,7 +12,7 @@ const API_PROXY_URL = '/api/proxy/client_api';
 const TOKEN_KEY = 'auth_token';
 
 const getToken = (): string | null => {
-    return Cookies.get(TOKEN_KEY) || null;
+  return Cookies.get(TOKEN_KEY) || null;
 };
 
 const api = axios.create({
@@ -16,9 +20,41 @@ const api = axios.create({
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-    Authorization: getToken() ? `Bearer ${getToken()}` : '',
   },
 });
+
+api.interceptors.request.use(
+  (config) => {
+    const token = getToken();
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const dispatch = useDispatch<AppDispatch>();
+    if (error.response?.status === 401) {
+        dispatch(logout());
+      if (typeof window !== 'undefined') {
+        Cookies.remove(TOKEN_KEY);
+        Cookies.remove('user_id');
+        Cookies.remove('token_expires');
+
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  },
+);
 
 export const authAPI = {
   checkToken: async (token: string) => {
