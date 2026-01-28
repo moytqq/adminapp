@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import Login from '@/components/Login/Login';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
@@ -46,7 +46,9 @@ function LoginPage() {
     );
   }
   return (
+    <Suspense>
     <Login />
+    </Suspense>
   );
 }
 
