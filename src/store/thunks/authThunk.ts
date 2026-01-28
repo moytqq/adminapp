@@ -34,3 +34,25 @@ export const checkToken = createAsyncThunk(
     }
   }
 );
+
+export const checkTokenFromUrl = createAsyncThunk(
+  'auth/checkTokenFromUrl',
+  async (token: string, { dispatch }) => {
+    try {
+      const data: CheckTokenResponse = await authAPI.checkToken(token);
+
+      if (data.status === 'valid' && data.userId && data.expiresAt) {
+        dispatch(setToken({
+          token,
+          userId: data.userId,
+          expiresAt: data.expiresAt,
+        }));
+        return { success: true, data };
+      } else {
+        return { success: false, data };
+      }
+    } catch (error: any) {
+      throw error;
+    }
+  }
+);

@@ -13,7 +13,13 @@ const Login = () => {
   const router = useRouter();
 
   const dispatch = useDispatch<AppDispatch>();
-  const { status, error, token: savedToken } = useSelector((state: RootState) => state.auth);
+  const { status, error, token: savedToken, tokenFromUrl } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    if (tokenFromUrl && !savedToken) {
+      setToken(tokenFromUrl);
+    }
+  }, [tokenFromUrl, savedToken]);
 
   useEffect(() => {
     if (savedToken) {
@@ -46,6 +52,22 @@ const Login = () => {
     setToken(e.target.value);
     if (inputError) setInputError('');
   };
+
+  if (tokenFromUrl && status === 'loading') {
+    return (
+      <div className={styles.container}>
+        <h1 className={styles.title}>
+          Удачный Ltd.
+        </h1>
+        <div className={styles.actionsContainer}>
+          <div className={styles.loadingMessage}>
+            <p>Проверяем токен авторизации...</p>
+            <div className={styles.spinner}></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>

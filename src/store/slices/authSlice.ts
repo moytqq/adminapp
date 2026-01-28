@@ -7,11 +7,13 @@ interface AuthState {
   expiresAt: string | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
+  tokenFromUrl: string | null;
 }
 
 const TOKEN_KEY = 'auth_token';
 const TOKEN_EXPIRES_KEY = 'token_expires';
 const USER_ID_KEY = 'user_id';
+const TOKEN_FROM_URL_KEY = 'token_from_url';
 
 const getTokenFromCookies = (): string | null => {
   return Cookies.get(TOKEN_KEY) || null;
@@ -32,6 +34,7 @@ const initialState: AuthState = {
   expiresAt: getExpiresFromCookies(),
   status: 'idle',
   error: null,
+  tokenFromUrl: Cookies.get(TOKEN_FROM_URL_KEY) || null,
 };
 
 const authSlice = createSlice({
@@ -70,6 +73,20 @@ const authSlice = createSlice({
       });
     },
 
+    setTokenFromUrl: (state, action: PayloadAction<string>) => {
+      state.tokenFromUrl = action.payload;
+      Cookies.set(TOKEN_FROM_URL_KEY, action.payload, {
+        expires: 1/24,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      });
+    },
+
+    clearTokenFromUrl: (state) => {
+      state.tokenFromUrl = null;
+      Cookies.remove(TOKEN_FROM_URL_KEY);
+    },
+
     setLoading: (state) => {
       state.status = 'loading';
     },
@@ -95,6 +112,7 @@ const authSlice = createSlice({
       state.token = getTokenFromCookies();
       state.userId = getUserIdFromCookies();
       state.expiresAt = getExpiresFromCookies();
+      state.tokenFromUrl = Cookies.get(TOKEN_FROM_URL_KEY) || null;
 
       if (state.token && state.userId && state.expiresAt) {
         const expiresAtDate = new Date(state.expiresAt);
@@ -115,5 +133,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setToken, setLoading, setError, logout, initializeAuth } = authSlice.actions;
+export const { setToken, setLoading, setError, logout, initializeAuth, setTokenFromUrl, clearTokenFromUrl } = authSlice.actions;
 export default authSlice.reducer;

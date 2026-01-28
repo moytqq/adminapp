@@ -4,6 +4,8 @@ import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { AppDispatch } from '@/store/store';
 import { logout } from '@/store/slices/authSlice';
+import { LogOut } from 'lucide-react';
+import styles from './LogoutButton.module.scss';
 
 export default function LogoutButton() {
   const dispatch = useDispatch<AppDispatch>();
@@ -11,12 +13,17 @@ export default function LogoutButton() {
 
   const handleLogout = () => {
     dispatch(logout());
-    router.push('/');
+    router.push('/login');
   };
 
   return (
-    <button onClick={handleLogout}>
-      Выйти
-    </button>
+    <div className={styles.logoutButtonContainer}>
+      <button
+        className={styles.logoutButton}
+        onClick={handleLogout}>
+        <LogOut size={24} />
+      </button>
+    </div>
+
   );
 }
