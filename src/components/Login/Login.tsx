@@ -53,22 +53,6 @@ const Login = () => {
     if (inputError) setInputError('');
   };
 
-  if (tokenFromUrl && status === 'loading') {
-    return (
-      <div className={styles.container}>
-        <h1 className={styles.title}>
-          Удачный Ltd.
-        </h1>
-        <div className={styles.actionsContainer}>
-          <div className={styles.loadingMessage}>
-            <p>Проверяем токен авторизации...</p>
-            <div className={styles.spinner}></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>

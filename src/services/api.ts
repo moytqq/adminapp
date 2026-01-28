@@ -1,14 +1,22 @@
 import axios from 'axios';
 import { ApiTreeItem } from '@/types/tree.types';
+import Cookies from 'js-cookie';
 
 export const API_BASE_URL = 'https://o4wb-xcdb-nu1f.gw-1a.dockhost.net/client_api';
-const API_PROXY_URL = '/api/proxy/client_api'
+const API_PROXY_URL = '/api/proxy/client_api';
+
+const TOKEN_KEY = 'auth_token';
+
+const getToken = (): string | null => {
+    return Cookies.get(TOKEN_KEY) || null;
+};
 
 const api = axios.create({
   baseURL: API_PROXY_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
+    Authorization: getToken() ? `Bearer ${getToken()}` : '',
   },
 });
 
@@ -26,7 +34,7 @@ export const authAPI = {
         throw new Error('Ошибка при выполнении запроса');
       }
     }
-  }
+  },
 };
 
 export const treeApi = {

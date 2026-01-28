@@ -1,12 +1,13 @@
 'use client';
 
-import React, { Suspense, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import Login from '@/components/Login/Login';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/store';
 import styles from './login.module.scss';
 import { checkTokenFromUrl } from '@/store/thunks/authThunk';
+import { setError } from '@/store/slices/authSlice';
 
 function LoginPage() {
   const searchParams = useSearchParams();
@@ -26,8 +27,12 @@ function LoginPage() {
           if (result.success) {
             router.push('/main');
           }
-        } catch (error) {
+          if (!result.success){
+            dispatch(setError("Неверный токен"))
+          }
+        } catch (error:any) {
           console.error('Ошибка авторизации:', error);
+          dispatch(setError(error.message || 'Ошибка при проверке токена'));
         }
       };
 
@@ -46,9 +51,7 @@ function LoginPage() {
     );
   }
   return (
-    <Suspense>
     <Login />
-    </Suspense>
   );
 }
 
