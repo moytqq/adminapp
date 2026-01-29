@@ -7,7 +7,7 @@ import PersonInfoWidget from '../PersonInfoWidget/PersonInfoWidget';
 import { createPortal } from 'react-dom';
 import { X, Star, StarOff } from 'lucide-react';
 import StoreInfoWidget from '@/components/StoreInfoWidget/StoreInfoWidget';
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector } from '@/store/hooks/hooks';
 
 interface WidgetPopupProps {
   itemId: string;

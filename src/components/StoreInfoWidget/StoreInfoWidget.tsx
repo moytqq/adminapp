@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import styles from './StoreInfoWidget.module.scss';
 import { updateItem } from '@/store/slices/treeSlice';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks/hooks';
 
 interface StoreInfoWidgetProps {
   itemId: string;

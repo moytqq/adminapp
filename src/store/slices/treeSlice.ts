@@ -259,7 +259,7 @@ const treeSlice = createSlice({
         console.log('Rebuilding tree with original API data');
 
         let treeData = buildTreeFromApiData(state.originalApiData);
-        treeData = enhanceTreeDataWithMockInfo(treeData);
+        //treeData = enhanceTreeDataWithMockInfo(treeData);
 
         if (newViewMode === 'store-departments') {
           treeData = transformTreeDataByViewMode(state.originalApiData, treeData, newViewMode);

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks';
 import { loadTreeData, toggleExpand } from '@/store/slices/treeSlice';
 import TreeItem from './TreeItem';
 import styles from './TreeList.module.scss';

@@ -1,60 +1,69 @@
 import axios from 'axios';
 import { ApiTreeItem } from '@/types/tree.types';
 import Cookies from 'js-cookie';
-import { logout } from '@/store/slices/authSlice';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '@/store/store';
-
 
 export const API_BASE_URL = 'https://o4wb-xcdb-nu1f.gw-1a.dockhost.net/client_api';
 const API_PROXY_URL = '/api/proxy/client_api';
 
 const TOKEN_KEY = 'auth_token';
+const USER_ID_KEY = 'user_id';
+const TOKEN_EXPIRES_KEY = 'token_expires';
 
-const getToken = (): string | null => {
+export const createApi = () => {
+  const api = axios.create({
+    baseURL: API_PROXY_URL,
+    timeout: 10000,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  api.interceptors.request.use(
+    (config) => {
+      const token = Cookies.get(TOKEN_KEY);
+
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
+  api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 401) {
+        Cookies.remove(TOKEN_KEY);
+        Cookies.remove(USER_ID_KEY);
+        Cookies.remove(TOKEN_EXPIRES_KEY);
+
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
+
+  return api;
+};
+
+export const api = createApi();
+
+export const getToken = (): string | null => {
   return Cookies.get(TOKEN_KEY) || null;
 };
 
-const api = axios.create({
-  baseURL: API_PROXY_URL,
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-api.interceptors.request.use(
-  (config) => {
-    const token = getToken();
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
-
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const dispatch = useDispatch<AppDispatch>();
-    if (error.response?.status === 401) {
-        dispatch(logout());
-      if (typeof window !== 'undefined') {
-        Cookies.remove(TOKEN_KEY);
-        Cookies.remove('user_id');
-        Cookies.remove('token_expires');
-
-        window.location.href = '/login';
-      }
-    }
-    return Promise.reject(error);
-  },
-);
+export const checkAuthAndRedirect = () => {
+  const token = getToken();
+  if (!token && typeof window !== 'undefined') {
+    window.location.href = '/login';
+  }
+};
 
 export const authAPI = {
   checkToken: async (token: string) => {
@@ -76,16 +85,25 @@ export const authAPI = {
 export const treeApi = {
   getHierarchyTree: async (): Promise<ApiTreeItem[]> => {
     try {
+      checkAuthAndRedirect();
+
       const response = await api.get('/get_hierarchy_tree');
       return response.data;
     } catch (error) {
       console.error('Error fetching hierarchy tree:', error);
+
+      if (axios.isAxiosError(error) && error.response?.status !== 401) {
+        throw error;
+      }
+
       throw error;
     }
   },
 
   getItemDetails: async (id: number, type: string) => {
     try {
+      checkAuthAndRedirect();
+
       const response = await api.get(`/get_item_details/${type}/${id}`);
       return response.data;
     } catch (error) {
@@ -96,6 +114,8 @@ export const treeApi = {
 
   updateItem: async (id: number, updates: Partial<ApiTreeItem>) => {
     try {
+      checkAuthAndRedirect();
+
       const response = await api.put(`/update_item/${id}`, updates);
       return response.data;
     } catch (error) {
@@ -103,5 +123,4 @@ export const treeApi = {
       throw error;
     }
   },
-
 };

@@ -17,7 +17,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import styles from './PersonInfoWidget.module.scss';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks/hooks';
 import { updatePersonData } from '@/store/slices/treeSlice';
 
 interface PersonInfoWidgetProps {

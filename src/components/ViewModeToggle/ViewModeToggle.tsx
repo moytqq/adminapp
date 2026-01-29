@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { LayoutGrid, Store } from 'lucide-react';
 import styles from './ViewModeToggle.module.scss';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks';
 import { switchViewMode } from '@/store/slices/treeSlice';
 import { TreeViewMode } from '@/types/tree.types';
 

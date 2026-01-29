@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 import { Star, User, Building2, Users, Store, Trash2, ArrowLeft, X } from 'lucide-react';
 import styles from './Favorites.module.scss';
 import PersonInfoWidget from '@/components/PersonInfoWidget/PersonInfoWidget';
-import { useAppDispatch } from '@/store/hooks';
+import { useAppDispatch } from '@/store/hooks/hooks';
 import { loadTreeData } from '@/store/slices/treeSlice';
 import { createPortal } from 'react-dom';
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector } from '@/store/hooks/hooks';
 import StoreInfoWidget from '@/components/StoreInfoWidget/StoreInfoWidget';
 
 interface FavoriteWidget {

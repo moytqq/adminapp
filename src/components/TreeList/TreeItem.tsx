@@ -18,7 +18,7 @@ import styles from './TreeList.module.scss';
 import WidgetPopup from '../WidgetPopup/WidgetPopup';
 import { createPortal } from 'react-dom';
 import { getColorForType } from '@/utils/treeTypeHelpers';
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector } from '@/store/hooks/hooks';
 
 interface TreeItemProps {
   item: TreeItemType;

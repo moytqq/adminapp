@@ -4,10 +4,11 @@ import dynamic from 'next/dynamic';
 import { loadTreeData } from '@/store/slices/treeSlice';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
-import { useAppDispatch } from '@/store/hooks';
+import { useAppDispatch } from '@/store/hooks/hooks';
 import { useEffect } from 'react';
 import styles from './main.module.scss';
 import LogoutButton from '@/components/LogoutButton/LogoutButton';
+import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
 
 const TreeList = dynamic(() => import('@/components/TreeList/TreeList'), {
   ssr: false,
@@ -50,23 +51,25 @@ function TreeDataLoader() {
 export default function Home() {
   return (
     <>
-      <LogoutButton/>
-      <TreeDataLoader />
-      <header className={styles.header}>
-        <h1 className={styles.title}>Иерархия компании</h1>
-        <Link
-          href="/favorites"
-          className={styles.favoritesLink}
-          aria-label="Избранные виджеты"
-          title="Избранные виджеты"
-        >
-          <Star size={24} />
-          <span className={styles.favoritesText}>Избранные виджеты</span>
-        </Link>
-      </header>
-      <main>
-        <TreeList />
-      </main>
+      <ProtectedRoute>
+        <LogoutButton />
+        <TreeDataLoader />
+        <header className={styles.header}>
+          <h1 className={styles.title}>Иерархия компании</h1>
+          <Link
+            href="/favorites"
+            className={styles.favoritesLink}
+            aria-label="Избранные виджеты"
+            title="Избранные виджеты"
+          >
+            <Star size={24} />
+            <span className={styles.favoritesText}>Избранные виджеты</span>
+          </Link>
+        </header>
+        <main>
+          <TreeList />
+        </main>
+      </ProtectedRoute>
     </>
   );
 }
