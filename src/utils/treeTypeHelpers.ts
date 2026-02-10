@@ -4,7 +4,7 @@ import {
   CompanyItem,
   DepartmentItem,
   StoreItem,
-  PersonItem
+  PersonItem, AddressItem,
 } from '@/types/tree.types';
 
 export const isCompanyItem = (item: TreeItem): item is CompanyItem => {
@@ -23,6 +23,10 @@ export const isPersonItem = (item: TreeItem): item is PersonItem => {
   return item.type === TreeItemType.PERSON;
 };
 
+export const isAddressItem = (item: TreeItem): item is AddressItem => {
+  return item.type === TreeItemType.ADDRESS;
+};
+
 export const getColorForType = (type: TreeItemType): string => {
   switch (type) {
     case TreeItemType.COMPANY:
@@ -33,6 +37,8 @@ export const getColorForType = (type: TreeItemType): string => {
       return '#ff9800';
     case TreeItemType.PERSON:
       return '#9c27b0';
+    case TreeItemType.ADDRESS:
+      return '#00bcd4';
     default:
       return '#757575';
   }

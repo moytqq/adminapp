@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { LayoutGrid, Store } from 'lucide-react';
+import { LayoutGrid, Store, MapPin } from 'lucide-react';
 import styles from './ViewModeToggle.module.scss';
 import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks';
 import { switchViewMode } from '@/store/slices/treeSlice';
@@ -46,17 +46,17 @@ const ViewModeToggle: React.FC = () => {
       </button>
 
       <button
-        className={`${styles.toggleButton} ${viewMode === 'store-departments' ? styles.active : ''}`}
-        onClick={() => handleSwitchView('store-departments')}
+        className={`${styles.toggleButton} ${viewMode === 'addresses' ? styles.active : ''}`}
+        onClick={() => handleSwitchView('addresses')}
         disabled={loading}
-        aria-label={isMobile ? "Магазины" : "Отображение по магазинам и отделам"}
-        title="Отображение по магазинам и отделам"
+        aria-label={isMobile ? "Адреса" : "Отображение по адресам"}
+        title="Отображение по адресам"
       >
-        <Store size={isMobile ? 20 : 18} />
-        {!isMobile && <span>Магазины → Отделы</span>}
+        <MapPin size={isMobile ? 20 : 18} />
+        {!isMobile && <span>Адреса</span>}
       </button>
     </div>
   );
 };
 
-export default ViewModeToggle;
+export default React.memo(ViewModeToggle);

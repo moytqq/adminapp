@@ -86,16 +86,21 @@ export const treeApi = {
   getHierarchyTree: async (): Promise<ApiTreeItem[]> => {
     try {
       checkAuthAndRedirect();
-
       const response = await api.get('/get_hierarchy_tree');
       return response.data;
     } catch (error) {
       console.error('Error fetching hierarchy tree:', error);
+      throw error;
+    }
+  },
 
-      if (axios.isAxiosError(error) && error.response?.status !== 401) {
-        throw error;
-      }
-
+  getAddressTree: async (): Promise<ApiTreeItem[]> => {
+    try {
+      checkAuthAndRedirect();
+      const response = await api.get('/get_address_tree');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching address tree:', error);
       throw error;
     }
   },

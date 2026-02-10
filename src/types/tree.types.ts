@@ -24,6 +24,7 @@ export enum TreeItemType {
   DEPARTMENT = 'Department',
   STORE = 'Store',
   PERSON = 'Person',
+  ADDRESS = 'Address',
 }
 
 export interface CompanyItem extends BaseTreeItem {
@@ -65,8 +66,6 @@ export interface StoreItem extends BaseTreeItem {
     openingDate?: string;
     originalId?: number;
     originalIds?: number[];
-    departmentIds?: number[];
-    departmentNames: string[];
   };
 }
 
@@ -87,26 +86,28 @@ export interface PersonItem extends BaseTreeItem {
   };
 }
 
-export type TreeItem = CompanyItem | DepartmentItem | StoreItem | PersonItem;
+export interface AddressItem extends BaseTreeItem {
+  type: TreeItemType.ADDRESS;
+  data: {
+    addressName: string;
+    fullAddress: string;
+    storeCount?: number;
+    description?: string;
+  };
+}
+
+export type TreeItem = CompanyItem | DepartmentItem | StoreItem | PersonItem | AddressItem;
 
 export interface ApiTreeItem {
   id: number;
   name: string;
   parent_id: number;
-  type: 'Company' | 'Department' | 'Store' | 'Person';
+  type: 'Company' | 'Department' | 'Store' | 'Person' | 'Address'; // Добавляем Address
   description?: string;
   data?: any;
 }
 
-export type TreeViewMode = 'hierarchy' | 'store-departments';
-
-export interface TreeState {
-  items: TreeItem[];
-  selectedItemId: string | null;
-  loading: boolean;
-  error: string | null;
-  viewMode: TreeViewMode;
-}
+export type TreeViewMode = 'hierarchy' | 'store-departments' | 'addresses';
 
 export interface WidgetItem {
   id: string;
@@ -116,6 +117,7 @@ export interface WidgetItem {
   availableFor?: TreeItemType[];
   icon?: string;
 }
+
 export interface FavoriteWidget {
   id: string;
   type: string;

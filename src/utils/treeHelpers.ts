@@ -4,35 +4,33 @@ import {
   CompanyItem,
   DepartmentItem,
   StoreItem,
-  PersonItem
+  PersonItem, ApiTreeItem, TreeViewMode,
 } from '@/types/tree.types';
-import { treeApi } from '@/services/api';
-import { buildTreeFromApiData, enhanceTreeDataWithMockInfo } from './apiTransformers';
-import { transformTreeDataByViewMode } from '@/utils/storeDepartmentTransformer';
+import { transformToAddressView } from './addressTransformer';
+import { transformToStoreDepartmentView } from '@/utils/storeDepartmentTransformer';
 
-export const fetchTreeDataFromApi = async (viewMode: 'hierarchy' | 'store-departments' = 'hierarchy'): Promise<TreeItem[]> => {
-  try {
-    console.log('Fetching tree data from API, viewMode:', viewMode);
-    const apiData = await treeApi.getHierarchyTree();
-
-    let treeData = buildTreeFromApiData(apiData);
-    treeData = enhanceTreeDataWithMockInfo(treeData);
-
-    if (viewMode === 'store-departments') {
+export const transformTreeDataByViewMode = (
+  apiItems: ApiTreeItem[],
+  originalTreeItems: TreeItem[],
+  viewMode: TreeViewMode
+): TreeItem[] => {
+  switch (viewMode) {
+    case 'store-departments':
       console.log('Transforming to store-department view');
-      treeData = transformTreeDataByViewMode(apiData, treeData, viewMode);
-    }
+      return transformToStoreDepartmentView(apiItems);
 
-    console.log('Tree data built:', treeData);
-    return treeData;
-  } catch (error) {
-    console.error('Error fetching tree data from API:', error);
-    console.log('Using fallback mock data');
-    return fetchMockTreeData(viewMode);
+    case 'addresses':
+      console.log('Transforming to address view');
+      return transformToAddressView(apiItems);
+
+    case 'hierarchy':
+    default:
+      console.log('Using hierarchical view');
+      return originalTreeItems;
   }
 };
 
-export const fetchMockTreeData = async (viewMode: 'hierarchy' | 'store-departments' = 'hierarchy'): Promise<TreeItem[]> => {
+export const fetchMockTreeData = async (viewMode: 'hierarchy' | 'store-departments' | 'addresses'): Promise<TreeItem[]> => {
   await new Promise(resolve => setTimeout(resolve, 500));
 
   // if (viewMode === 'store-departments') {
@@ -322,4 +320,3 @@ export const fetchMockTreeData = async (viewMode: 'hierarchy' | 'store-departmen
   ];
 };
 
-export const fetchTreeData = fetchTreeDataFromApi;

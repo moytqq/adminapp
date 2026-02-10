@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks';
 import { loadTreeData, toggleExpand } from '@/store/slices/treeSlice';
 import TreeItem from './TreeItem';
@@ -16,10 +16,14 @@ const TreeList: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
+  const loadData = useCallback(() => {
+    dispatch(loadTreeData());
+  }, [dispatch]);
+
   useEffect(() => {
     console.log('TreeList useEffect triggered, viewMode:', viewMode);
-    dispatch(loadTreeData());
-  }, [dispatch, viewMode]);
+    loadData();
+  }, [loadData, viewMode]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -46,6 +50,19 @@ const TreeList: React.FC = () => {
       console.error('Failed to refresh data:', err);
     } finally {
       setIsRefreshing(false);
+    }
+  };
+
+  const getTitle = () => {
+    switch (viewMode) {
+      case 'hierarchy':
+        return 'Иерархия компании';
+      case 'store-departments':
+        return 'Магазины и отделы';
+      case 'addresses':
+        return 'Адреса и магазины';
+      default:
+        return 'Неизвестный тип отображения';
     }
   };
 
@@ -79,7 +96,7 @@ const TreeList: React.FC = () => {
         <div className={styles.headerTop}>
           <div className={styles.titleSection}>
             <h1>
-              {viewMode === 'hierarchy' ? 'Иерархия компании' : 'Магазины и отделы'}
+              {getTitle()}
             </h1>
             {isMobile && (
               <div className={styles.mobileToggleContainer}>
@@ -127,4 +144,4 @@ const TreeList: React.FC = () => {
   );
 };
 
-export default TreeList;
+export default React.memo(TreeList);

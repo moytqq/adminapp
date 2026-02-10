@@ -13,6 +13,7 @@ import {
   Plus,
   X,
   ChevronRight,
+  MapPin
 } from 'lucide-react';
 import styles from './TreeList.module.scss';
 import WidgetPopup from '../WidgetPopup/WidgetPopup';
@@ -107,6 +108,8 @@ const TreeItem: React.FC<TreeItemProps> = ({
         return <Store size={18} color={iconColor} />;
       case ItemType.PERSON:
         return <User size={18} color={iconColor} />;
+      case ItemType.ADDRESS:
+        return <MapPin size={18} color={iconColor} />;
       default:
         return <Store size={18} color={iconColor} />;
     }

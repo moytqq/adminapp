@@ -96,7 +96,6 @@ export const transformToStoreDepartmentView = (
         employeeCount: Math.floor(Math.random() * 50) + 5,
         openingDate: generateOpeningDate(),
         originalIds: group.originalItems.map(item => item.id),
-        departmentNames: Array.from(group.departmentNames)
       }
     };
 
@@ -105,10 +104,6 @@ export const transformToStoreDepartmentView = (
 
   storeItems.sort((a, b) => a.label.localeCompare(b.label));
 
-  console.log('Store groups created:');
-  storeItems.forEach((store, i) => {
-    console.log(`${i + 1}. "${store.label}" - отделы: ${store.data.departmentNames.join(', ')}`);
-  });
 
   return storeItems;
 };
@@ -231,7 +226,7 @@ const generateOpeningDate = (): string => {
 };
 
 
-export const transformTreeDataByViewMode = (
+const transformTreeDataByViewMode = (
   apiItems: ApiTreeItem[],
   originalTreeItems: TreeItem[],
   viewMode: 'hierarchy' | 'store-departments'

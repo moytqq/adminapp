@@ -5,7 +5,7 @@ import {
   CompanyItem,
   DepartmentItem,
   StoreItem,
-  PersonItem
+  PersonItem, AddressItem,
 } from '@/types/tree.types';
 
 const mapApiTypeToTreeItemType = (apiType: string): TreeItemType => {
@@ -18,6 +18,8 @@ const mapApiTypeToTreeItemType = (apiType: string): TreeItemType => {
       return TreeItemType.STORE;
     case 'Person':
       return TreeItemType.PERSON;
+    case 'Address':
+      return TreeItemType.ADDRESS;
     default:
       return TreeItemType.PERSON;
   }
@@ -68,6 +70,17 @@ const transformApiItemToTreeItem = (apiItem: ApiTreeItem): TreeItem => {
           ...(apiItem.data || {})
         }
       } as StoreItem;
+
+    case TreeItemType.ADDRESS:
+      return {
+        ...baseItem,
+        type: TreeItemType.ADDRESS,
+        data: {
+          addressName: apiItem.name,
+          fullAddress: apiItem.description || '',
+          storeCount: 0,
+        }
+      } as AddressItem;
 
     case TreeItemType.PERSON:
       const nameParts = apiItem.name.split(' ');
