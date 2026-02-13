@@ -1,0 +1,407 @@
+.card {
+  padding: 16px;
+  background: #f8f9fa;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #e0e0e0;
+  }
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.titleSection {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.staffInfo {
+  flex: 1;
+}
+
+.staffName {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.staffMeta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #666;
+
+  svg {
+    color: #999;
+  }
+}
+
+.editForm {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.editInput {
+  flex: 1;
+  min-width: 120px;
+  padding: 6px 10px;
+  border: 2px solid #2196f3;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unassignButton {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ff9800;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f57c00;
+  }
+}
+
+.menuContainer {
+  position: relative;
+}
+
+.menuButton {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #666;
+
+  &:hover {
+    background: #e0e0e0;
+  }
+}
+
+.menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e0e0e0;
+  z-index: 10;
+  min-width: 160px;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+
+  &.deleteItem {
+    color: #f44336;
+    border-top: 1px solid #e0e0e0;
+
+    &:hover {
+      background: #ffebee;
+    }
+  }
+}
+
+.infoSection {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #e0e0e0;
+}
+
+.infoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.infoTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+}
+
+.addInfoButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #e0e0e0;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #bdbdbd;
+    color: #333;
+  }
+}
+
+.addInfoForm {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.infoSelect,
+.infoInput {
+  padding: 6px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 13px;
+  outline: none;
+
+  &:focus {
+    border-color: #2196f3;
+  }
+}
+
+.infoSelect {
+  width: 100px;
+}
+
+.infoInput {
+  flex: 1;
+  min-width: 120px;
+}
+
+.infoActions {
+  display: flex;
+  gap: 4px;
+}
+
+.infoSaveButton,
+.infoCancelButton {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.infoSaveButton {
+  background: #4caf50;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: #45a049;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.infoCancelButton {
+  background: #f5f5f5;
+  color: #666;
+
+  &:hover {
+    background: #e0e0e0;
+  }
+}
+
+.infoList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 6px;
+  font-size: 13px;
+  position: relative;
+  min-height: 40px;
+
+  &:hover {
+    background: #f8f9fa;
+  }
+}
+
+.infoLabel {
+  font-weight: 500;
+  color: #666;
+  min-width: 100px;
+}
+
+.infoValue {
+  color: #333;
+  flex: 1;
+}
+
+.infoItemActions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.infoItem:hover .infoItemActions {
+  opacity: 1;
+}
+
+.infoItemEdit,
+.infoItemDelete {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #666;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+}
+
+.infoItemDelete:hover {
+  color: #f44336;
+}
+
+.editInfoForm {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.infoEditSelect,
+.infoEditInput {
+  padding: 6px 10px;
+  border: 2px solid #2196f3;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  background: white;
+}
+
+.infoEditSelect {
+  width: 100px;
+  cursor: pointer;
+}
+
+.infoEditInput {
+  flex: 1;
+  min-width: 120px;
+}
+
+.infoEditSave,
+.infoEditCancel {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+
+.infoEditSave {
+  background: #4caf50;
+  color: white;
+
+  &:hover {
+    background: #45a049;
+  }
+}
+
+.infoEditCancel {
+  background: #f5f5f5;
+  color: #666;
+
+  &:hover {
+    background: #e0e0e0;
+  }
+}
+
+.noInfo {
+  margin: 8px 0;
+  font-size: 13px;
+  color: #999;
+  font-style: italic;
+}

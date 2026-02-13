@@ -44,7 +44,6 @@ const StoreInfoWidget: React.FC<StoreInfoWidgetProps> = ({
     employeeCount: 0,
     openingDate: '',
     originalIds: [],
-    departmentNames: []
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -79,7 +78,6 @@ const StoreInfoWidget: React.FC<StoreInfoWidgetProps> = ({
         employeeCount: storeData.employeeCount || 0,
         openingDate: storeData.openingDate || '',
         originalIds: storeData.originalIds || [],
-        departmentNames: storeData.departmentNames || [],
       };
     }
 
@@ -102,7 +100,6 @@ const StoreInfoWidget: React.FC<StoreInfoWidgetProps> = ({
         employeeCount: 10,
         openingDate: '2023-01-01',
         originalIds: [],
-        departmentNames: ['Отдел 1', 'Отдел 2'],
       });
     }
   }, [itemId, treeItems]);
@@ -126,7 +123,6 @@ const StoreInfoWidget: React.FC<StoreInfoWidgetProps> = ({
       employeeCount: editedData.employeeCount || 0,
       openingDate: editedData.openingDate || '',
       originalIds: editedData.originalIds || [],
-      departmentNames: editedData.departmentNames || [],
     };
 
     dispatch(updateItem({
@@ -237,7 +233,6 @@ const StoreInfoWidget: React.FC<StoreInfoWidgetProps> = ({
   const getRevenue = () => editedData.revenue || 0;
   const getEmployeeCount = () => editedData.employeeCount || 0;
   const getOpeningDate = () => editedData.openingDate || 'Не указано';
-  const getDepartmentNames = () => editedData.departmentNames || [];
 
   return (
     <div
@@ -484,19 +479,6 @@ const StoreInfoWidget: React.FC<StoreInfoWidgetProps> = ({
                 <span className={styles.infoValue}>{getDescription()}</span>
               )}
             </div>
-
-            {getDepartmentNames().length > 0 && (
-              <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Отделы:</span>
-                <div className={styles.departmentList}>
-                  {getDepartmentNames().map((dept, index) => (
-                    <span key={index} className={styles.departmentTag}>
-                      {dept}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>

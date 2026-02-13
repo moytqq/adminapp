@@ -1,0 +1,157 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks';
+import {
+  loadAllStaff,
+  loadAllPositions,
+} from '@/store/slices/personalSlice';
+import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
+import LogoutButton from '@/components/LogoutButton/LogoutButton';
+import PositionCard from '@/components/StaffPage/PositionCard';
+import AddPositionModal from '@/components/StaffPage/AddPositionModal';
+import AddStaffModal from '@/components/StaffPage/AddStaffModal';
+import styles from './staff.module.scss';
+import { ArrowLeft, Plus, Users, Briefcase } from 'lucide-react';
+import Link from 'next/link';
+import { TreeItemType } from '@/types/tree.types';
+
+export default function StaffPage() {
+  const dispatch = useAppDispatch();
+  const { positions, staff, loading } = useAppSelector((state) => state.personal);
+  const { items } = useAppSelector((state) => state.tree);
+  const [showAddPositionModal, setShowAddPositionModal] = useState(false);
+  const [showAddStaffModal, setShowAddStaffModal] = useState(false);
+
+  const [storeNamesMap, setStoreNamesMap] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    dispatch(loadAllStaff());
+    dispatch(loadAllPositions());
+  }, [dispatch]);
+
+  useEffect(() => {
+    const extractStoreNames = (items: any[]): Record<string, string> => {
+      const map: Record<string, string> = {};
+
+      const traverse = (items: any[]) => {
+        items.forEach(item => {
+          if (item.type === TreeItemType.STORE) {
+            const match = item.id.match(/\d+$/);
+            const hid = match ? match[0] : item.id;
+            map[hid] = item.label || item.data?.storeName || 'Магазин';
+          }
+          if (item.children) {
+            traverse(item.children);
+          }
+        });
+      };
+
+      traverse(items);
+      return map;
+    };
+
+    setStoreNamesMap(extractStoreNames(items));
+  }, [items]);
+
+  const positionsByHid = positions.reduce((acc, position) => {
+    if (!acc[position.hid]) {
+      acc[position.hid] = [];
+    }
+    acc[position.hid].push(position);
+    return acc;
+  }, {} as Record<string, typeof positions>);
+
+  const sortedPositions = [...positions].sort((a, b) => {
+    if (a.lsid === null && b.lsid !== null) return -1;
+    if (a.lsid !== null && b.lsid === null) return 1;
+    return a.name.localeCompare(b.name);
+  });
+
+  const vacantPositions = positions.filter(p => p.lsid === null);
+  const occupiedPositions = positions.filter(p => p.lsid !== null);
+
+  return (
+    <ProtectedRoute>
+      <LogoutButton />
+      <header className={styles.header}>
+        <div className={styles.headerLeft}>
+          <Link href="/main" className={styles.backButton}>
+            <ArrowLeft size={20} />
+            <span>На главную</span>
+          </Link>
+          <h1 className={styles.title}>Сотрудники и позиции</h1>
+        </div>
+        <div className={styles.actions}>
+          <button
+            className={styles.addButton}
+            onClick={() => setShowAddPositionModal(true)}
+          >
+            <Briefcase size={18} />
+            <span>Добавить позицию</span>
+          </button>
+          <button
+            className={styles.addButton}
+            onClick={() => setShowAddStaffModal(true)}
+          >
+            <Users size={18} />
+            <span>Добавить сотрудника</span>
+          </button>
+        </div>
+      </header>
+
+      <main className={styles.content}>
+        <div className={styles.stats}>
+          <div className={styles.statCard}>
+            <div className={styles.statValue}>{positions.length}</div>
+            <div className={styles.statLabel}>Всего позиций</div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statValue}>{vacantPositions.length}</div>
+            <div className={styles.statLabel}>Свободных</div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statValue}>{occupiedPositions.length}</div>
+            <div className={styles.statLabel}>Занятых</div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statValue}>{staff.length}</div>
+            <div className={styles.statLabel}>Сотрудников</div>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className={styles.loading}>
+            <div className={styles.spinner} />
+            <p>Загрузка данных...</p>
+          </div>
+        ) : (
+          <div className={styles.positionsGrid}>
+            {sortedPositions.map((position) => {
+              const assignedStaff = staff.find(s => s.lsid === position.lsid);
+              return (
+                <PositionCard
+                  key={position.id}
+                  position={position}
+                  staff={assignedStaff}
+                  allStaff={staff}
+                  storeName={storeNamesMap[position.hid]}
+                />
+              );
+            })}
+          </div>
+        )}
+      </main>
+
+      <AddPositionModal
+        isOpen={showAddPositionModal}
+        onClose={() => setShowAddPositionModal(false)}
+      />
+
+      <AddStaffModal
+        isOpen={showAddStaffModal}
+        onClose={() => setShowAddStaffModal(false)}
+      />
+    </ProtectedRoute>
+  );
+}

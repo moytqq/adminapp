@@ -8,6 +8,7 @@ import { createPortal } from 'react-dom';
 import { X, Star, StarOff } from 'lucide-react';
 import StoreInfoWidget from '@/components/StoreInfoWidget/StoreInfoWidget';
 import { useAppSelector } from '@/store/hooks/hooks';
+import PersonnelManagementWidget from '../PersonnelManagementWidget/PersonnelManagementWidget';
 
 interface WidgetPopupProps {
   itemId: string;
@@ -29,6 +30,23 @@ export interface FavoriteWidget {
 }
 
 const WIDGETS_BY_TYPE: Record<TreeItemType, WidgetItem[]> = {
+  [TreeItemType.ADDRESS]: [],
+  [TreeItemType.STORE]: [
+    {
+      id: 'store-info',
+      title: 'Информация о магазине',
+      description: 'Основные данные и контакты магазина',
+      type: 'store-info',
+      availableFor: [TreeItemType.STORE],
+    },
+    {
+      id: 'store-personnel',
+      title: 'Сотрудники и позиции',
+      description: 'Управление персоналом и вакансиями магазина',
+      type: 'personnel-management',
+      availableFor: [TreeItemType.STORE],
+    },
+  ],
   [TreeItemType.COMPANY]: [
     {
       id: 'company-1',
@@ -89,15 +107,6 @@ const WIDGETS_BY_TYPE: Record<TreeItemType, WidgetItem[]> = {
       availableFor: [TreeItemType.DEPARTMENT, TreeItemType.STORE],
     },
   ],
-  [TreeItemType.STORE]: [
-    {
-      id: 'store-info',
-      title: 'Информация о магазине',
-      description: 'Основные данные и контакты магазина',
-      type: 'store-info',
-      availableFor: [TreeItemType.STORE]
-    },
-  ],
   [TreeItemType.PERSON]: [
     {
       id: 'person-1',
@@ -142,9 +151,13 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
     const [isMobile, setIsMobile] = useState<boolean | null>(null);
     const [showPersonWidget, setShowPersonWidget] = useState(false);
     const [showStoreWidget, setShowStoreWidget] = useState(false);
+    const [showPersonnelWidget, setShowPersonnelWidget] = useState(false);
+    const [selectedHid, setSelectedHid] = useState<string>('');
+    const [selectedItemName, setSelectedItemName] = useState<string>('');
     const [favoriteWidgets, setFavoriteWidgets] = useState<FavoriteWidget[]>([]);
     const popupRef = useRef<HTMLDivElement>(null);
     const widgetContainerRef = useRef<HTMLDivElement>(null);
+    const [activeWidget, setActiveWidget] = useState<'person' | 'store' | 'personnel' | null>(null);
     const clickOriginRef = useRef<'popup' | 'widget' | 'outside' | null>(null);
 
     const availableWidgets = WIDGETS_BY_TYPE[itemType] || [];
@@ -203,7 +216,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
 
       const newFavorites = [...favoriteWidgets];
       const existingIndex = newFavorites.findIndex(
-        fav => fav.itemId === itemId && fav.type === widgetType
+        fav => fav.itemId === itemId && fav.type === widgetType,
       );
 
       if (existingIndex > -1) {
@@ -264,7 +277,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
           personName: widgetType === 'person-info' ? widgetTitle : undefined,
           position: widgetType === 'person-info' ? 'Сотрудник' : undefined,
           storeName: widgetType === 'store-info' ? storeName : undefined,
-          addedDate: new Date().toISOString()
+          addedDate: new Date().toISOString(),
         };
         newFavorites.push(newFavorite);
       }
@@ -289,15 +302,27 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
 
     const handleWidgetClick = (widgetType: string, e: React.MouseEvent) => {
       e.stopPropagation();
-      if (widgetType === 'person-info') {
-        setShowPersonWidget(true);
-      } else if (widgetType === 'store-info') {
-        setShowStoreWidget(true);
-      } else {
-        onAddWidget(widgetType);
-      }
-    };
 
+      setActiveWidget(null);
+
+      setTimeout(() => {
+        if (widgetType === 'person-info') {
+          setActiveWidget('person');
+        } else if (widgetType === 'store-info') {
+          setActiveWidget('store');
+        } else if (widgetType === 'personnel-management') {
+          if (itemType === TreeItemType.STORE) {
+            const hid = getHidFromItemId(itemId);
+            const itemName = getItemNameFromTree(itemId);
+            setSelectedHid(hid);
+            setSelectedItemName(itemName);
+            setActiveWidget('personnel');
+          }
+        } else {
+          onAddWidget(widgetType);
+        }
+      }, 50);
+    };
 
     const handlePersonWidgetClose = () => {
       setShowPersonWidget(false);
@@ -316,6 +341,32 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
     const getWidgetPosition = () => {
       if (isMobile) return 'mobile-bottom';
       return 'desktop-left';
+    };
+
+    const getHidFromItemId = (itemId: string): string => {
+      const match = itemId.match(/\d+$/);
+      if (match) {
+        return match[0];
+      }
+      return itemId;
+    };
+
+    const getItemNameFromTree = (itemId: string): string => {
+      const findItem = (items: any[]): any => {
+        for (const item of items) {
+          if (item.id === itemId) {
+            return item;
+          }
+          if (item.children) {
+            const found = findItem(item.children);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+
+      const item = findItem(treeItems);
+      return item?.label || '';
     };
 
     useEffect(() => {
@@ -361,7 +412,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
 
         <div
           ref={popupRef}
-          className={`${styles.popup} ${isMobile === null ? styles.hidden : isMobile? styles.mobile : styles.desktop}`}
+          className={`${styles.popup} ${isMobile === null ? styles.hidden : isMobile ? styles.mobile : styles.desktop}`}
           onMouseDown={(e) => handleMouseDown(e, 'popup')}
           onClick={handleClick}
           data-testid="widget-popup"
@@ -414,33 +465,49 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
           </div>
         </div>
 
-        {showPersonWidget && createPortal(
+        {activeWidget === 'personnel' && createPortal(
           <div
             ref={widgetContainerRef}
             className={`${styles.personWidgetWrapper} ${styles[getWidgetPosition()]}`}
             onMouseDown={(e) => handleMouseDown(e, 'widget')}
             onClick={handleClick}
-            data-testid="person-widget-container"
           >
-            <PersonInfoWidget
-              itemId={itemId}
-              onClose={handlePersonWidgetClose}
+            <PersonnelManagementWidget
+              hid={selectedHid}
+              itemName={selectedItemName}
+              onClose={() => setActiveWidget(null)}
               isMobile={isMobile}
             />
           </div>,
-          document.body,
+          document.body
         )}
-        {showStoreWidget && createPortal(
+
+        {activeWidget === 'person' && createPortal(
           <div
             ref={widgetContainerRef}
             className={`${styles.personWidgetWrapper} ${styles[getWidgetPosition()]}`}
             onMouseDown={(e) => handleMouseDown(e, 'widget')}
             onClick={handleClick}
-            data-testid="store-widget-container"
+          >
+            <PersonInfoWidget
+              itemId={itemId}
+              onClose={() => setActiveWidget(null)}
+              isMobile={isMobile}
+            />
+          </div>,
+          document.body
+        )}
+
+        {activeWidget === 'store' && createPortal(
+          <div
+            ref={widgetContainerRef}
+            className={`${styles.personWidgetWrapper} ${styles[getWidgetPosition()]}`}
+            onMouseDown={(e) => handleMouseDown(e, 'widget')}
+            onClick={handleClick}
           >
             <StoreInfoWidget
               itemId={itemId}
-              onClose={handleStoreWidgetClose}
+              onClose={() => setActiveWidget(null)}
               isMobile={isMobile}
             />
           </div>,

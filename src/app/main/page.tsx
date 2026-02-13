@@ -3,12 +3,13 @@
 import dynamic from 'next/dynamic';
 import { loadTreeData } from '@/store/slices/treeSlice';
 import Link from 'next/link';
-import { Star } from 'lucide-react';
+import { Menu, Star } from 'lucide-react';
 import { useAppDispatch } from '@/store/hooks/hooks';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './main.module.scss';
 import LogoutButton from '@/components/LogoutButton/LogoutButton';
 import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
+import SideMenu from '@/components/SideMenu/SideMenu';
 
 const TreeList = dynamic(() => import('@/components/TreeList/TreeList'), {
   ssr: false,
@@ -31,13 +32,24 @@ function TreeDataLoader() {
 }
 
 export default function Home() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <>
       <ProtectedRoute>
         <LogoutButton />
         <TreeDataLoader />
+        <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
         <header className={styles.header}>
-          <h1 className={styles.title}>Иерархия компании</h1>
+          <div className={styles.headerLeft}>
+            <button
+              className={styles.menuButton}
+              onClick={() => setIsMenuOpen(true)}
+              aria-label="Открыть меню"
+            >
+              <Menu size={24} />
+            </button>
+          </div>
           <Link
             href="/favorites"
             className={styles.favoritesLink}
