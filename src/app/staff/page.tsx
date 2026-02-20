@@ -1,3 +1,5 @@
+// app/staff/page.tsx
+
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -6,6 +8,7 @@ import {
   loadAllStaff,
   loadAllPositions,
 } from '@/store/slices/personalSlice';
+import { loadTreeData } from '@/store/slices/treeSlice';
 import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
 import LogoutButton from '@/components/LogoutButton/LogoutButton';
 import PositionCard from '@/components/StaffPage/PositionCard';
@@ -18,16 +21,30 @@ import { TreeItemType } from '@/types/tree.types';
 
 export default function StaffPage() {
   const dispatch = useAppDispatch();
-  const { positions, staff, loading } = useAppSelector((state) => state.personal);
-  const { items } = useAppSelector((state) => state.tree);
+  const { positions, staff, loading: personalLoading } = useAppSelector((state) => state.personal);
+  const { items: treeItems, loading: treeLoading } = useAppSelector((state) => state.tree);
   const [showAddPositionModal, setShowAddPositionModal] = useState(false);
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
-
   const [storeNamesMap, setStoreNamesMap] = useState<Record<string, string>>({});
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    dispatch(loadAllStaff());
-    dispatch(loadAllPositions());
+    const loadData = async () => {
+      setInitialLoading(true);
+      try {
+        await Promise.all([
+          dispatch(loadTreeData()),
+          dispatch(loadAllStaff()),
+          dispatch(loadAllPositions())
+        ]);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    loadData();
   }, [dispatch]);
 
   useEffect(() => {
@@ -51,8 +68,10 @@ export default function StaffPage() {
       return map;
     };
 
-    setStoreNamesMap(extractStoreNames(items));
-  }, [items]);
+    if (treeItems && treeItems.length > 0) {
+      setStoreNamesMap(extractStoreNames(treeItems));
+    }
+  }, [treeItems]);
 
   const positionsByHid = positions.reduce((acc, position) => {
     if (!acc[position.hid]) {
@@ -70,6 +89,8 @@ export default function StaffPage() {
 
   const vacantPositions = positions.filter(p => p.lsid === null);
   const occupiedPositions = positions.filter(p => p.lsid !== null);
+
+  const isLoading = initialLoading || personalLoading || treeLoading;
 
   return (
     <ProtectedRoute>
@@ -120,25 +141,37 @@ export default function StaffPage() {
           </div>
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className={styles.loading}>
             <div className={styles.spinner} />
             <p>Загрузка данных...</p>
           </div>
         ) : (
           <div className={styles.positionsGrid}>
-            {sortedPositions.map((position) => {
-              const assignedStaff = staff.find(s => s.lsid === position.lsid);
-              return (
-                <PositionCard
-                  key={position.id}
-                  position={position}
-                  staff={assignedStaff}
-                  allStaff={staff}
-                  storeName={storeNamesMap[position.hid]}
-                />
-              );
-            })}
+            {sortedPositions.length === 0 ? (
+              <div className={styles.emptyState}>
+                <p>Нет позиций</p>
+                <button
+                  className={styles.addButton}
+                  onClick={() => setShowAddPositionModal(true)}
+                >
+                  Добавить первую позицию
+                </button>
+              </div>
+            ) : (
+              sortedPositions.map((position) => {
+                const assignedStaff = staff.find(s => s.lsid === position.lsid);
+                return (
+                  <PositionCard
+                    key={position.id}
+                    position={position}
+                    staff={assignedStaff}
+                    allStaff={staff}
+                    storeName={storeNamesMap[position.hid]}
+                  />
+                );
+              })
+            )}
           </div>
         )}
       </main>
