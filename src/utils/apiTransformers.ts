@@ -214,15 +214,37 @@ export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
         break;
 
       case TreeItemType.PERSON:
+        const middleNames = ['Иванович', 'Петрович', 'Сергеевич', 'Александровна', 'Дмитриевна', 'Владимировна', 'Алексеевич', 'Николаевна'];
+
+        const existingFirstName = item.data?.firstName || '';
+        const existingLastName = item.data?.lastName || '';
+
+        const randomMiddleName = middleNames[Math.floor(Math.random() * middleNames.length)];
+
+        const generateEmail = () => {
+          if (item.data?.email) return item.data.email;
+          const firstName = existingFirstName.toLowerCase() || 'user';
+          const lastName = existingLastName.toLowerCase() || 'unknown';
+          return `${firstName}.${lastName}@company.ru`;
+        };
+
         enhancedItem = {
           ...item,
           data: {
             ...item.data,
-            email: `${item.data.firstName.toLowerCase()}.${item.data.lastName.toLowerCase()}@company.ru`,
-            phone: `+7 (999) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 90) + 10}-${Math.floor(Math.random() * 90) + 10}`,
-            hireDate: `202${Math.floor(Math.random() * 3)}-${(Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0')}-${(Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0')}`,
-            salary: Math.floor(Math.random() * 200000) + 50000,
-            isManager: Math.random() > 0.5,
+            firstName: existingFirstName || 'Иван',
+            lastName: existingLastName || 'Иванов',
+            middleName: item.data?.middleName || randomMiddleName,
+            birthDate: item.data?.birthDate || `198${Math.floor(Math.random() * 9)}-${(Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0')}-${(Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0')}`,
+            citizenship: item.data?.citizenship || 'РФ',
+            registration: item.data?.registration || `г. Москва, ул. ${['Ленина', 'Пушкина', 'Гагарина'][Math.floor(Math.random() * 3)]}, д. ${Math.floor(Math.random() * 100) + 1}`,
+            contractType: item.data?.contractType || ['employment', 'gph', 'patent', 'none'][Math.floor(Math.random() * 4)],
+            department: item.data?.department || '',
+            email: item.data?.email || generateEmail(),
+            phone: item.data?.phone || `+7 (999) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 90) + 10}-${Math.floor(Math.random() * 90) + 10}`,
+            hireDate: item.data?.hireDate || `202${Math.floor(Math.random() * 3)}-${(Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0')}-${(Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0')}`,
+            salary: item.data?.salary || Math.floor(Math.random() * 200000) + 50000,
+            isManager: item.data?.isManager !== undefined ? item.data.isManager : Math.random() > 0.5,
           }
         } as PersonItem;
         break;

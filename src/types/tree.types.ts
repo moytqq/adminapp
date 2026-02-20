@@ -74,15 +74,21 @@ export interface PersonItem extends BaseTreeItem {
   data: {
     firstName: string;
     lastName: string;
+    middleName?: string;
+    birthDate?: string;
     position: string;
     email: string;
     phone?: string;
+    citizenship?: string;
+    registration?: string;
+    contractType?: 'employment' | 'gph' | 'patent' | 'none';
     hireDate?: string;
-    salary?: number;
+    department?: string;
     managerId?: string;
     departmentId?: string;
     storeId?: string;
     isManager?: boolean;
+    salary?: number;
   };
 }
 
