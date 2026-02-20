@@ -1,4 +1,3 @@
-// components/StaffPage/StaffCard.tsx (обновленная версия)
 
 'use client';
 
@@ -105,7 +104,6 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
       const info = await dispatch(loadStaffInfo(staff.lsid)).unwrap();
       setStaffInfo(info || []);
 
-      // Извлекаем стандартные поля из дополнительной информации
       const fields: Record<string, string> = {
         middleName: '',
         birthDate: '',
@@ -235,6 +233,12 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
     return labels[type] || type;
   };
 
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedFio(staff.fio);
+    setEditedDoe(staff.doe ? new Date(staff.doe).toISOString().split('T')[0] : '');
+  };
+
   const toggleAdditionalInfo = () => {
     setIsAdditionalInfoExpanded(!isAdditionalInfoExpanded);
   };
@@ -255,6 +259,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
                 onChange={(e) => setEditedFio(e.target.value)}
                 className={styles.editInput}
                 placeholder="ФИО"
+                autoFocus
               />
               <input
                 type="date"
@@ -266,17 +271,15 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
                 onClick={handleSaveEdit}
                 className={styles.saveButton}
                 aria-label="Сохранить"
+                title="Сохранить"
               >
                 <Check size={16} />
               </button>
               <button
-                onClick={() => {
-                  setIsEditing(false);
-                  setEditedFio(staff.fio);
-                  setEditedDoe(staff.doe ? new Date(staff.doe).toISOString().split('T')[0] : '');
-                }}
+                onClick={handleCancelEdit}
                 className={styles.cancelButton}
                 aria-label="Отмена"
+                title="Отмена"
               >
                 <X size={16} />
               </button>
@@ -307,44 +310,48 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
         </div>
 
         <div className={styles.actions}>
-          {onUnassign && (
-            <button
-              className={styles.unassignButton}
-              onClick={onUnassign}
-              title="Отвязать от позиции"
-            >
-              <X size={16} />
-            </button>
-          )}
-
-          <div className={styles.menuContainer}>
-            <button
-              className={styles.menuButton}
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Меню"
-            >
-              <MoreVertical size={16} />
-            </button>
-
-            {isMenuOpen && (
-              <div className={styles.menu}>
+          {!isEditing ? (
+            <>
+              {onUnassign && (
                 <button
-                  className={styles.menuItem}
-                  onClick={handleEdit}
+                  className={styles.unassignButton}
+                  onClick={onUnassign}
+                  title="Отвязать от позиции"
                 >
-                  <Edit size={16} />
-                  <span>Редактировать</span>
+                  <X size={16} />
                 </button>
+              )}
+
+              <div className={styles.menuContainer}>
                 <button
-                  className={`${styles.menuItem} ${styles.deleteItem}`}
-                  onClick={handleDelete}
+                  className={styles.menuButton}
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  aria-label="Меню"
                 >
-                  <Trash2 size={16} />
-                  <span>Удалить</span>
+                  <MoreVertical size={16} />
                 </button>
+
+                {isMenuOpen && (
+                  <div className={styles.menu}>
+                    <button
+                      className={styles.menuItem}
+                      onClick={handleEdit}
+                    >
+                      <Edit size={16} />
+                      <span>Редактировать</span>
+                    </button>
+                    <button
+                      className={`${styles.menuItem} ${styles.deleteItem}`}
+                      onClick={handleDelete}
+                    >
+                      <Trash2 size={16} />
+                      <span>Удалить</span>
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          ) : null /* В режиме редактирования не показываем кнопки отвязки и меню */}
         </div>
       </div>
 
@@ -372,7 +379,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
           <div className={styles.infoGrid}>
             {standardFields.middleName && (
               <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Оотчество:</span>
+                <span className={styles.infoLabel}>Отчество:</span>
                 <span className={styles.infoValue}>{standardFields.middleName}</span>
               </div>
             )}
@@ -381,7 +388,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
               <div className={styles.infoItem}>
                 <span className={styles.infoLabelWithIcon}>
                   <Cake size={14} />
-                  <span>Дата ррождения:</span>
+                  <span>Дата рождения:</span>
                 </span>
                 <span className={styles.infoValue}>
                   {formatDate(standardFields.birthDate)}
@@ -393,7 +400,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
               <div className={styles.infoItem}>
                 <span className={styles.infoLabelWithIcon}>
                   <Globe size={14} />
-                  <span>Ггражданство:</span>
+                  <span>Гражданство:</span>
                 </span>
                 <span className={styles.infoValue}>{standardFields.citizenship}</span>
               </div>
@@ -403,7 +410,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
               <div className={styles.infoItem}>
                 <span className={styles.infoLabelWithIcon}>
                   <MapPin size={14} />
-                  <span>Ррегистрация:</span>
+                  <span>Регистрация:</span>
                 </span>
                 <span className={styles.infoValue}>{standardFields.registration}</span>
               </div>
@@ -413,7 +420,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
               <div className={styles.infoItem}>
                 <span className={styles.infoLabelWithIcon}>
                   <FileText size={14} />
-                  <span>Ттип отношений:</span>
+                  <span>Тип отношений:</span>
                 </span>
                 <span className={styles.infoValue}>
                   {getContractTypeLabel(standardFields.contractType)}
@@ -425,7 +432,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
               <div className={styles.infoItem}>
                 <span className={styles.infoLabelWithIcon}>
                   <Mail size={14} />
-                  <span>Eуmail:</span>
+                  <span>Email:</span>
                 </span>
                 <span className={styles.infoValue}>{standardFields.email}</span>
               </div>
@@ -434,7 +441,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
             {standardFields.phone && (
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>
-                  <span>Ттелефон:</span>
+                  <span>Телефон:</span>
                 </span>
                 <span className={styles.infoValue}>{standardFields.phone}</span>
               </div>
@@ -580,5 +587,6 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
     </div>
   );
 };
+
 
 export default StaffCard;
