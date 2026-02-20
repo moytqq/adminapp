@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -351,7 +350,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
                 )}
               </div>
             </>
-          ) : null /* В режиме редактирования не показываем кнопки отвязки и меню */}
+          ) : null}
         </div>
       </div>
 
