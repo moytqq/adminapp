@@ -73,32 +73,37 @@
 
 .saveButton,
 .cancelButton {
-  width: 36px;
-  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 36px;
+  height: 36px;
   border: none;
-  border-radius: 6px;
+  border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
+  composes: actionButton;
+
 }
 
 .saveButton {
   background: #4caf50;
   color: white;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: #45a049;
+    transform: scale(1.05);
   }
 }
 
 .cancelButton {
-  background: #f5f5f5;
-  color: #666;
+  background: #f44336;
+  color: white;
 
-  &:hover {
-    background: #e0e0e0;
+  &:hover:not(:disabled) {
+    background: #d32f2f;
+    transform: scale(1.05);
   }
 }
 
@@ -140,13 +145,23 @@
   justify-content: center;
   background: transparent;
   border: none;
-  border-radius: 6px;
+  border-radius: 50%;
   cursor: pointer;
   color: #666;
   transition: all 0.2s ease;
 
-  &:hover {
-    background: #e0e0e0;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: #e0e0e0;
+    }
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    -webkit-tap-highlight-color: transparent;
+
+    &:active {
+      background: #e0e0e0;
+    }
   }
 }
 
@@ -280,8 +295,6 @@
   gap: 4px;
   font-size: 12px;
   color: #666;
-  background: #f5f5f5;
-  padding: 2px 6px;
   border-radius: 4px;
   width: fit-content;
 

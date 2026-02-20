@@ -1,9 +1,15 @@
 .card {
   padding: 16px;
   background: #f8f9fa;
+  width: 100%;
+  box-sizing: border-box;
 
   &:not(:last-child) {
     border-bottom: 1px solid #e0e0e0;
+  }
+
+  @media (max-width: 767px) {
+    padding: 12px;
   }
 }
 
@@ -12,13 +18,25 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 16px;
+  width: 100%;
+
+  @media (max-width: 767px) {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
 }
 
 .titleSection {
   display: flex;
   gap: 12px;
   flex: 1;
+  min-width: 0;
+
+  @media (max-width: 767px) {
+    width: 100%;
+  }
 }
+
 
 .avatar {
   width: 40px;
@@ -34,6 +52,7 @@
 
 .staffInfo {
   flex: 1;
+  min-width: 0;
 }
 
 .staffName {
@@ -41,13 +60,23 @@
   font-size: 16px;
   font-weight: 600;
   color: #333;
+  word-break: break-word;
+
+  @media (max-width: 767px) {
+    font-size: 15px;
+  }
 }
 
 .staffMeta {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+
+  @media (max-width: 767px) {
+    gap: 8px;
+  }
 }
+
 
 .metaItem {
   display: flex;
@@ -58,6 +87,11 @@
 
   svg {
     color: #999;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 767px) {
+    font-size: 11px;
   }
 }
 
@@ -66,22 +100,42 @@
   gap: 8px;
   flex-wrap: wrap;
   flex: 1;
+  min-width: 0;
+
+  @media (max-width: 767px) {
+    width: 100%;
+  }
 }
 
 .editInput {
   flex: 1;
   min-width: 120px;
-  padding: 6px 10px;
+  padding: 8px 12px;
   border: 2px solid #2196f3;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 14px;
   outline: none;
+
+  @media (max-width: 767px) {
+    min-width: 100%;
+    padding: 10px 12px;
+    font-size: 16px;
+  }
+
+  &:focus {
+    border-color: #1976d2;
+  }
 }
 
 .actions {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
+
+  @media (max-width: 767px) {
+    justify-content: flex-end;
+  }
 }
 
 .unassignButton {
@@ -95,11 +149,21 @@
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  background: #ff9800;
+  background: #f44336;
   color: white;
 
   &:hover {
-    background: #f57c00;
+    background: #d32f2f;
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  @media (max-width: 767px) {
+    width: 40px;
+    height: 40px;
   }
 }
 
@@ -108,19 +172,35 @@
 }
 
 .menuButton {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: transparent;
   border: none;
-  border-radius: 4px;
+  border-radius: 50%;
   cursor: pointer;
   color: #666;
+  transition: all 0.2s ease;
 
-  &:hover {
-    background: #e0e0e0;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: #e0e0e0;
+    }
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+
+    &:active {
+      background: #e0e0e0;
+    }
+  }
+
+
+  @media (max-width: 767px) {
+    width: 40px;
+    height: 40px;
   }
 }
 
@@ -197,9 +277,20 @@
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover {
-    background: #bdbdbd;
-    color: #333;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: #bdbdbd;
+      color: #333;
+    }
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    -webkit-tap-highlight-color: transparent;
+
+    &:active {
+      background: #bdbdbd;
+      color: #333;
+    }
   }
 }
 
@@ -224,7 +315,7 @@
 }
 
 .infoSelect {
-  width: 100px;
+  width: fit-content;
 }
 
 .infoInput {
@@ -269,11 +360,11 @@
   transition: all 0.2s ease;
   flex-shrink: 0;
   composes: actionButton;
-  background: #ff9800;
+  background: #f44336;
   color: white;
 
   &:hover:not(:disabled) {
-    background: #f57c00;
+    background: #d32f2f;
   }
 }
 
@@ -294,15 +385,17 @@
   position: relative;
   min-height: 40px;
 
-  &:hover {
-    background: #f8f9fa;
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background: #f8f9fa;
+    }
   }
 }
 
 .infoLabel {
   font-weight: 500;
   color: #666;
-  min-width: 100px;
+  min-width: 150px;
 }
 
 .infoValue {
@@ -313,13 +406,12 @@
 .infoItemActions {
   display: flex;
   gap: 4px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
   flex-shrink: 0;
-}
-
-.infoItem:hover .infoItemActions {
   opacity: 1;
+
+  @media (max-width: 767px) {
+    margin-left: auto;
+  }
 }
 
 .infoItemEdit,
@@ -337,11 +429,16 @@
 
   &:hover {
     background: #f5f5f5;
+    transform: scale(1.05);
   }
 }
 
+.infoItemEdit:hover {
+  color: #43a047;
+}
+
 .infoItemDelete:hover {
-  color: #f44336;
+  color: #d32f2f;
 }
 
 .editInfoForm {
@@ -355,15 +452,15 @@
 .infoEditSelect,
 .infoEditInput {
   padding: 6px 10px;
-  border: 2px solid #2196f3;
-  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
   font-size: 13px;
   outline: none;
   background: white;
 }
 
 .infoEditSelect {
-  width: 100px;
+  width: fit-content;
   cursor: pointer;
 }
 
@@ -372,36 +469,38 @@
   min-width: 120px;
 }
 
-.infoEditSave,
-.infoEditCancel {
+.infoSaveButton,
+.infoCancelButton {
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 6px;
+  border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
 
-.infoEditSave {
+.infoSaveButton {
   background: #4caf50;
   color: white;
 
   &:hover {
     background: #45a049;
+    transform: scale(1.05);
   }
 }
 
-.infoEditCancel {
-  background: #f5f5f5;
-  color: #666;
+.infoCancelButton {
+  background: #f44336;
+  color: white;
 
   &:hover {
-    background: #e0e0e0;
+    background: #d32f2f;
+    transform: scale(1.05);
   }
 }
 
@@ -411,6 +510,7 @@
   color: #999;
   font-style: italic;
 }
+
 .expandButton {
   display: flex;
   align-items: center;
@@ -429,10 +529,22 @@
   font-size: 14px;
   transition: all 0.2s ease;
 
-  &:hover {
-    background: #e8f4fd;
-    color: #2196f3;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: #e8f4fd;
+      color: #2196f3;
+    }
   }
+
+  @media (hover: none) and (pointer: coarse) {
+
+    &:active {
+      background: #e8f4fd;
+      color: #2196f3;
+    }
+  }
+
+
 
   span {
     display: flex;
@@ -444,4 +556,128 @@
     transition: transform 0.2s ease;
   }
 }
+
+@media (max-width: 480px) {
+  .infoItem {
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 10px 8px;
+  }
+
+  .infoLabel {
+    min-width: 140px;
+    max-width: 140px;
+    font-size: 12px;
+    margin-bottom: 2px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .infoValue {
+    font-size: 13px;
+    padding: 4px 0;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .infoItemActions {
+    justify-content: flex-end;
+    margin-top: 4px;
+    gap: 8px;
+  }
+
+  .infoItemEdit,
+  .infoItemDelete {
+    width: 32px;
+    height: 32px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .infoLabelWithIcon {
+    width: 100%;
+    font-size: 12px;
+    margin-bottom: 2px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  .editInfoForm {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 6px;
+  }
+
+  .infoEditSelect,
+  .infoEditInput {
+    width: 100%;
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+
+  .infoEditSelect {
+    width: 100%;
+  }
+
+  .infoEditSave,
+  .infoEditCancel {
+    width: 36px;
+    height: 36px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .addInfoForm {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .infoSelect {
+    width: 100%;
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+
+  .infoInput {
+    width: 100%;
+    min-width: 0;
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+
+  .infoActions {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .infoSaveButton,
+  .infoCancelButton {
+    width: 40px;
+    height: 40px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .infoGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
 

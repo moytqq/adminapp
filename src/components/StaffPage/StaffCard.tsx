@@ -1,6 +1,8 @@
+// components/StaffPage/StaffCard.tsx (обновленная версия)
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { LinearStaff, Position, StaffInfo } from '@/types/personal.types';
 import { useAppDispatch } from '@/store/hooks/hooks';
 import {
@@ -41,17 +43,18 @@ interface StaffCardProps {
   onUnassign?: () => void;
 }
 
-interface InfoItem {
-  id?: number;
-  type: string;
-  label: string;
-  value: string;
-}
+const INFO_TYPES = ['Текст'];
 
-const INFO_TYPES = [
-  'Текст',
-
-];
+const INFO_NAMES = ['ФИО',
+  'Дата рождения',
+  'Телефон',
+  'Email',
+  'Должность',
+  'Отдел',
+  'Дата трудоустройства',
+  'Гражданство',
+  'Регистрация',
+  'Тип отношений'];
 
 const STANDARD_INFO_FIELDS = [
   { type: 'Текст', label: 'Оотчество', key: 'middleName' },
@@ -71,7 +74,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
   const [isAdditionalInfoExpanded, setIsAdditionalInfoExpanded] = useState(false);
   const [editedFio, setEditedFio] = useState(staff.fio);
   const [editedDoe, setEditedDoe] = useState(
-    staff.doe ? new Date(staff.doe).toISOString().split('T')[0] : ''
+    staff.doe ? new Date(staff.doe).toISOString().split('T')[0] : '',
   );
   const [staffInfo, setStaffInfo] = useState<StaffInfo[]>([]);
   const [isAddingInfo, setIsAddingInfo] = useState(false);
@@ -94,9 +97,35 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
     phone: '',
   });
 
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     loadInfo();
   }, [staff.lsid]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        menuButtonRef.current &&
+        !menuButtonRef.current.contains(event.target as Node)
+      ) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   const loadInfo = async () => {
     try {
@@ -136,7 +165,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
     setEditingInfoData({
       type: info.type,
       label: info.label,
-      value: info.value
+      value: info.value,
     });
   };
 
@@ -227,7 +256,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
       'employment': 'Трудовой договор',
       'gph': 'ГПХ',
       'patent': 'Патент',
-      'none': 'Не зарегистрировано'
+      'none': 'Не зарегистрировано',
     };
     return labels[type] || type;
   };
@@ -240,6 +269,11 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
 
   const toggleAdditionalInfo = () => {
     setIsAdditionalInfoExpanded(!isAdditionalInfoExpanded);
+  };
+
+  const toggleMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsMenuOpen(!isMenuOpen);
   };
 
   return (
@@ -321,10 +355,11 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
                 </button>
               )}
 
-              <div className={styles.menuContainer}>
+              <div className={styles.menuContainer} ref={menuRef}>
                 <button
-                  className={styles.menuButton}
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  ref={menuButtonRef}
+                  className={`${styles.menuButton} ${isMenuOpen ? styles.menuButtonActive : ''}`}
+                  onClick={toggleMenu}
                   aria-label="Меню"
                 >
                   <MoreVertical size={16} />
@@ -458,13 +493,15 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
                   <option key={type} value={type}>{type}</option>
                 ))}
               </select>
-              <input
-                type="text"
-                className={styles.infoInput}
-                placeholder="Название"
+              <select
+                className={styles.infoSelect}
                 value={newInfo.label}
                 onChange={(e) => setNewInfo({ ...newInfo, label: e.target.value })}
-              />
+              >
+                {INFO_NAMES.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
               <input
                 type="text"
                 className={styles.infoInput}
@@ -504,7 +541,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
                           setEditingInfoData(prev => ({
                             type: e.target.value,
                             label: prev?.label || info.label,
-                            value: prev?.value || info.value
+                            value: prev?.value || info.value,
                           }));
                         }}
                         onClick={(e) => e.stopPropagation()}
@@ -513,19 +550,22 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
                           <option key={type} value={type}>{type}</option>
                         ))}
                       </select>
-                      <input
-                        type="text"
-                        className={styles.infoEditInput}
-                        value={editingInfoData?.label !== undefined ? editingInfoData.label : info.label}
+                      <select
+                        className={styles.infoEditSelect}
+                        value={editingInfoData?.label || info.label}
                         onChange={(e) => {
                           setEditingInfoData(prev => ({
                             type: prev?.type || info.type,
                             label: e.target.value,
-                            value: prev?.value || info.value
+                            value: prev?.value || info.value,
                           }));
                         }}
                         onClick={(e) => e.stopPropagation()}
-                      />
+                      >
+                        {INFO_NAMES.map(label => (
+                          <option key={label} value={label}>{label}</option>
+                        ))}
+                      </select>
                       <input
                         type="text"
                         className={styles.infoEditInput}
@@ -534,19 +574,20 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
                           setEditingInfoData(prev => ({
                             type: prev?.type || info.type,
                             label: prev?.label || info.label,
-                            value: e.target.value
+                            value: e.target.value,
                           }));
                         }}
                         onClick={(e) => e.stopPropagation()}
                       />
+                      <div className={styles.infoActions}>
                       <button
-                        className={styles.infoEditSave}
+                        className={styles.infoSaveButton}
                         onClick={() => handleSaveInfo(info)}
                       >
                         <Check size={14} />
                       </button>
                       <button
-                        className={styles.infoEditCancel}
+                        className={styles.infoCancelButton}
                         onClick={() => {
                           setEditingInfoId(null);
                           setEditingInfoData(null);
@@ -554,6 +595,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
                       >
                         <X size={14} />
                       </button>
+                      </div>
                     </div>
                   ) : (
                     <>
@@ -564,13 +606,13 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
                           className={styles.infoItemEdit}
                           onClick={() => handleStartEditInfo(info)}
                         >
-                          <Edit size={12} />
+                          <Edit size={16} />
                         </button>
                         <button
                           className={styles.infoItemDelete}
                           onClick={() => handleDeleteInfo(info.id)}
                         >
-                          <Trash2 size={12} />
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </>
@@ -586,6 +628,5 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
     </div>
   );
 };
-
 
 export default StaffCard;

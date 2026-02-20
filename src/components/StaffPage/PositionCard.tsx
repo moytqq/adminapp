@@ -57,7 +57,7 @@ const PositionCard: React.FC<PositionCardProps> = ({
   }, []);
 
   const handleDelete = async () => {
-    if (confirm('Вы уверены, что хотите удалить эту позицию?')) {
+    if (confirm('Вы уверены, что хотите удалить эту должность?')) {
       await dispatch(deletePosition(position.id));
       setIsMenuOpen(false);
       await dispatch(loadAllPositions());
@@ -98,14 +98,16 @@ const PositionCard: React.FC<PositionCardProps> = ({
   };
 
   const handleUnassignStaff = async () => {
-    await dispatch(updatePosition({
-      id: position.id,
-      name: position.name,
-      lsid: null,
-    }));
-    await dispatch(loadAllPositions());
-    await dispatch(loadAllStaff());
-    if (onUpdate) onUpdate();
+    if (confirm(`Снять сотрудника ${staff?.fio} с должности ${position.name}?`)) {
+      await dispatch(updatePosition({
+        id: position.id,
+        name: position.name,
+        lsid: null,
+      }));
+      await dispatch(loadAllPositions());
+      await dispatch(loadAllStaff());
+      if (onUpdate) onUpdate();
+    }
   };
 
   const unassignedStaff = allStaff.filter(s =>

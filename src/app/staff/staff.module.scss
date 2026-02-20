@@ -126,13 +126,13 @@
 }
 
 .statValue {
-  font-size: 32px;
+  font-size: 26px;
   font-weight: 700;
   color: #2196f3;
   margin-bottom: 8px;
 
   @media (max-width: 768px) {
-    font-size: 28px;
+    font-size: 26px;
   }
 }
 
@@ -179,5 +179,44 @@
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: 16px;
+  }
+}
+@media (max-width: 767px) {
+  .positionsGrid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+
+  .content {
+    padding: 12px !important;
+    width: 100% !important;
+  }
+
+  .stats {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .statCard {
+    padding: 12px !important;
+  }
+
+  .statValue {
+    font-size: 20px !important;
+  }
+
+  .statLabel {
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 480px) {
+
+
+  .positionsGrid {
+    gap: 8px !important;
   }
 }
