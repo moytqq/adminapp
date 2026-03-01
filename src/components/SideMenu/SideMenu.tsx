@@ -2,7 +2,17 @@
 
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Menu, X, Users } from 'lucide-react';
+import {
+  Menu,
+  X,
+  Users,
+  Building2,
+  Text,
+  FileText,
+  ClipboardCheck,
+  MessageCircle,
+  MessageCircleMore, Lightbulb,
+} from 'lucide-react';
 import styles from './SideMenu.module.scss';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -55,16 +65,56 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
             <X size={20} />
           </button>
         </div>
-
         <nav className={styles.nav}>
           <Link
             href="/staff"
             className={`${styles.navItem} ${pathname === '/staff' ? styles.active : ''}`}
             onClick={handleLinkClick}
           >
-            <Users size={20} />
-            <span>Сотрудники и позиции</span>
+            <Building2 size={20} />
+            <span>Компания</span>
           </Link>
+          <Link
+            href="/staff"
+            className={`${styles.navItem} ${pathname === '/staff' ? styles.active : ''}`}
+            onClick={handleLinkClick}
+          >
+            <Users size={20} />
+            <span>Сотрудники</span>
+          </Link>
+          <Link
+            href="/staff"
+            className={`${styles.navItem} ${pathname === '/staff' ? styles.active : ''}`}
+            onClick={handleLinkClick}
+          >
+            <ClipboardCheck size={20} />
+            <span>Задачи</span>
+          </Link>
+          <Link
+            href="/staff"
+            className={`${styles.navItem} ${pathname === '/staff' ? styles.active : ''}`}
+            onClick={handleLinkClick}
+          >
+            <FileText size={20} />
+            <span>Отчёты</span>
+          </Link>
+          <Link
+            href="/staff"
+            className={`${styles.navItem} ${pathname === '/staff' ? styles.active : ''}`}
+            onClick={handleLinkClick}
+          >
+            <MessageCircleMore size={20} />
+            <span>Чат</span>
+          </Link>
+          <Link
+            href="/staff"
+            className={`${styles.navItem} ${pathname === '/staff' ? styles.active : ''}`}
+            onClick={handleLinkClick}
+          >
+            <Lightbulb size={20} />
+            <span>Идеи</span>
+          </Link>
+
         </nav>
       </div>
     </>,

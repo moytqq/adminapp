@@ -1,8 +1,10 @@
+// components/Favorites/Favorites.tsx (обновленная версия)
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Star, User, Building2, Users, Store, Trash2, ArrowLeft, X } from 'lucide-react';
+import { Star, User, Building2, Users, Store, Trash2, ArrowLeft, X, Briefcase, DollarSign } from 'lucide-react';
 import styles from './Favorites.module.scss';
 import PersonInfoWidget from '@/components/PersonInfoWidget/PersonInfoWidget';
 import { useAppDispatch } from '@/store/hooks/hooks';
@@ -10,10 +12,12 @@ import { loadTreeData } from '@/store/slices/treeSlice';
 import { createPortal } from 'react-dom';
 import { useAppSelector } from '@/store/hooks/hooks';
 import StoreInfoWidget from '@/components/StoreInfoWidget/StoreInfoWidget';
+import PersonnelManagementWidget from '@/components/PersonnelManagementWidget/PersonnelManagementWidget';
+import StoreFinanceWidget from '@/components/StoreFinanceWidget/StoreFinanceWidget';
 
 interface FavoriteWidget {
   id: string;
-  type: 'person-info' | 'store-info' | string;
+  type: 'person-info' | 'store-info' | 'personnel-management' | 'store-finance' | string;
   title: string;
   itemId: string;
   itemType: string;
@@ -22,6 +26,7 @@ interface FavoriteWidget {
   firstName?: string;
   lastName?: string;
   storeName?: string;
+  hid?: string;
   addedDate: string;
 }
 
@@ -69,7 +74,7 @@ const FavoritesPage = () => {
     const findItem = (items: any[]): any => {
       for (const item of items) {
         if (item.id === itemId) {
-          return item.data || {};
+          return item;
         }
         if (item.children && item.children.length > 0) {
           const found = findItem(item.children);
@@ -79,20 +84,25 @@ const FavoritesPage = () => {
       return null;
     };
 
-    const itemData = findItem(treeItems);
+    const item = findItem(treeItems);
 
-    if (itemData) {
+    if (item) {
+      const itemData = item.data || {};
+
       if (type === 'person-info') {
         return {
           firstName: itemData.firstName || '',
           lastName: itemData.lastName || '',
-          position: itemData.position || 'Сотрудник',
-          personName: `${itemData.firstName || ''} ${itemData.lastName || ''}`.trim(),
+          position: itemData.position || item.subLabel || 'Сотрудник',
+          personName: `${itemData.firstName || ''} ${itemData.lastName || ''}`.trim() || item.label,
         };
-      } else if (type === 'store-info') {
+      } else if (type === 'store-info' || type === 'personnel-management' || type === 'store-finance') {
+        const match = item.id.match(/\d+$/);
+        const hid = match ? match[0] : item.id;
+
         return {
-          storeName: itemData.storeName || '',
-          address: itemData.address || '',
+          storeName: itemData.storeName || item.label || '',
+          hid: hid,
         };
       }
     }
@@ -119,10 +129,11 @@ const FavoritesPage = () => {
                 personName: itemData.personName || fav.title,
                 title: itemData.personName || fav.title,
               };
-            } else if (fav.type === 'store-info') {
+            } else if (fav.type === 'store-info' || fav.type === 'personnel-management' || fav.type === 'store-finance') {
               return {
                 ...fav,
                 storeName: itemData.storeName,
+                hid: itemData.hid,
                 title: itemData.storeName || fav.title,
               };
             }
@@ -186,6 +197,18 @@ const FavoritesPage = () => {
         return (
           <div className={styles.favoriteIconStore}>
             <Store size={20} />
+          </div>
+        );
+      case 'personnel-management':
+        return (
+          <div className={styles.favoriteIconPersonnel}>
+            <Briefcase size={20} />
+          </div>
+        );
+      case 'store-finance':
+        return (
+          <div className={styles.favoriteIconFinance}>
+            <DollarSign size={20} />
           </div>
         );
       case 'finance':
@@ -288,6 +311,46 @@ const FavoritesPage = () => {
       );
     }
 
+    if (widget.type === 'personnel-management') {
+      return (
+        <div className={`${styles.personWidgetContainer} ${styles.wide}`}>
+          <PersonnelManagementWidget
+            hid={widget.hid || ''}
+            itemName={widget.storeName}
+            onClose={() => {
+              if (isMobile) {
+                setShowMobileWidget(false);
+                setSelectedWidget(null);
+              } else {
+                setSelectedWidget(null);
+              }
+            }}
+            isMobile={isMobile}
+          />
+        </div>
+      );
+    }
+
+    if (widget.type === 'store-finance') {
+      return (
+        <div className={`${styles.personWidgetContainer} ${styles.wide}`}>
+          <StoreFinanceWidget
+            hid={widget.hid || ''}
+            storeName={widget.storeName}
+            onClose={() => {
+              if (isMobile) {
+                setShowMobileWidget(false);
+                setSelectedWidget(null);
+              } else {
+                setSelectedWidget(null);
+              }
+            }}
+            isMobile={isMobile}
+          />
+        </div>
+      );
+    }
+
     return (
       <div className={`${styles.widgetPlaceholder} ${styles.wide}`}>
         <h3>{widget.title}</h3>
@@ -301,12 +364,29 @@ const FavoritesPage = () => {
     );
   };
 
+  const getWidgetNameByType = (type: string) => {
+    switch (type) {
+      case 'personnel-management': return 'Сотрудники';
+      case 'store-finance': return 'Финансовая аналитика';
+      default: return 'Информация';
+    }
+  }
+  const getObjectNameByWidgetType = (type: string) => {
+    switch (type) {
+      case 'person-info': return 'Сотрудник';
+      default: return 'Магазин';
+    }
+  }
+
   const renderCardInfo = (widget: FavoriteWidget) => {
-    if (widget.type === 'person-info') {
+
+    if (widget.type === 'person-info' || widget.type === 'store-info' || widget.type === 'personnel-management' || widget.type === 'store-finance') {
       return (
         <>
           <div className={styles.cardTitleRow}>
-            <h3>{widget.title}</h3>
+            <div className={styles.widgetTypeBadge}>
+              {getWidgetNameByType(widget.type)}
+            </div>
             <button
               className={styles.removeButton}
               onClick={(e) => {
@@ -319,48 +399,36 @@ const FavoritesPage = () => {
               <Trash2 size={16} />
             </button>
           </div>
-          <div className={styles.personInfo}>
-            {/*{widget.firstName && widget.lastName && (*/}
-            {/*  <div className={styles.personName}>*/}
-            {/*    {widget.firstName} {widget.lastName}*/}
-            {/*  </div>*/}
-            {/*)}*/}
-            {widget.position && (
-              <div className={styles.personPosition}>
-                {widget.position}
-              </div>
-            )}
-          </div>
-        </>
-      );
-    }
-    if (widget.type === 'store-info') {
-      return (
-        <>
           <div className={styles.cardTitleRow}>
             <h3>{widget.title}</h3>
-            <button
-              className={styles.removeButton}
-              onClick={(e) => {
-                e.stopPropagation();
-                removeFromFavorites(widget.id);
-              }}
-              aria-label="Удалить из избранного"
-              title="Удалить из избранного"
-            >
-              <Trash2 size={16} />
-            </button>
           </div>
           <div className={styles.personInfo}>
-            {(
-              <div className={styles.personPosition}>
-                {widget.itemType === 'Store' ? ('Магазин') : ''}
-              </div>
-            )}
+            <div className={styles.personPosition}>
+              {getObjectNameByWidgetType(widget.type)}
+            </div>
           </div>
         </>
       );
     }
+
+    return (
+      <>
+        <div className={styles.cardTitleRow}>
+          <h3>{widget.title}</h3>
+          <button
+            className={styles.removeButton}
+            onClick={(e) => {
+              e.stopPropagation();
+              removeFromFavorites(widget.id);
+            }}
+            aria-label="Удалить из избранного"
+            title="Удалить из избранного"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      </>
+    );
   };
 
   return (
@@ -403,7 +471,12 @@ const FavoritesPage = () => {
                       (isMobile && showMobileWidget && selectedWidget?.id === fav.id)
                         ? styles.selected
                         : ''
-                    } ${fav.type === 'person-info' ? styles.personWidget : ''}`}
+                    } ${
+                      fav.type === 'person-info' ? styles.personWidget :
+                        fav.type === 'store-info' ? styles.storeWidget :
+                          fav.type === 'personnel-management' ? styles.personnelWidget :
+                            fav.type === 'store-finance' ? styles.financeWidget : ''
+                    }`}
                     onClick={() => handleWidgetSelect(fav)}
                   >
                     <div className={styles.favoriteHeader}>
@@ -431,6 +504,8 @@ const FavoritesPage = () => {
                 <div className={styles.widgetHeader}>
                   <h2>
                     {selectedWidget.title}
+                    {selectedWidget.type === 'personnel-management' && ' - Сотрудники и позиции'}
+                    {selectedWidget.type === 'store-finance' && ' - Финансовая аналитика'}
                   </h2>
                   <button
                     className={styles.closeWidgetButton}
@@ -463,6 +538,10 @@ const FavoritesPage = () => {
                     <User size={20} />
                     <span>Виджеты с информацией о сотрудниках поддерживают редактирование</span>
                   </div>
+                  <div className={styles.tip}>
+                    <Briefcase size={20} />
+                    <span>Виджеты управления персоналом и финансовой аналитики доступны для магазинов</span>
+                  </div>
                 </div>
               </div>
             )}
@@ -484,7 +563,11 @@ const FavoritesPage = () => {
               >
                 <X size={24} />
               </button>
-              <h3>{selectedWidget.title}</h3>
+              <h3>
+                {selectedWidget.title}
+                {selectedWidget.type === 'personnel-management' && ' - Сотрудники'}
+                {selectedWidget.type === 'store-finance' && ' - Финансы'}
+              </h3>
             </div>
             <div className={styles.mobileWidgetContent}>
               {selectedWidget.type === 'person-info' ? (
@@ -506,6 +589,20 @@ const FavoritesPage = () => {
                     removeFromFavorites(selectedWidget.id);
                     handleCloseMobileWidget();
                   }}
+                />
+              ) : selectedWidget.type === 'personnel-management' ? (
+                <PersonnelManagementWidget
+                  hid={selectedWidget.hid || ''}
+                  itemName={selectedWidget.storeName}
+                  onClose={handleCloseMobileWidget}
+                  isMobile={true}
+                />
+              ) : selectedWidget.type === 'store-finance' ? (
+                <StoreFinanceWidget
+                  hid={selectedWidget.hid || ''}
+                  storeName={selectedWidget.storeName}
+                  onClose={handleCloseMobileWidget}
+                  isMobile={true}
                 />
               ) : (
                 <div className={styles.mobileWidgetPlaceholder}>

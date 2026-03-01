@@ -1,3 +1,5 @@
+import { BaseWidgetData } from '@/types/widget.types';
+
 export interface TreeState {
   items: TreeItem[];
   originalApiData: ApiTreeItem[] | null;
@@ -131,6 +133,8 @@ export interface FavoriteWidget {
   itemId: string;
   itemType: TreeItemType;
   personName?: string;
+  storeName?: string;
   position?: string;
+  hid?: string;
   addedDate: string;
 }

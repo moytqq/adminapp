@@ -2,12 +2,13 @@
 
 import React, { forwardRef, useEffect, useState, useRef } from 'react';
 import styles from './WidgetPopup.module.scss';
-import { TreeItemType, WidgetItem } from '@/types/tree.types';
+import { FavoriteWidget, TreeItemType, WidgetItem } from '@/types/tree.types';
 import PersonInfoWidget from '../PersonInfoWidget/PersonInfoWidget';
 import { createPortal } from 'react-dom';
 import { X, Star, StarOff } from 'lucide-react';
 import StoreInfoWidget from '@/components/StoreInfoWidget/StoreInfoWidget';
 import { useAppSelector } from '@/store/hooks/hooks';
+import StoreFinanceWidget from '@/components/StoreFinanceWidget/StoreFinanceWidget';
 import PersonnelManagementWidget from '../PersonnelManagementWidget/PersonnelManagementWidget';
 
 interface WidgetPopupProps {
@@ -17,17 +18,6 @@ interface WidgetPopupProps {
   onClose: () => void;
 }
 
-export interface FavoriteWidget {
-  id: string;
-  type: 'person-info' | string;
-  title: string;
-  itemId: string;
-  itemType: TreeItemType;
-  personName?: string;
-  storeName?: string;
-  position?: string;
-  addedDate: string;
-}
 
 const WIDGETS_BY_TYPE: Record<TreeItemType, WidgetItem[]> = {
   [TreeItemType.ADDRESS]: [],
@@ -46,101 +36,22 @@ const WIDGETS_BY_TYPE: Record<TreeItemType, WidgetItem[]> = {
       type: 'personnel-management',
       availableFor: [TreeItemType.STORE],
     },
-  ],
-  [TreeItemType.COMPANY]: [
     {
-      id: 'company-1',
-      title: 'Финансовая отчетность',
-      description: 'Доходы и расходы компании',
-      type: 'finance',
-      availableFor: [TreeItemType.COMPANY],
-    },
-    {
-      id: 'company-2',
-      title: 'Статистика сотрудников',
-      description: 'Анализ штата компании',
-      type: 'employees',
-      availableFor: [TreeItemType.COMPANY, TreeItemType.DEPARTMENT],
-    },
-    {
-      id: 'company-3',
-      title: 'Карта магазинов',
-      description: 'Геолокация всех магазинов',
-      type: 'map',
-      availableFor: [TreeItemType.COMPANY, TreeItemType.DEPARTMENT],
-    },
-    {
-      id: 'company-4',
-      title: 'Ключевые показатели',
-      description: 'KPI компании',
-      type: 'kpi',
-      availableFor: [TreeItemType.COMPANY],
+      id: 'store-finance',
+      title: 'Финансовая аналитика',
+      description: 'Анализ продаж, чеков и выручки по месяцам',
+      type: 'store-finance',
+      availableFor: [TreeItemType.STORE],
     },
   ],
-  [TreeItemType.DEPARTMENT]: [
-    {
-      id: 'dept-1',
-      title: 'Бюджет департамента',
-      description: 'Распределение бюджета',
-      type: 'budget',
-      availableFor: [TreeItemType.DEPARTMENT],
-    },
-    {
-      id: 'dept-2',
-      title: 'Произв-сть',
-      description: 'Эффективность работы отдела',
-      type: 'performance',
-      availableFor: [TreeItemType.DEPARTMENT],
-    },
-    {
-      id: 'dept-3',
-      title: 'Проекты департамента',
-      description: 'Текущие и завершенные проекты',
-      type: 'projects',
-      availableFor: [TreeItemType.DEPARTMENT],
-    },
-    {
-      id: 'dept-4',
-      title: 'Задачи команды',
-      description: 'Распределение задач',
-      type: 'tasks',
-      availableFor: [TreeItemType.DEPARTMENT, TreeItemType.STORE],
-    },
-  ],
+  [TreeItemType.COMPANY]: [],
+  [TreeItemType.DEPARTMENT]: [],
   [TreeItemType.PERSON]: [
     {
       id: 'person-1',
       title: 'Информация о сотруднике',
       description: 'Основные данные и контакты сотрудника',
       type: 'person-info',
-      availableFor: [TreeItemType.PERSON],
-    },
-    {
-      id: 'person-2',
-      title: 'Рабочие задачи',
-      description: 'Текущие задачи сотрудника',
-      type: 'tasks',
-      availableFor: [TreeItemType.PERSON],
-    },
-    {
-      id: 'person-3',
-      title: 'График работы',
-      description: 'Расписание и отпуска',
-      type: 'schedule',
-      availableFor: [TreeItemType.PERSON],
-    },
-    {
-      id: 'person-4',
-      title: 'Произв-сть',
-      description: 'KPI сотрудника',
-      type: 'performance',
-      availableFor: [TreeItemType.PERSON],
-    },
-    {
-      id: 'person-5',
-      title: 'Документы',
-      description: 'Личные документы и договоры',
-      type: 'documents',
       availableFor: [TreeItemType.PERSON],
     },
   ],
@@ -152,12 +63,13 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
     const [showPersonWidget, setShowPersonWidget] = useState(false);
     const [showStoreWidget, setShowStoreWidget] = useState(false);
     const [showPersonnelWidget, setShowPersonnelWidget] = useState(false);
+    const [showStoreFinanceWidget, setShowStoreFinanceWidget] = useState(false);
     const [selectedHid, setSelectedHid] = useState<string>('');
     const [selectedItemName, setSelectedItemName] = useState<string>('');
     const [favoriteWidgets, setFavoriteWidgets] = useState<FavoriteWidget[]>([]);
     const popupRef = useRef<HTMLDivElement>(null);
     const widgetContainerRef = useRef<HTMLDivElement>(null);
-    const [activeWidget, setActiveWidget] = useState<'person' | 'store' | 'personnel' | null>(null);
+    const [activeWidget, setActiveWidget] = useState<'person' | 'store' | 'personnel' | 'finance' | null>(null);
     const clickOriginRef = useRef<'popup' | 'widget' | 'outside' | null>(null);
 
     const availableWidgets = WIDGETS_BY_TYPE[itemType] || [];
@@ -224,8 +136,14 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
       } else {
         let widgetTitle = widget.title;
         let storeName = '';
+        let hid = '';
 
-        if (widgetType === 'store-info') {
+        if (itemType === TreeItemType.STORE) {
+          const match = itemId.match(/\d+$/);
+          hid = match ? match[0] : itemId;
+        }
+
+        if (widgetType === 'store-info' || widgetType === 'personnel-management' || widgetType === 'store-finance') {
           const findStoreInTree = (items: any[]): any => {
             for (const item of items) {
               if (item.id === itemId && item.type === TreeItemType.STORE) {
@@ -243,6 +161,9 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
           if (storeItem && storeItem.data && storeItem.data.storeName) {
             storeName = storeItem.data.storeName;
             widgetTitle = storeName;
+          } else if (storeItem && storeItem.label) {
+            storeName = storeItem.label;
+            widgetTitle = storeItem.label;
           }
         } else if (widgetType === 'person-info') {
           const findPersonInTree = (items: any[]): any => {
@@ -276,7 +197,8 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
           itemType,
           personName: widgetType === 'person-info' ? widgetTitle : undefined,
           position: widgetType === 'person-info' ? 'Сотрудник' : undefined,
-          storeName: widgetType === 'store-info' ? storeName : undefined,
+          storeName: storeName || undefined,
+          hid: hid || undefined,
           addedDate: new Date().toISOString(),
         };
         newFavorites.push(newFavorite);
@@ -317,6 +239,14 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
             setSelectedHid(hid);
             setSelectedItemName(itemName);
             setActiveWidget('personnel');
+          }
+        } else if (widgetType === 'store-finance') {
+          if (itemType === TreeItemType.STORE) {
+            const hid = getHidFromItemId(itemId);
+            const itemName = getItemNameFromTree(itemId);
+            setSelectedHid(hid);
+            setSelectedItemName(itemName);
+            setActiveWidget('finance');
           }
         } else {
           onAddWidget(widgetType);
@@ -479,7 +409,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
               isMobile={isMobile}
             />
           </div>,
-          document.body
+          document.body,
         )}
 
         {activeWidget === 'person' && createPortal(
@@ -495,7 +425,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
               isMobile={isMobile}
             />
           </div>,
-          document.body
+          document.body,
         )}
 
         {activeWidget === 'store' && createPortal(
@@ -511,7 +441,23 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
               isMobile={isMobile}
             />
           </div>,
-          document.body
+          document.body,
+        )}
+        {activeWidget === 'finance' && createPortal(
+          <div
+            ref={widgetContainerRef}
+            className={`${styles.personWidgetWrapper} ${styles[getWidgetPosition()]}`}
+            onMouseDown={(e) => handleMouseDown(e, 'widget')}
+            onClick={handleClick}
+          >
+            <StoreFinanceWidget
+              hid={selectedHid}
+              storeName={selectedItemName}
+              onClose={() => setActiveWidget(null)}
+              isMobile={isMobile}
+            />
+          </div>,
+          document.body,
         )}
       </>
     );

@@ -38,7 +38,13 @@ export interface StoreWidgetData extends BaseWidgetData {
   originalIds?: number[];
 }
 
-export type WidgetData = PersonWidgetData | StoreWidgetData;
+export interface StoreFinanceWidgetData extends BaseWidgetData {
+  type: 'store-finance';
+  storeName: string;
+  hid: string;
+}
+
+export type WidgetData = PersonWidgetData | StoreWidgetData | StoreFinanceWidgetData;
 
 export interface BaseWidgetProps {
   itemId: string;
