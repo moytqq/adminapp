@@ -131,6 +131,32 @@
   color: #666;
 }
 
+.periodInfo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #e8f5e9;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #2e7d32;
+  flex-wrap: wrap;
+
+  @media (max-width: 767px) {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.periodInfoText {
+  font-weight: 500;
+}
+
+.periodInfoCount {
+  opacity: 0.8;
+  font-size: 10px;
+}
+
 .dropdown {
   position: relative;
   flex: 1;

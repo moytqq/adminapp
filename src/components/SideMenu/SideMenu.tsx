@@ -11,11 +11,12 @@ import {
   FileText,
   ClipboardCheck,
   MessageCircle,
-  MessageCircleMore, Lightbulb,
+  MessageCircleMore, Lightbulb, Star,
 } from 'lucide-react';
 import styles from './SideMenu.module.scss';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import LogoutButton from '@/components/LogoutButton/LogoutButton';
 
 interface SideMenuProps {
   isOpen: boolean;
@@ -67,12 +68,20 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
         </div>
         <nav className={styles.nav}>
           <Link
-            href="/staff"
-            className={`${styles.navItem} ${pathname === '/staff' ? styles.active : ''}`}
+            href="/main"
+            className={`${styles.navItem} ${pathname === '/main' ? styles.active : ''}`}
             onClick={handleLinkClick}
           >
             <Building2 size={20} />
             <span>Компания</span>
+          </Link>
+          <Link
+            href="/favorites"
+            className={`${styles.navItem} ${pathname === '/favorites' ? styles.active : ''}`}
+            onClick={handleLinkClick}
+          >
+            <Star size={20} />
+            <span>Личный кабинет</span>
           </Link>
           <Link
             href="/staff"
@@ -83,39 +92,41 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
             <span>Сотрудники</span>
           </Link>
           <Link
-            href="/staff"
-            className={`${styles.navItem} ${pathname === '/staff' ? styles.active : ''}`}
+            href=""
+            className={`${styles.navItem} ${pathname === '' ? styles.active : ''}`}
             onClick={handleLinkClick}
           >
             <ClipboardCheck size={20} />
             <span>Задачи</span>
           </Link>
           <Link
-            href="/staff"
-            className={`${styles.navItem} ${pathname === '/staff' ? styles.active : ''}`}
+            href=""
+            className={`${styles.navItem} ${pathname === '' ? styles.active : ''}`}
             onClick={handleLinkClick}
           >
             <FileText size={20} />
             <span>Отчёты</span>
           </Link>
           <Link
-            href="/staff"
-            className={`${styles.navItem} ${pathname === '/staff' ? styles.active : ''}`}
+            href=""
+            className={`${styles.navItem} ${pathname === '' ? styles.active : ''}`}
             onClick={handleLinkClick}
           >
             <MessageCircleMore size={20} />
             <span>Чат</span>
           </Link>
           <Link
-            href="/staff"
-            className={`${styles.navItem} ${pathname === '/staff' ? styles.active : ''}`}
+            href=""
+            className={`${styles.navItem} ${pathname === '' ? styles.active : ''}`}
             onClick={handleLinkClick}
           >
             <Lightbulb size={20} />
             <span>Идеи</span>
           </Link>
-
         </nav>
+        <footer className={styles.footer}>
+          <LogoutButton/>
+        </footer>
       </div>
     </>,
     document.body

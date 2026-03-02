@@ -349,7 +349,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
                 <button
                   className={styles.unassignButton}
                   onClick={onUnassign}
-                  title="Отвязать от позиции"
+                  title="Отвязать от вакансии"
                 >
                   <X size={16} />
                 </button>

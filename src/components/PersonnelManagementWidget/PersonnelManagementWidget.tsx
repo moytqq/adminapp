@@ -102,7 +102,7 @@ const PersonnelManagementWidget: React.FC<PersonnelManagementWidgetProps> = ({
         </button>
         <div className={styles.headerInfo}>
           <h3 className={styles.title}>
-            Сотрудники и позиции
+            Сотрудники и вакансии
           </h3>
           {itemName && (
             <span className={styles.subtitle}>{itemName}</span>
@@ -114,7 +114,7 @@ const PersonnelManagementWidget: React.FC<PersonnelManagementWidgetProps> = ({
         <div className={styles.stats}>
           <div className={styles.statItem}>
             <span className={styles.statValue}>{positions.length}</span>
-            <span className={styles.statLabel}>Всего позиций</span>
+            <span className={styles.statLabel}>Всего вакансий</span>
           </div>
           <div className={styles.statItem}>
             <span className={styles.statValue}>{vacantPositions.length}</span>
@@ -136,7 +136,7 @@ const PersonnelManagementWidget: React.FC<PersonnelManagementWidgetProps> = ({
             onClick={() => setShowAddForm(true)}
           >
             <Briefcase size={16} />
-            <span>Добавить позицию</span>
+            <span>Добавить вакансию</span>
           </button>
           <button
             className={`${styles.addButton} ${styles.addStaffButton}`}
@@ -152,7 +152,7 @@ const PersonnelManagementWidget: React.FC<PersonnelManagementWidgetProps> = ({
             <input
               type="text"
               className={styles.addInput}
-              placeholder="Название позиции"
+              placeholder="Название вакансии"
               value={newPositionName}
               onChange={(e) => setNewPositionName(e.target.value)}
               autoFocus
@@ -182,12 +182,12 @@ const PersonnelManagementWidget: React.FC<PersonnelManagementWidgetProps> = ({
           {sortedPositions.length === 0 ? (
             <div className={styles.emptyState}>
               <Briefcase size={32} />
-              <p>Нет позиций для этого объекта</p>
+              <p>Нет вакансии для этого магазина</p>
               <button
                 className={styles.emptyStateButton}
                 onClick={() => setShowAddForm(true)}
               >
-                Добавить первую позицию
+                Добавить первую вакансию
               </button>
             </div>
           ) : (

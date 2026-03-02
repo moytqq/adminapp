@@ -31,7 +31,7 @@ const WIDGETS_BY_TYPE: Record<TreeItemType, WidgetItem[]> = {
     },
     {
       id: 'store-personnel',
-      title: 'Сотрудники и позиции',
+      title: 'Сотрудники и вакансии',
       description: 'Управление персоналом и вакансиями магазина',
       type: 'personnel-management',
       availableFor: [TreeItemType.STORE],

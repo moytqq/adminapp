@@ -78,7 +78,7 @@ const AddPositionModal: React.FC<AddPositionModalProps> = ({ isOpen, onClose }) 
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h3 className={styles.title}>Добавить новую позицию</h3>
+          <h3 className={styles.title}>Добавить новую вакансию</h3>
           <button className={styles.closeButton} onClick={onClose}>
             <X size={20} />
           </button>
@@ -103,7 +103,7 @@ const AddPositionModal: React.FC<AddPositionModalProps> = ({ isOpen, onClose }) 
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>Название позиции</label>
+            <label className={styles.label}>Название вакансии</label>
             <input
               type="text"
               className={styles.input}
@@ -128,7 +128,7 @@ const AddPositionModal: React.FC<AddPositionModalProps> = ({ isOpen, onClose }) 
               className={styles.submitButton}
               disabled={loading || !name || !selectedStoreId}
             >
-              {loading ? 'Добавление...' : 'Добавить позицию'}
+              {loading ? 'Добавление...' : 'Добавить вакансию'}
             </button>
           </div>
         </form>

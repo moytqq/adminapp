@@ -37,7 +37,6 @@ export default function Home() {
   return (
     <>
       <ProtectedRoute>
-        <LogoutButton />
         <TreeDataLoader />
         <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
         <header className={styles.header}>
@@ -50,15 +49,15 @@ export default function Home() {
               <Menu size={24} />
             </button>
           </div>
-          <Link
-            href="/favorites"
-            className={styles.favoritesLink}
-            aria-label="Избранные виджеты"
-            title="Избранные виджеты"
-          >
-            <Star size={24} />
-            <span className={styles.favoritesText}>Избранные виджеты</span>
-          </Link>
+          {/*<Link*/}
+          {/*  href="/favorites"*/}
+          {/*  className={styles.favoritesLink}*/}
+          {/*  aria-label="Избранные виджеты"*/}
+          {/*  title="Избранные виджеты"*/}
+          {/*>*/}
+          {/*  <Star size={24} />*/}
+          {/*  <span className={styles.favoritesText}>Избранные виджеты</span>*/}
+          {/*</Link>*/}
         </header>
         <main>
           <TreeList />

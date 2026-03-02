@@ -15,9 +15,11 @@ import PositionCard from '@/components/StaffPage/PositionCard';
 import AddPositionModal from '@/components/StaffPage/AddPositionModal';
 import AddStaffModal from '@/components/StaffPage/AddStaffModal';
 import styles from './staff.module.scss';
-import { ArrowLeft, Plus, Users, Briefcase } from 'lucide-react';
+import { ArrowLeft, Plus, Users, Briefcase, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { TreeItemType } from '@/types/tree.types';
+import SideMenu from '@/components/SideMenu/SideMenu';
+import stylesSideMenu from '@/app/main/main.module.scss';
 
 export default function StaffPage() {
   const dispatch = useAppDispatch();
@@ -27,7 +29,7 @@ export default function StaffPage() {
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
   const [storeNamesMap, setStoreNamesMap] = useState<Record<string, string>>({});
   const [initialLoading, setInitialLoading] = useState(true);
-
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   useEffect(() => {
     const loadData = async () => {
       setInitialLoading(true);
@@ -35,7 +37,7 @@ export default function StaffPage() {
         await Promise.all([
           dispatch(loadTreeData()),
           dispatch(loadAllStaff()),
-          dispatch(loadAllPositions())
+          dispatch(loadAllPositions()),
         ]);
       } catch (error) {
         console.error('Error loading data:', error);
@@ -94,38 +96,41 @@ export default function StaffPage() {
 
   return (
     <ProtectedRoute>
-      <LogoutButton />
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <Link href="/main" className={styles.backButton}>
-            <ArrowLeft size={20} />
-            <span>На главную</span>
-          </Link>
-          <h1 className={styles.title}>Сотрудники и позиции</h1>
-        </div>
-        <div className={styles.actions}>
-          <button
-            className={styles.addButton}
-            onClick={() => setShowAddPositionModal(true)}
-          >
-            <Briefcase size={18} />
-            <span>Добавить позицию</span>
-          </button>
-          <button
-            className={styles.addButton}
-            onClick={() => setShowAddStaffModal(true)}
-          >
-            <Users size={18} />
-            <span>Добавить сотрудника</span>
-          </button>
-        </div>
+          <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+            <button
+              className={stylesSideMenu.menuButton}
+              onClick={() => setIsMenuOpen(true)}
+              aria-label="Открыть меню"
+            >
+              <Menu size={24} />
+            </button>
+            <h1 className={styles.title}>Сотрудники и вакансии</h1>
+          </div>
+          <div className={styles.actions}>
+            <button
+              className={styles.addButton}
+              onClick={() => setShowAddPositionModal(true)}
+            >
+              <Briefcase size={18} />
+              <span>Добавить вакансию</span>
+            </button>
+            <button
+              className={styles.addButton}
+              onClick={() => setShowAddStaffModal(true)}
+            >
+              <Users size={18} />
+              <span>Добавить сотрудника</span>
+            </button>
+          </div>
       </header>
 
       <main className={styles.content}>
         <div className={styles.stats}>
           <div className={styles.statCard}>
             <div className={styles.statValue}>{positions.length}</div>
-            <div className={styles.statLabel}>Всего позиций</div>
+            <div className={styles.statLabel}>Всего вакансий</div>
           </div>
           <div className={styles.statCard}>
             <div className={styles.statValue}>{vacantPositions.length}</div>
@@ -155,7 +160,7 @@ export default function StaffPage() {
                   className={styles.addButton}
                   onClick={() => setShowAddPositionModal(true)}
                 >
-                  Добавить первую позицию
+                  Добавить первую вакансию
                 </button>
               </div>
             ) : (
@@ -186,5 +191,5 @@ export default function StaffPage() {
         onClose={() => setShowAddStaffModal(false)}
       />
     </ProtectedRoute>
-  );
+);
 }

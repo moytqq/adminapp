@@ -43,7 +43,7 @@
   .headerContent {
     display: flex;
     flex-direction: row;
-    gap: 12px;
+    gap: 26px;
     flex-wrap: wrap;
     h1 {
       display: flex;
@@ -70,7 +70,7 @@
 
 .content {
   display: flex;
-  height: calc(100vh - 110px);
+  height: calc(100vh - 80px);
   padding: 10px;
   gap: 14px;
 
@@ -100,12 +100,20 @@
     overflow-y: visible;
   }
 
+
   h2 {
+    display: flex;
+    align-items: stretch;
+    position: sticky;
+    top:0;
+    z-index:10;
+    background: white;
+    padding-top: 20px;
+    padding-bottom: 30px;
     margin: 0 0 20px 0;
     font-size: 18px;
     font-weight: 600;
     color: #333;
-    padding-bottom: 12px;
     border-bottom: 1px solid #e0e0e0;
 
     @media (max-width: 768px) {
@@ -656,7 +664,7 @@
 }
 @media (min-width: 768px) and (max-width: 1024px) {
   .content {
-    height: calc(100vh - 140px);
+    height: calc(100vh - 80px);
     padding: 16px;
     gap: 16px;
   }

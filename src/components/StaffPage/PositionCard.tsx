@@ -57,7 +57,7 @@ const PositionCard: React.FC<PositionCardProps> = ({
   }, []);
 
   const handleDelete = async () => {
-    if (confirm('Вы уверены, что хотите удалить эту должность?')) {
+    if (confirm('Вы уверены, что хотите удалить эту вакансию?')) {
       await dispatch(deletePosition(position.id));
       setIsMenuOpen(false);
       await dispatch(loadAllPositions());
@@ -98,7 +98,7 @@ const PositionCard: React.FC<PositionCardProps> = ({
   };
 
   const handleUnassignStaff = async () => {
-    if (confirm(`Снять сотрудника ${staff?.fio} с должности ${position.name}?`)) {
+    if (confirm(`Снять сотрудника ${staff?.fio} с вакансии ${position.name}?`)) {
       await dispatch(updatePosition({
         id: position.id,
         name: position.name,
@@ -126,7 +126,7 @@ const PositionCard: React.FC<PositionCardProps> = ({
                 onChange={(e) => setEditedName(e.target.value)}
                 className={styles.editInput}
                 autoFocus
-                placeholder="Название позиции"
+                placeholder="Название вакансии"
               />
               <button
                 onClick={handleSaveEdit}

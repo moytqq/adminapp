@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { reportsApi, MonthReport } from '@/services/reportsApi';
 import FinanceChart from './FinanceChart';
 import styles from './StoreFinanceWidget.module.scss';
@@ -64,8 +64,15 @@ const StoreFinanceWidget: React.FC<StoreFinanceWidgetProps> = ({
     loadData();
   }, [loadData]);
 
+  const lastDate = useMemo(() => {
+    if (!data.length) return null;
+
+    const dates = data.map(item => new Date(item.date).getTime());
+    return new Date(Math.max(...dates));
+  }, [data]);
+
   useEffect(() => {
-    if (!data.length) {
+    if (!data.length || !lastDate) {
       setFilteredData([]);
       return;
     }
@@ -74,30 +81,56 @@ const StoreFinanceWidget: React.FC<StoreFinanceWidgetProps> = ({
       new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
-    const now = new Date();
-    let cutoffDate: Date | null = null;
+    if (selectedPeriod === 'all') {
+      setFilteredData(sorted);
+      return;
+    }
 
+    let monthsCount = 0;
     switch (selectedPeriod) {
-      case 'year':
-        cutoffDate = new Date(now.setFullYear(now.getFullYear() - 1));
+      case 'quarter':
+        monthsCount = 3;
         break;
       case 'half-year':
-        cutoffDate = new Date(now.setMonth(now.getMonth() - 6));
+        monthsCount = 6;
         break;
-      case 'quarter':
-        cutoffDate = new Date(now.setMonth(now.getMonth() - 3));
+      case 'year':
+        monthsCount = 12;
         break;
       default:
-        cutoffDate = null;
+        setFilteredData(sorted);
+        return;
     }
 
-    if (cutoffDate) {
-      const filtered = sorted.filter(item => new Date(item.date) >= cutoffDate!);
-      setFilteredData(filtered.length ? filtered : sorted);
+    const startDate = new Date(lastDate);
+    startDate.setMonth(startDate.getMonth() - (monthsCount - 1));
+    startDate.setDate(1);
+
+    const filtered = sorted.filter(item => {
+      const itemDate = new Date(item.date);
+      return itemDate >= startDate;
+    });
+
+    if (filtered.length < monthsCount && sorted.length >= monthsCount) {
+      const lastNMonths = sorted.slice(-monthsCount);
+      setFilteredData(lastNMonths);
     } else {
-      setFilteredData(sorted);
+      setFilteredData(filtered.length ? filtered : [sorted[sorted.length - 1]]);
     }
-  }, [data, selectedPeriod]);
+  }, [data, selectedPeriod, lastDate]);
+
+  const periodInfo = useMemo(() => {
+    if (!filteredData.length || !lastDate) return null;
+
+    const firstDate = new Date(filteredData[0].date);
+    const lastDisplayDate = new Date(filteredData[filteredData.length - 1].date);
+
+    return {
+      start: firstDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' }),
+      end: lastDisplayDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' }),
+      count: filteredData.length,
+    };
+  }, [filteredData, lastDate]);
 
   const toggleVisibility = (key: keyof ChartVisibility) => {
     setVisibility(prev => ({
@@ -126,7 +159,10 @@ const StoreFinanceWidget: React.FC<StoreFinanceWidgetProps> = ({
           <button className={styles.closeButton} onClick={onClose}>
             <ArrowLeft size={18} />
           </button>
-          <h3>Финансовая аналитика</h3>
+          <div className={styles.headerTitle}>
+            <h3>Финансовая аналитика</h3>
+            {storeName && <span className={styles.storeName}>{storeName}</span>}
+          </div>
         </div>
         <div className={styles.loading}>
           <div className={styles.spinner} />
@@ -143,7 +179,10 @@ const StoreFinanceWidget: React.FC<StoreFinanceWidgetProps> = ({
           <button className={styles.closeButton} onClick={onClose}>
             <ArrowLeft size={18} />
           </button>
-          <h3>Финансовая аналитика</h3>
+          <div className={styles.headerTitle}>
+            <h3>Финансовая аналитика</h3>
+            {storeName && <span className={styles.storeName}>{storeName}</span>}
+          </div>
         </div>
         <div className={styles.error}>
           <p>{error}</p>
@@ -194,6 +233,14 @@ const StoreFinanceWidget: React.FC<StoreFinanceWidgetProps> = ({
             )}
           </div>
         </div>
+
+        {periodInfo && selectedPeriod !== 'all' && (
+          <div className={styles.periodInfo}>
+            <span className={styles.periodInfoText}>
+              {periodInfo.start} — {periodInfo.end}
+            </span>
+          </div>
+        )}
 
         <div className={styles.visibilityControls}>
           <span className={styles.visibilityLabel}>

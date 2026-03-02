@@ -1,11 +1,10 @@
-// components/Favorites/Favorites.tsx (обновленная версия)
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Star, User, Building2, Users, Store, Trash2, ArrowLeft, X, Briefcase, DollarSign } from 'lucide-react';
+import { Star, User, Building2, Users, Store, Trash2, ArrowLeft, X, Briefcase, DollarSign, Menu } from 'lucide-react';
 import styles from './Favorites.module.scss';
+import stylesSideMenu from '@/app/main/main.module.scss';
 import PersonInfoWidget from '@/components/PersonInfoWidget/PersonInfoWidget';
 import { useAppDispatch } from '@/store/hooks/hooks';
 import { loadTreeData } from '@/store/slices/treeSlice';
@@ -14,6 +13,7 @@ import { useAppSelector } from '@/store/hooks/hooks';
 import StoreInfoWidget from '@/components/StoreInfoWidget/StoreInfoWidget';
 import PersonnelManagementWidget from '@/components/PersonnelManagementWidget/PersonnelManagementWidget';
 import StoreFinanceWidget from '@/components/StoreFinanceWidget/StoreFinanceWidget';
+import SideMenu from '@/components/SideMenu/SideMenu';
 
 interface FavoriteWidget {
   id: string;
@@ -38,6 +38,7 @@ const FavoritesPage = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const mobileWidgetContainerRef = useRef<HTMLDivElement>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const treeItems = useAppSelector((state) => state.tree.items);
 
@@ -366,17 +367,22 @@ const FavoritesPage = () => {
 
   const getWidgetNameByType = (type: string) => {
     switch (type) {
-      case 'personnel-management': return 'Сотрудники';
-      case 'store-finance': return 'Финансовая аналитика';
-      default: return 'Информация';
+      case 'personnel-management':
+        return 'Сотрудники';
+      case 'store-finance':
+        return 'Финансовая аналитика';
+      default:
+        return 'Информация';
     }
-  }
+  };
   const getObjectNameByWidgetType = (type: string) => {
     switch (type) {
-      case 'person-info': return 'Сотрудник';
-      default: return 'Магазин';
+      case 'person-info':
+        return 'Сотрудник';
+      default:
+        return 'Магазин';
     }
-  }
+  };
 
   const renderCardInfo = (widget: FavoriteWidget) => {
 
@@ -435,11 +441,21 @@ const FavoritesPage = () => {
     <>
       <div className={styles.container}>
         <header className={styles.header}>
-          <button className={styles.backButton} onClick={handleBackClick}>
-            <ArrowLeft size={20} />
-            <span>Назад к дереву</span>
-          </button>
+          {/*<button className={styles.backButton} onClick={handleBackClick}>*/}
+          {/*  <ArrowLeft size={20} />*/}
+          {/*  <span>Назад к дереву</span>*/}
+          {/*</button>*/}
           <div className={styles.headerContent}>
+            <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+            <div className={stylesSideMenu.headerLeft}>
+              <button
+                className={stylesSideMenu.menuButton}
+                onClick={() => setIsMenuOpen(true)}
+                aria-label="Открыть меню"
+              >
+                <Menu size={24} />
+              </button>
+            </div>
             <h1>
               <Star size={24} />
               Избранные виджеты
@@ -455,7 +471,7 @@ const FavoritesPage = () => {
 
         <div className={styles.content}>
           <div className={styles.sidebar}>
-            <h2>Список избранного</h2>
+            {/*<h2 className={styles.header2}>Список избранного</h2>*/}
             {favorites.length === 0 ? (
               <div className={styles.emptyState}>
                 <Star size={48} className={styles.emptyIcon} />
