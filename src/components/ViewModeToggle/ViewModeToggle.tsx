@@ -37,11 +37,11 @@ const ViewModeToggle: React.FC = () => {
         className={`${styles.toggleButton} ${viewMode === 'hierarchy' ? styles.active : ''}`}
         onClick={() => handleSwitchView('hierarchy')}
         disabled={loading}
-        aria-label={isMobile ? "Иерархия" : "Иерархическое отображение"}
+        aria-label={isMobile ? "Компания" : "Иерархическое отображение"}
         title="Иерархическое отображение"
       >
         <LayoutGrid size={isMobile ? 20 : 18} />
-        {!isMobile && <span>Иерархия</span>}
+        {!isMobile && <span>Компания</span>}
       </button>
 
       <button

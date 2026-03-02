@@ -458,7 +458,7 @@ const FavoritesPage = () => {
             </div>
             <h1>
               <Star size={24} />
-              Избранные виджеты
+              Личный кабинет
             </h1>
             <span className={styles.subtitle}>
               {favorites.length === 0

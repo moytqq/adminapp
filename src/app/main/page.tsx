@@ -32,23 +32,11 @@ function TreeDataLoader() {
 }
 
 export default function Home() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <>
       <ProtectedRoute>
         <TreeDataLoader />
-        <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-        <header className={styles.header}>
-          <div className={styles.headerLeft}>
-            <button
-              className={styles.menuButton}
-              onClick={() => setIsMenuOpen(true)}
-              aria-label="Открыть меню"
-            >
-              <Menu size={24} />
-            </button>
-          </div>
           {/*<Link*/}
           {/*  href="/favorites"*/}
           {/*  className={styles.favoritesLink}*/}
@@ -58,7 +46,7 @@ export default function Home() {
           {/*  <Star size={24} />*/}
           {/*  <span className={styles.favoritesText}>Избранные виджеты</span>*/}
           {/*</Link>*/}
-        </header>
+
         <main>
           <TreeList />
         </main>

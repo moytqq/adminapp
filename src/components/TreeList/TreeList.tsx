@@ -5,8 +5,10 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks';
 import { loadTreeData, toggleExpand } from '@/store/slices/treeSlice';
 import TreeItem from './TreeItem';
 import styles from './TreeList.module.scss';
-import { RefreshCw } from 'lucide-react';
+import stylesSideMenu from '@/app/main/main.module.scss';
+import { Menu, RefreshCw } from 'lucide-react';
 import ViewModeToggle from '@/components/ViewModeToggle/ViewModeToggle';
+import SideMenu from '@/components/SideMenu/SideMenu';
 
 const TreeList: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -15,7 +17,7 @@ const TreeList: React.FC = () => {
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const loadData = useCallback(() => {
     dispatch(loadTreeData());
   }, [dispatch]);
@@ -56,9 +58,7 @@ const TreeList: React.FC = () => {
   const getTitle = () => {
     switch (viewMode) {
       case 'hierarchy':
-        return 'Иерархия компании';
-      case 'store-departments':
-        return 'Магазины и отделы';
+        return 'Компания';
       case 'addresses':
         return 'Адреса и магазины';
       default:
@@ -95,15 +95,25 @@ const TreeList: React.FC = () => {
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <div className={styles.titleSection}>
+            <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+            <div className={stylesSideMenu.headerLeft}>
+              <button
+                className={stylesSideMenu.menuButton}
+                onClick={() => setIsMenuOpen(true)}
+                aria-label="Открыть меню"
+              >
+                <Menu size={24} />
+              </button>
+            </div>
             <h1>
               {getTitle()}
             </h1>
-            {isMobile && (
-              <div className={styles.mobileToggleContainer}>
-                <ViewModeToggle />
-              </div>
-            )}
           </div>
+          {isMobile && (
+            <div className={styles.mobileToggleContainer}>
+              <ViewModeToggle />
+            </div>
+          )}
           {!isMobile && (
             <div className={styles.actions}>
               <ViewModeToggle />
