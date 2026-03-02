@@ -110,7 +110,7 @@ export interface ApiTreeItem {
   id: number;
   name: string;
   parent_id: number;
-  type: 'Company' | 'Department' | 'Store' | 'Person' | 'Address'; // Добавляем Address
+  type: 'Company' | 'Department' | 'Store' | 'Person' | 'Address';
   description?: string;
   data?: any;
 }

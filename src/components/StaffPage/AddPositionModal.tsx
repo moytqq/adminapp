@@ -21,14 +21,12 @@ const AddPositionModal: React.FC<AddPositionModalProps> = ({ isOpen, onClose }) 
   const [stores, setStores] = useState<Array<{ id: string; name: string; hid: string }>>([]);
 
   useEffect(() => {
-    // Собираем все магазины из дерева
     const extractStores = (items: any[]): Array<{ id: string; name: string; hid: string }> => {
       let stores: Array<{ id: string; name: string; hid: string }> = [];
 
       const traverse = (items: any[]) => {
         items.forEach(item => {
           if (item.type === TreeItemType.STORE) {
-            // Извлекаем числовой ID из строки (store-3001 -> 3001)
             const match = item.id.match(/\d+$/);
             const hid = match ? match[0] : item.id;
             stores.push({

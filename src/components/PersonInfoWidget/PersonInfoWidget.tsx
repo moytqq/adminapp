@@ -1,5 +1,3 @@
-// components/PersonInfoWidget/PersonInfoWidget.tsx
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -160,7 +158,6 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
     if (personData) {
       setEditedData(personData);
     } else {
-      // Fallback на случай если данные не найдены
       setEditedData({
         firstName: 'Иван',
         lastName: 'Иванов',

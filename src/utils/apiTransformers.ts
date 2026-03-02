@@ -90,7 +90,7 @@ const transformApiItemToTreeItem = (apiItem: ApiTreeItem): TreeItem => {
       return {
         ...baseItem,
         type: TreeItemType.PERSON,
-        subLabel: apiItem.description || '', // Используем description как должность
+        subLabel: apiItem.description || '',
         data: {
           firstName,
           lastName,

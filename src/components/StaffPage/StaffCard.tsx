@@ -1,4 +1,3 @@
-// components/StaffPage/StaffCard.tsx (обновленная версия)
 
 'use client';
 
