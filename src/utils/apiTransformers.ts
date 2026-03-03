@@ -219,7 +219,7 @@ export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
         const existingFirstName = item.data?.firstName || '';
         const existingLastName = item.data?.lastName || '';
 
-        const randomMiddleName = middleNames[Math.floor(Math.random() * middleNames.length)];
+        // const randomMiddleName = middleNames[Math.floor(Math.random() * middleNames.length)];
 
         const generateEmail = () => {
           if (item.data?.email) return item.data.email;
@@ -234,7 +234,7 @@ export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
             ...item.data,
             firstName: existingFirstName || 'Иван',
             lastName: existingLastName || 'Иванов',
-            middleName: item.data?.middleName || randomMiddleName,
+            middleName: item.data?.middleName ,
             birthDate: item.data?.birthDate || `198${Math.floor(Math.random() * 9)}-${(Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0')}-${(Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0')}`,
             citizenship: item.data?.citizenship || 'РФ',
             registration: item.data?.registration || `г. Москва, ул. ${['Ленина', 'Пушкина', 'Гагарина'][Math.floor(Math.random() * 3)]}, д. ${Math.floor(Math.random() * 100) + 1}`,

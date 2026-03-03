@@ -295,8 +295,8 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
   const getMiddleName = () => editedData.middleName || 'Не указано';
   const getFullName = () => {
     const parts = [
-      editedData.lastName,
       editedData.firstName,
+      editedData.lastName,
       editedData.middleName
     ].filter(Boolean);
     return parts.length > 0 ? parts.join(' ') : 'Не указано';

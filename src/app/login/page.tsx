@@ -68,8 +68,8 @@ export default function LoginPage() {
           Удачный Ltd.
         </h1>
         <div className={styles.loadingMessage}>
-          <h2>Проверка токена...</h2>
           <div className={styles.spinner}></div>
+          <h2>Проверка токена...</h2>
         </div>
       </div>
     );
