@@ -11,7 +11,7 @@ import {
   FileText,
   ClipboardCheck,
   MessageCircle,
-  MessageCircleMore, Lightbulb, Star,
+  MessageCircleMore, Lightbulb, Star, ListOrdered,
 } from 'lucide-react';
 import styles from './SideMenu.module.scss';
 import Link from 'next/link';
@@ -82,6 +82,14 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
           >
             <Star size={20} />
             <span>Личный кабинет</span>
+          </Link>
+          <Link
+            href=""
+            className={`${styles.navItem} ${pathname === '' ? styles.active : ''}`}
+            onClick={handleLinkClick}
+          >
+            <ListOrdered  size={20} />
+            <span>Автозаказы</span>
           </Link>
           <Link
             href="/staff"
