@@ -116,12 +116,32 @@ const transformApiItemToTreeItem = (apiItem: ApiTreeItem): TreeItem => {
   }
 };
 
-export const filterOnlyDepartments = (apiItems: ApiTreeItem[]): ApiTreeItem[] => {
-  return apiItems.filter(item => item.type === 'Department');
+export const filterDepartmentsAndDescendants = (apiItems: ApiTreeItem[]): ApiTreeItem[] => {
+  const departmentIds = new Set(
+    apiItems
+      .filter(item => item.type === 'Department')
+      .map(item => item.id)
+  );
+
+  const idsToKeep = new Set<number>([...departmentIds]);
+
+  const addDescendants = (parentId: number) => {
+    const children = apiItems.filter(item => (item.parent_id === parentId && item.type !== 'Person' ));
+    children.forEach(child => {
+      if (!idsToKeep.has(child.id)) {
+        idsToKeep.add(child.id);
+        addDescendants(child.id);
+      }
+    });
+  };
+
+  departmentIds.forEach(id => addDescendants(id));
+
+  return apiItems.filter(item => idsToKeep.has(item.id));
 };
 
 export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
-  const filteredItems = filterOnlyDepartments(apiItems);
+  const filteredItems = filterDepartmentsAndDescendants(apiItems);
 
   const itemsMap = new Map<string, TreeItem>();
   const rootItems: TreeItem[] = [];
@@ -131,7 +151,28 @@ export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
     itemsMap.set(treeItem.id, treeItem);
   });
 
-  const calculateLevelsAndBuildTree = (itemId: string, level: number): TreeItem => {
+  const sortChildren = (children: TreeItem[]): TreeItem[] => {
+    const typeOrder: Record<TreeItemType, number> = {
+      [TreeItemType.COMPANY]: 1,
+      [TreeItemType.DEPARTMENT]: 2,
+      [TreeItemType.ADDRESS]: 3,
+      [TreeItemType.STORE]: 4,
+      [TreeItemType.PERSON]: 5,
+    };
+
+    return children.sort((a, b) => {
+      const orderA = typeOrder[a.type] || 999;
+      const orderB = typeOrder[b.type] || 999;
+
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+
+      return a.label.localeCompare(b.label);
+    });
+  };
+
+  const buildTreeRecursive = (itemId: string, level: number): TreeItem => {
     const item = itemsMap.get(itemId);
     if (!item) throw new Error(`Item ${itemId} not found`);
 
@@ -144,8 +185,10 @@ export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
     item.hasChildren = children.length > 0;
 
     if (children.length > 0) {
-      item.children = children.map(child =>
-        calculateLevelsAndBuildTree(child.id, level + 1),
+      const sortedChildren = sortChildren(children);
+
+      item.children = sortedChildren.map(child =>
+        buildTreeRecursive(child.id, level + 1),
       );
     }
 
@@ -154,10 +197,13 @@ export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
 
   Array.from(itemsMap.values()).forEach(item => {
     const parentExists = Array.from(itemsMap.values()).some(p => p.id === item.parentId);
-    if (!parentExists) {
-      rootItems.push(calculateLevelsAndBuildTree(item.id, 0));
+
+    if (!parentExists && item.type === TreeItemType.DEPARTMENT) {
+      rootItems.push(buildTreeRecursive(item.id, 0));
     }
   });
+
+  rootItems.sort((a, b) => a.label.localeCompare(b.label));
 
   return rootItems;
 };
@@ -213,8 +259,6 @@ export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
         const existingLastName = item.data?.lastName || '';
         const existingMiddleName = item.data?.middleName || '';
 
-        const randomMiddleName = middleNames[Math.floor(Math.random() * middleNames.length)];
-
         const generateEmail = () => {
           if (item.data?.email) return item.data.email;
           const firstName = existingFirstName.toLowerCase() || 'user';
@@ -228,7 +272,7 @@ export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
             ...item.data,
             firstName: existingFirstName || 'Иван',
             lastName: existingLastName || 'Иванов',
-            middleName: existingMiddleName,
+            middleName: existingMiddleName || middleNames[Math.floor(Math.random() * middleNames.length)],
             birthDate: item.data?.birthDate || `198${Math.floor(Math.random() * 9)}-${(Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0')}-${(Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0')}`,
             citizenship: item.data?.citizenship || 'РФ',
             registration: item.data?.registration || `г. Москва, ул. ${['Ленина', 'Пушкина', 'Гагарина'][Math.floor(Math.random() * 3)]}, д. ${Math.floor(Math.random() * 100) + 1}`,

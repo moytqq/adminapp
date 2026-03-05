@@ -97,7 +97,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
             onClick={handleLinkClick}
           >
             <ClipboardCheck size={20} />
-            <span>Задачи</span>
+            <span>Планировщик</span>
           </Link>
           <Link
             href=""
@@ -105,7 +105,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
             onClick={handleLinkClick}
           >
             <FileText size={20} />
-            <span>Отчёты</span>
+            <span>Результаты</span>
           </Link>
           <Link
             href=""
@@ -121,7 +121,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
             onClick={handleLinkClick}
           >
             <Lightbulb size={20} />
-            <span>Идеи</span>
+            <span>Предложения</span>
           </Link>
         </nav>
         <footer className={styles.footer}>

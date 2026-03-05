@@ -12,7 +12,7 @@ import {
 } from '@/types/tree.types';
 import { fetchMockTreeData, transformTreeDataByViewMode } from '@/utils/treeHelpers';
 import { treeApi } from '@/services/api';
-import { buildTreeFromApiData, enhanceTreeDataWithMockInfo, filterOnlyDepartments } from '@/utils/apiTransformers';
+import { buildTreeFromApiData, enhanceTreeDataWithMockInfo, filterDepartmentsAndDescendants } from '@/utils/apiTransformers';
 
 const TREE_STORAGE_KEY = 'company-tree-data';
 const ORIGINAL_API_DATA_KEY = 'company-original-api-data';
@@ -62,11 +62,9 @@ export const loadTreeData = createAsyncThunk(
           break;
       }
 
-      // Для режима иерархии оставляем только департаменты
       let treeData: TreeItem[];
       if (viewMode === 'hierarchy') {
-        // Фильтруем API данные, оставляя только департаменты и их родителей
-        const filteredApiData = filterOnlyDepartments(apiData);
+        const filteredApiData = filterDepartmentsAndDescendants(apiData);
         treeData = buildTreeFromApiData(filteredApiData);
         treeData = enhanceTreeDataWithMockInfo(treeData);
       } else {
