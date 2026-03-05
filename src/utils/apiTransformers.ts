@@ -1,3 +1,5 @@
+// utils/apiTransformers.ts
+
 import {
   ApiTreeItem,
   TreeItem,
@@ -45,8 +47,8 @@ const transformApiItemToTreeItem = (apiItem: ApiTreeItem): TreeItem => {
         type: TreeItemType.COMPANY,
         data: {
           companyName: apiItem.name,
-          ...(apiItem.data || {})
-        }
+          ...(apiItem.data || {}),
+        },
       } as CompanyItem;
 
     case TreeItemType.DEPARTMENT:
@@ -56,8 +58,8 @@ const transformApiItemToTreeItem = (apiItem: ApiTreeItem): TreeItem => {
         data: {
           departmentName: apiItem.name,
           description: apiItem.description,
-          ...(apiItem.data || {})
-        }
+          ...(apiItem.data || {}),
+        },
       } as DepartmentItem;
 
     case TreeItemType.STORE:
@@ -67,8 +69,8 @@ const transformApiItemToTreeItem = (apiItem: ApiTreeItem): TreeItem => {
         data: {
           storeName: apiItem.name,
           description: apiItem.description,
-          ...(apiItem.data || {})
-        }
+          ...(apiItem.data || {}),
+        },
       } as StoreItem;
 
     case TreeItemType.ADDRESS:
@@ -79,7 +81,7 @@ const transformApiItemToTreeItem = (apiItem: ApiTreeItem): TreeItem => {
           addressName: apiItem.name,
           fullAddress: apiItem.description || '',
           storeCount: 0,
-        }
+        },
       } as AddressItem;
 
     case TreeItemType.PERSON:
@@ -96,8 +98,8 @@ const transformApiItemToTreeItem = (apiItem: ApiTreeItem): TreeItem => {
           lastName,
           position: apiItem.description || 'Сотрудник',
           email: '',
-          ...(apiItem.data || {})
-        }
+          ...(apiItem.data || {}),
+        },
       } as PersonItem;
 
     default:
@@ -109,16 +111,22 @@ const transformApiItemToTreeItem = (apiItem: ApiTreeItem): TreeItem => {
           lastName: '',
           position: apiItem.description || 'Сотрудник',
           email: '',
-        }
+        },
       } as PersonItem;
   }
 };
 
+export const filterOnlyDepartments = (apiItems: ApiTreeItem[]): ApiTreeItem[] => {
+  return apiItems.filter(item => item.type === 'Department');
+};
+
 export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
+  const filteredItems = filterOnlyDepartments(apiItems);
+
   const itemsMap = new Map<string, TreeItem>();
   const rootItems: TreeItem[] = [];
 
-  apiItems.forEach(apiItem => {
+  filteredItems.forEach(apiItem => {
     const treeItem = transformApiItemToTreeItem(apiItem);
     itemsMap.set(treeItem.id, treeItem);
   });
@@ -130,14 +138,14 @@ export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
     item.level = level;
 
     const children = Array.from(itemsMap.values()).filter(
-      child => child.parentId === itemId
+      child => child.parentId === itemId,
     );
 
     item.hasChildren = children.length > 0;
 
     if (children.length > 0) {
       item.children = children.map(child =>
-        calculateLevelsAndBuildTree(child.id, level + 1)
+        calculateLevelsAndBuildTree(child.id, level + 1),
       );
     }
 
@@ -145,26 +153,11 @@ export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
   };
 
   Array.from(itemsMap.values()).forEach(item => {
-    if (item.parentId === '0') {
+    const parentExists = Array.from(itemsMap.values()).some(p => p.id === item.parentId);
+    if (!parentExists) {
       rootItems.push(calculateLevelsAndBuildTree(item.id, 0));
     }
   });
-
-  if (rootItems.length === 0) {
-    const existingParentIds = new Set(
-      Array.from(itemsMap.values()).map(item => item.parentId)
-    );
-
-    Array.from(itemsMap.values()).forEach(item => {
-      if (!existingParentIds.has(item.id) && itemsMap.has(item.parentId)) {
-        return;
-      }
-
-      if (!itemsMap.has(item.parentId) || item.parentId === item.id) {
-        rootItems.push(calculateLevelsAndBuildTree(item.id, 0));
-      }
-    });
-  }
 
   return rootItems;
 };
@@ -182,7 +175,7 @@ export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
             foundedYear: 2010,
             employeeCount: Math.floor(Math.random() * 500) + 100,
             totalRevenue: Math.floor(Math.random() * 100000000) + 10000000,
-          }
+          },
         } as CompanyItem;
         break;
 
@@ -194,7 +187,7 @@ export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
             budget: Math.floor(Math.random() * 10000000) + 1000000,
             storeCount: Math.floor(Math.random() * 20) + 1,
             employeeCount: Math.floor(Math.random() * 100) + 10,
-          }
+          },
         } as DepartmentItem;
         break;
 
@@ -209,7 +202,7 @@ export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
             revenue: Math.floor(Math.random() * 5000000) + 1000000,
             employeeCount: Math.floor(Math.random() * 50) + 5,
             openingDate: `202${Math.floor(Math.random() * 3)}-${(Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0')}-${(Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0')}`,
-          }
+          },
         } as StoreItem;
         break;
 
@@ -218,8 +211,9 @@ export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
 
         const existingFirstName = item.data?.firstName || '';
         const existingLastName = item.data?.lastName || '';
+        const existingMiddleName = item.data?.middleName || '';
 
-        // const randomMiddleName = middleNames[Math.floor(Math.random() * middleNames.length)];
+        const randomMiddleName = middleNames[Math.floor(Math.random() * middleNames.length)];
 
         const generateEmail = () => {
           if (item.data?.email) return item.data.email;
@@ -234,7 +228,7 @@ export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
             ...item.data,
             firstName: existingFirstName || 'Иван',
             lastName: existingLastName || 'Иванов',
-            middleName: item.data?.middleName ,
+            middleName: existingMiddleName,
             birthDate: item.data?.birthDate || `198${Math.floor(Math.random() * 9)}-${(Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0')}-${(Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0')}`,
             citizenship: item.data?.citizenship || 'РФ',
             registration: item.data?.registration || `г. Москва, ул. ${['Ленина', 'Пушкина', 'Гагарина'][Math.floor(Math.random() * 3)]}, д. ${Math.floor(Math.random() * 100) + 1}`,
@@ -245,7 +239,7 @@ export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
             hireDate: item.data?.hireDate || `202${Math.floor(Math.random() * 3)}-${(Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0')}-${(Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0')}`,
             salary: item.data?.salary || Math.floor(Math.random() * 200000) + 50000,
             isManager: item.data?.isManager !== undefined ? item.data.isManager : Math.random() > 0.5,
-          }
+          },
         } as PersonItem;
         break;
     }
