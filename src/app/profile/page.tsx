@@ -1,0 +1,171 @@
+// app/profile/page.tsx
+
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  Menu,
+  User,
+  Building2,
+  Users,
+  ClipboardCheck,
+  DollarSign,
+  MessageCircle,
+  Database,
+  FileText,
+  ArrowLeft, RussianRuble,
+} from 'lucide-react';
+import styles from './profile.module.scss';
+import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
+import SideMenu from '@/components/SideMenu/SideMenu';
+import LogoutButton from '@/components/LogoutButton/LogoutButton';
+
+type TabType = 'departments' | 'employees' | 'tasks' | 'salary' | 'chat' | 'database' | 'documents';
+
+const ProfilePage = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>('departments');
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
+
+  const tabs = [
+    { id: 'departments' as TabType, label: 'Департаменты', icon: Building2, mobileIcon: Building2 },
+    { id: 'employees' as TabType, label: 'Сотрудники', icon: Users, mobileIcon: Users },
+    { id: 'tasks' as TabType, label: 'Задачи', icon: ClipboardCheck, mobileIcon: ClipboardCheck },
+    { id: 'salary' as TabType, label: 'ЗП', icon: DollarSign, mobileIcon: DollarSign },
+    { id: 'chat' as TabType, label: 'Чат', icon: MessageCircle, mobileIcon: MessageCircle },
+    { id: 'database' as TabType, label: 'База данных', icon: Database, mobileIcon: Database },
+    { id: 'documents' as TabType, label: 'Документы', icon: FileText, mobileIcon: FileText },
+  ];
+
+  const handleBackClick = () => {
+    router.push('/main');
+  };
+
+  return (
+    <ProtectedRoute>
+      <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+
+      <div className={styles.container}>
+        <header className={styles.header}>
+          <div className={styles.headerLeft}>
+            <button
+              className={styles.menuButton}
+              onClick={() => setIsMenuOpen(true)}
+              aria-label="Открыть меню"
+            >
+              <Menu size={24} />
+            </button>
+
+          </div>
+
+          <div className={styles.profileInfo}>
+            <div className={styles.userInfo}>
+              <span className={styles.userName}>Иван Иванов</span>
+              {!isMobile && <span className={styles.userRole}>Администратор</span>}
+            </div>
+            <div className={styles.userAvatar}>
+              <User size={24} />
+            </div>
+          </div>
+
+        </header>
+
+        <div className={styles.tabsContainer}>
+          <nav className={styles.tabs}>
+            {tabs.map(tab => {
+              const Icon = isMobile ? tab.mobileIcon : tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  className={`${styles.tab} ${activeTab === tab.id ? styles.active : ''}`}
+                  onClick={() => setActiveTab(tab.id)}
+                  title={isMobile ? tab.label : undefined}
+                >
+                  <Icon size={isMobile ? 24 : 20} />
+                  {!isMobile && <span>{tab.label}</span>}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        <main className={styles.content}>
+          <div className={styles.tabContent}>
+            {activeTab === 'departments' && (
+              <div className={styles.placeholder}>
+                <Building2 size={48} />
+                <h3>Департаменты</h3>
+                <p>Здесь будет отображаться информация о департаментах</p>
+              </div>
+            )}
+
+            {activeTab === 'employees' && (
+              <div className={styles.placeholder}>
+                <Users size={48} />
+                <h3>Сотрудники</h3>
+                <p>Здесь будет отображаться информация о сотрудниках</p>
+              </div>
+            )}
+
+            {activeTab === 'tasks' && (
+              <div className={styles.placeholder}>
+                <ClipboardCheck size={48} />
+                <h3>Задачи</h3>
+                <p>Здесь будет отображаться список задач</p>
+              </div>
+            )}
+
+            {activeTab === 'salary' && (
+              <div className={styles.placeholder}>
+                <RussianRuble size={48} />
+                <h3>Заработная плата</h3>
+                <p>Здесь будет отображаться информация о заработной плате</p>
+              </div>
+            )}
+
+            {activeTab === 'chat' && (
+              <div className={styles.placeholder}>
+                <MessageCircle size={48} />
+                <h3>Чат</h3>
+                <p>Здесь будет отображаться чат</p>
+              </div>
+            )}
+
+            {activeTab === 'database' && (
+              <div className={styles.placeholder}>
+                <Database size={48} />
+                <h3>База данных</h3>
+                <p>Здесь будет отображаться информация из базы данных</p>
+              </div>
+            )}
+
+            {activeTab === 'documents' && (
+              <div className={styles.placeholder}>
+                <FileText size={48} />
+                <h3>Документы</h3>
+                <p>Здесь будет отображаться список документов</p>
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+    </ProtectedRoute>
+  );
+};
+
+export default ProfilePage;

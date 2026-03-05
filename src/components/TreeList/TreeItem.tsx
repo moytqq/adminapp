@@ -13,7 +13,7 @@ import {
   Plus,
   X,
   ChevronRight,
-  MapPin
+  MapPin,
 } from 'lucide-react';
 import styles from './TreeList.module.scss';
 import WidgetPopup from '../WidgetPopup/WidgetPopup';
@@ -75,21 +75,15 @@ const TreeItem: React.FC<TreeItemProps> = ({
     const basePadding = 15;
     let levelPadding = 0;
 
-    if (viewMode === 'store-departments') {
-      if (itemLevel === 1) {
+    switch (itemLevel) {
+      case 1:
+        levelPadding = 20;
+        break;
+      case 2:
         levelPadding = 30;
-      }
-    } else {
-      switch (itemLevel) {
-        case 4:
-          levelPadding = 10;
-          break;
-        case 5:
-          levelPadding = 20;
-          break;
-        default:
-          levelPadding = 0;
-      }
+        break;
+      default:
+        levelPadding = 0;
     }
 
     return {
