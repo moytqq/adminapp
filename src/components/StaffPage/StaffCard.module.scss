@@ -679,5 +679,48 @@
     gap: 8px;
   }
 }
+.editInfoActions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
 
+.infoEditSaveButton,
+.infoEditCancelButton {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
 
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.infoEditSaveButton {
+  background: #4caf50;
+  color: white;
+
+  &:hover {
+    background: #45a049;
+  }
+}
+
+.infoEditCancelButton {
+  background: #f44336;
+  color: white;
+
+  &:hover {
+    background: #d32f2f;
+  }
+}

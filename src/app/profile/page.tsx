@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -19,7 +18,8 @@ import styles from './profile.module.scss';
 import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
 import SideMenu from '@/components/SideMenu/SideMenu';
 import LogoutButton from '@/components/LogoutButton/LogoutButton';
-import DepartmentsView from '@/components/Profile/DepartmentsView';
+import DepartmentsView from '@/components/Profile/Departments/DepartmentsView';
+import EmployeesView from '@/components/Profile/EmployeesView/EmployeesView';
 
 type TabType = 'departments' | 'employees' | 'tasks' | 'salary' | 'chat' | 'database' | 'documents';
 
@@ -46,28 +46,18 @@ const ProfilePage = () => {
     { id: 'departments' as TabType, label: 'Департаменты', icon: Building2, mobileIcon: Building2 },
     { id: 'employees' as TabType, label: 'Сотрудники', icon: Users, mobileIcon: Users },
     { id: 'tasks' as TabType, label: 'Задачи', icon: ClipboardCheck, mobileIcon: ClipboardCheck },
-    { id: 'salary' as TabType, label: 'ЗП', icon: RussianRuble, mobileIcon: RussianRuble },
+    { id: 'salary' as TabType, label: 'ЗП', icon: DollarSign, mobileIcon: RussianRuble },
     { id: 'chat' as TabType, label: 'Чат', icon: MessageCircle, mobileIcon: MessageCircle },
     { id: 'database' as TabType, label: 'База данных', icon: Database, mobileIcon: Database },
     { id: 'documents' as TabType, label: 'Документы', icon: FileText, mobileIcon: FileText },
   ];
-
-  const handleBackClick = () => {
-    router.push('/main');
-  };
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'departments':
         return <DepartmentsView />;
       case 'employees':
-        return (
-          <div className={styles.placeholder}>
-            <Users size={48} />
-            <h3>Сотрудники</h3>
-            <p>Здесь будет отображаться информация о сотрудниках</p>
-          </div>
-        );
+        return <EmployeesView />;
       case 'tasks':
         return (
           <div className={styles.placeholder}>

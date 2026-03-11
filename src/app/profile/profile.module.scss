@@ -201,17 +201,17 @@
 
 .content {
   flex: 1;
-  padding: 20px;
+  padding: 12px 8px;
 
   @media (max-width: 768px) {
-    padding: 16px;
+    padding: 6px 3px
   }
 }
 
 .tabContent {
   background: white;
   border-radius: 12px;
-  padding: 40px;
+  padding: 28px;
   min-height: 400px;
   display: flex;
   align-items: center;
@@ -219,7 +219,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
   @media (max-width: 768px) {
-    padding: 24px;
+    padding: 12px 6px;
     min-height: 300px;
   }
 }

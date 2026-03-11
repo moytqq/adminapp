@@ -98,7 +98,7 @@ export const treeApi = {
     try {
       checkAuthAndRedirect();
       const response = await api.get('/get_address_tree');
-      return response.data;
+      return response.data.filter((item: ApiTreeItem | null) => item !== null);
     } catch (error) {
       console.error('Error fetching address tree:', error);
       throw error;

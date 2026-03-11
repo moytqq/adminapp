@@ -1,3 +1,5 @@
+// components/StaffPage/AddPositionModal.tsx
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -19,6 +21,7 @@ const AddPositionModal: React.FC<AddPositionModalProps> = ({ isOpen, onClose }) 
   const [selectedStoreId, setSelectedStoreId] = useState('');
   const [loading, setLoading] = useState(false);
   const [stores, setStores] = useState<Array<{ id: string; name: string; hid: string }>>([]);
+  const [isLoadingStores, setIsLoadingStores] = useState(false);
 
   useEffect(() => {
     const extractStores = (items: any[]): Array<{ id: string; name: string; hid: string }> => {
@@ -46,8 +49,17 @@ const AddPositionModal: React.FC<AddPositionModalProps> = ({ isOpen, onClose }) 
     };
 
     if (isOpen) {
-      const storeList = extractStores(items);
-      setStores(storeList);
+      setIsLoadingStores(true);
+      // Даем небольшую задержку, чтобы дерево успело загрузиться
+      setTimeout(() => {
+        const storeList = extractStores(items);
+        setStores(storeList);
+        setIsLoadingStores(false);
+      }, 100);
+    } else {
+      // Сбрасываем форму при закрытии
+      setName('');
+      setSelectedStoreId('');
     }
   }, [isOpen, items]);
 
@@ -90,8 +102,11 @@ const AddPositionModal: React.FC<AddPositionModalProps> = ({ isOpen, onClose }) 
               value={selectedStoreId}
               onChange={(e) => setSelectedStoreId(e.target.value)}
               required
+              disabled={isLoadingStores}
             >
-              <option value="">Выберите магазин</option>
+              <option value="">
+                {isLoadingStores ? 'Загрузка магазинов...' : 'Выберите магазин'}
+              </option>
               {stores.map(store => (
                 <option key={store.id} value={store.id}>
                   {store.name}
@@ -124,7 +139,7 @@ const AddPositionModal: React.FC<AddPositionModalProps> = ({ isOpen, onClose }) 
             <button
               type="submit"
               className={styles.submitButton}
-              disabled={loading || !name || !selectedStoreId}
+              disabled={loading || !name || !selectedStoreId || isLoadingStores}
             >
               {loading ? 'Добавление...' : 'Добавить вакансию'}
             </button>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -44,7 +43,8 @@ interface StaffCardProps {
 
 const INFO_TYPES = ['Текст'];
 
-const INFO_NAMES = ['ФИО',
+const INFO_NAMES = [
+  'ФИО',
   'Дата рождения',
   'Телефон',
   'Email',
@@ -53,7 +53,8 @@ const INFO_NAMES = ['ФИО',
   'Дата трудоустройства',
   'Гражданство',
   'Регистрация',
-  'Тип отношений'];
+  'Тип отношений'
+];
 
 const STANDARD_INFO_FIELDS = [
   { type: 'Текст', label: 'Оотчество', key: 'middleName' },
@@ -275,6 +276,16 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const handleAddInfoClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsAddingInfo(true);
+  };
+
+  const handleCancelAddInfo = () => {
+    setIsAddingInfo(false);
+    setNewInfo({ type: 'Текст', label: '', value: '' });
+  };
+
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
@@ -402,7 +413,7 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
             <h5 className={styles.infoTitle}>Персональные данные</h5>
             <button
               className={styles.addInfoButton}
-              onClick={() => setIsAddingInfo(true)}
+              onClick={handleAddInfoClick}
             >
               <Plus size={16} />
               <span>Добавить поле</span>
@@ -497,8 +508,9 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
                 value={newInfo.label}
                 onChange={(e) => setNewInfo({ ...newInfo, label: e.target.value })}
               >
-                {INFO_NAMES.map(type => (
-                  <option key={type} value={type}>{type}</option>
+                <option value="">Выберите поле</option>
+                {INFO_NAMES.map(label => (
+                  <option key={label} value={label}>{label}</option>
                 ))}
               </select>
               <input
@@ -513,12 +525,14 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
                   className={styles.infoSaveButton}
                   onClick={handleAddInfo}
                   disabled={!newInfo.label || !newInfo.value}
+                  type="button"
                 >
                   <Check size={16} />
                 </button>
                 <button
                   className={styles.infoCancelButton}
-                  onClick={() => setIsAddingInfo(false)}
+                  onClick={handleCancelAddInfo}
+                  type="button"
                 >
                   <X size={16} />
                 </button>
@@ -578,22 +592,24 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
                         }}
                         onClick={(e) => e.stopPropagation()}
                       />
-                      <div className={styles.infoActions}>
-                      <button
-                        className={styles.infoSaveButton}
-                        onClick={() => handleSaveInfo(info)}
-                      >
-                        <Check size={14} />
-                      </button>
-                      <button
-                        className={styles.infoCancelButton}
-                        onClick={() => {
-                          setEditingInfoId(null);
-                          setEditingInfoData(null);
-                        }}
-                      >
-                        <X size={14} />
-                      </button>
+                      <div className={styles.editInfoActions}>
+                        <button
+                          className={styles.infoEditSaveButton}
+                          onClick={() => handleSaveInfo(info)}
+                          type="button"
+                        >
+                          <Check size={14} />
+                        </button>
+                        <button
+                          className={styles.infoEditCancelButton}
+                          onClick={() => {
+                            setEditingInfoId(null);
+                            setEditingInfoData(null);
+                          }}
+                          type="button"
+                        >
+                          <X size={14} />
+                        </button>
                       </div>
                     </div>
                   ) : (
