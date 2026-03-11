@@ -154,7 +154,7 @@ const PositionCard: React.FC<PositionCardProps> = ({
                   <span className={styles.vacantBadge}>Свободна</span>
                 )}
               </div>
-              {storeName && (
+              {storeName && storeName !== 'Загрузка...' && storeName !== 'Магазин' && (
                 <div className={styles.storeInfo}>
                   <Store size={12} />
                   <span>{storeName}</span>

@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import treeReducer from './slices/treeSlice';
 import authReducer from './slices/authSlice';
 import personalReducer from './slices/personalSlice';
+import addressReducer from './slices/addressSlice';
 
 export const makeStore = () => {
   return configureStore({
@@ -9,6 +10,7 @@ export const makeStore = () => {
       tree: treeReducer,
       auth: authReducer,
       personal: personalReducer,
+      address: addressReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({

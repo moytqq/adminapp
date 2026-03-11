@@ -6,18 +6,20 @@ import {
   loadAllStaff,
   loadAllPositions,
 } from '@/store/slices/personalSlice';
-import { loadTreeData } from '@/store/slices/treeSlice';
+import { loadStores } from '@/store/slices/addressSlice';
 import PositionCard from '@/components/StaffPage/PositionCard';
 import AddPositionModal from '@/components/StaffPage/AddPositionModal';
 import AddStaffModal from '@/components/StaffPage/AddStaffModal';
 import styles from './EmployeesView.module.scss';
 import { Users, Briefcase, RefreshCw } from 'lucide-react';
-import { TreeItemType } from '@/types/tree.types';
 
-const EmployeesView: React.FC = () => {
+interface EmployeesViewProps {
+}
+
+const EmployeesView: React.FC<EmployeesViewProps> = () => {
   const dispatch = useAppDispatch();
   const { positions, staff, loading: personalLoading } = useAppSelector((state) => state.personal);
-  const { items: treeItems, loading: treeLoading } = useAppSelector((state) => state.tree);
+  const { stores, loading: addressLoading } = useAppSelector((state) => state.address);
   const [showAddPositionModal, setShowAddPositionModal] = useState(false);
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
   const [storeNamesMap, setStoreNamesMap] = useState<Record<string, string>>({});
@@ -32,9 +34,9 @@ const EmployeesView: React.FC = () => {
     setInitialLoading(true);
     try {
       await Promise.all([
-        dispatch(loadTreeData()),
         dispatch(loadAllStaff()),
         dispatch(loadAllPositions()),
+        dispatch(loadStores()),
       ]);
     } catch (error) {
       console.error('Error loading data:', error);
@@ -44,30 +46,14 @@ const EmployeesView: React.FC = () => {
   };
 
   useEffect(() => {
-    const extractStoreNames = (items: any[]): Record<string, string> => {
+    if (stores.length > 0) {
       const map: Record<string, string> = {};
-
-      const traverse = (items: any[]) => {
-        items.forEach(item => {
-          if (item.type === TreeItemType.STORE) {
-            const match = item.id.match(/\d+$/);
-            const hid = match ? match[0] : item.id;
-            map[hid] = item.label || item.data?.storeName || 'Магазин';
-          }
-          if (item.children) {
-            traverse(item.children);
-          }
-        });
-      };
-
-      traverse(items);
-      return map;
-    };
-
-    if (treeItems && treeItems.length > 0) {
-      setStoreNamesMap(extractStoreNames(treeItems));
+      stores.forEach(store => {
+        map[store.hid] = store.address ? `${store.name} (${store.address})` : store.name;
+      });
+      setStoreNamesMap(map);
     }
-  }, [treeItems]);
+  }, [stores]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -89,7 +75,7 @@ const EmployeesView: React.FC = () => {
   const vacantPositions = positions.filter(p => p.lsid === null);
   const occupiedPositions = positions.filter(p => p.lsid !== null);
 
-  const isLoading = initialLoading || personalLoading || treeLoading || isRefreshing;
+  const isLoading = initialLoading || personalLoading || addressLoading || isRefreshing;
 
   return (
     <div className={styles.employeesView}>
@@ -160,13 +146,15 @@ const EmployeesView: React.FC = () => {
           ) : (
             sortedPositions.map((position) => {
               const assignedStaff = staff.find(s => s.lsid === position.lsid);
+              const storeDisplayName = storeNamesMap[position.hid] || 'Магазин';
+
               return (
                 <PositionCard
                   key={position.id}
                   position={position}
                   staff={assignedStaff}
                   allStaff={staff}
-                  storeName={storeNamesMap[position.hid]}
+                  storeName={storeDisplayName}
                 />
               );
             })

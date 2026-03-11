@@ -1,11 +1,9 @@
-// components/StaffPage/AddPositionModal.tsx
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks';
 import { addPosition } from '@/store/slices/personalSlice';
-import { TreeItemType } from '@/types/tree.types';
+import { loadStores } from '@/store/slices/addressSlice';
 import styles from './AddModal.module.scss';
 import { X } from 'lucide-react';
 
@@ -16,52 +14,21 @@ interface AddPositionModalProps {
 
 const AddPositionModal: React.FC<AddPositionModalProps> = ({ isOpen, onClose }) => {
   const dispatch = useAppDispatch();
-  const { items } = useAppSelector((state) => state.tree);
+  const { stores, loading: storesLoading, error } = useAppSelector((state) => state.address);
   const [name, setName] = useState('');
   const [selectedStoreId, setSelectedStoreId] = useState('');
   const [loading, setLoading] = useState(false);
-  const [stores, setStores] = useState<Array<{ id: string; name: string; hid: string }>>([]);
-  const [isLoadingStores, setIsLoadingStores] = useState(false);
 
   useEffect(() => {
-    const extractStores = (items: any[]): Array<{ id: string; name: string; hid: string }> => {
-      let stores: Array<{ id: string; name: string; hid: string }> = [];
+    if (isOpen && stores.length === 0 && !storesLoading) {
+      dispatch(loadStores());
+    }
 
-      const traverse = (items: any[]) => {
-        items.forEach(item => {
-          if (item.type === TreeItemType.STORE) {
-            const match = item.id.match(/\d+$/);
-            const hid = match ? match[0] : item.id;
-            stores.push({
-              id: item.id,
-              name: item.label || item.data?.storeName || 'Магазин',
-              hid
-            });
-          }
-          if (item.children) {
-            traverse(item.children);
-          }
-        });
-      };
-
-      traverse(items);
-      return stores;
-    };
-
-    if (isOpen) {
-      setIsLoadingStores(true);
-      // Даем небольшую задержку, чтобы дерево успело загрузиться
-      setTimeout(() => {
-        const storeList = extractStores(items);
-        setStores(storeList);
-        setIsLoadingStores(false);
-      }, 100);
-    } else {
-      // Сбрасываем форму при закрытии
+    if (!isOpen) {
       setName('');
       setSelectedStoreId('');
     }
-  }, [isOpen, items]);
+  }, [isOpen, stores.length, storesLoading, dispatch]);
 
   if (!isOpen) return null;
 
@@ -71,7 +38,9 @@ const AddPositionModal: React.FC<AddPositionModalProps> = ({ isOpen, onClose }) 
       setLoading(true);
       try {
         const store = stores.find(s => s.id === selectedStoreId);
-        await dispatch(addPosition({ hid: store!.hid, name })).unwrap();
+        if (!store) throw new Error('Магазин не найден');
+
+        await dispatch(addPosition({ hid: store.hid, name })).unwrap();
 
         setName('');
         setSelectedStoreId('');
@@ -95,6 +64,12 @@ const AddPositionModal: React.FC<AddPositionModalProps> = ({ isOpen, onClose }) 
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
+          {error && (
+            <div className={styles.error}>
+              {error}
+            </div>
+          )}
+
           <div className={styles.field}>
             <label className={styles.label}>Магазин</label>
             <select
@@ -102,17 +77,20 @@ const AddPositionModal: React.FC<AddPositionModalProps> = ({ isOpen, onClose }) 
               value={selectedStoreId}
               onChange={(e) => setSelectedStoreId(e.target.value)}
               required
-              disabled={isLoadingStores}
+              disabled={storesLoading}
             >
               <option value="">
-                {isLoadingStores ? 'Загрузка магазинов...' : 'Выберите магазин'}
+                {storesLoading ? 'Загрузка магазинов...' : 'Выберите магазин'}
               </option>
               {stores.map(store => (
                 <option key={store.id} value={store.id}>
-                  {store.name}
+                  {store.name} {store.address ? `(${store.address})` : ''}
                 </option>
               ))}
             </select>
+            {storesLoading && (
+              <div className={styles.loadingHint}>Загрузка списка магазинов...</div>
+            )}
           </div>
 
           <div className={styles.field}>
@@ -139,7 +117,7 @@ const AddPositionModal: React.FC<AddPositionModalProps> = ({ isOpen, onClose }) 
             <button
               type="submit"
               className={styles.submitButton}
-              disabled={loading || !name || !selectedStoreId || isLoadingStores}
+              disabled={loading || !name || !selectedStoreId || storesLoading}
             >
               {loading ? 'Добавление...' : 'Добавить вакансию'}
             </button>
