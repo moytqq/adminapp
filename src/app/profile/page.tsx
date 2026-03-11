@@ -46,7 +46,7 @@ const ProfilePage = () => {
     { id: 'departments' as TabType, label: 'Департаменты', icon: Building2, mobileIcon: Building2 },
     { id: 'employees' as TabType, label: 'Сотрудники', icon: Users, mobileIcon: Users },
     { id: 'tasks' as TabType, label: 'Задачи', icon: ClipboardCheck, mobileIcon: ClipboardCheck },
-    { id: 'salary' as TabType, label: 'ЗП', icon: DollarSign, mobileIcon: RussianRuble },
+    { id: 'salary' as TabType, label: 'ЗП/KPI', icon: RussianRuble, mobileIcon: RussianRuble },
     { id: 'chat' as TabType, label: 'Чат', icon: MessageCircle, mobileIcon: MessageCircle },
     { id: 'database' as TabType, label: 'База данных', icon: Database, mobileIcon: Database },
     { id: 'documents' as TabType, label: 'Документы', icon: FileText, mobileIcon: FileText },
