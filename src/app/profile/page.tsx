@@ -1,4 +1,3 @@
-// app/profile/page.tsx
 
 'use client';
 
@@ -14,12 +13,13 @@ import {
   MessageCircle,
   Database,
   FileText,
-  ArrowLeft, RussianRuble,
+  RussianRuble,
 } from 'lucide-react';
 import styles from './profile.module.scss';
 import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
 import SideMenu from '@/components/SideMenu/SideMenu';
 import LogoutButton from '@/components/LogoutButton/LogoutButton';
+import DepartmentsView from '@/components/Profile/DepartmentsView';
 
 type TabType = 'departments' | 'employees' | 'tasks' | 'salary' | 'chat' | 'database' | 'documents';
 
@@ -46,7 +46,7 @@ const ProfilePage = () => {
     { id: 'departments' as TabType, label: 'Департаменты', icon: Building2, mobileIcon: Building2 },
     { id: 'employees' as TabType, label: 'Сотрудники', icon: Users, mobileIcon: Users },
     { id: 'tasks' as TabType, label: 'Задачи', icon: ClipboardCheck, mobileIcon: ClipboardCheck },
-    { id: 'salary' as TabType, label: 'ЗП', icon: DollarSign, mobileIcon: DollarSign },
+    { id: 'salary' as TabType, label: 'ЗП', icon: RussianRuble, mobileIcon: RussianRuble },
     { id: 'chat' as TabType, label: 'Чат', icon: MessageCircle, mobileIcon: MessageCircle },
     { id: 'database' as TabType, label: 'База данных', icon: Database, mobileIcon: Database },
     { id: 'documents' as TabType, label: 'Документы', icon: FileText, mobileIcon: FileText },
@@ -54,6 +54,63 @@ const ProfilePage = () => {
 
   const handleBackClick = () => {
     router.push('/main');
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'departments':
+        return <DepartmentsView />;
+      case 'employees':
+        return (
+          <div className={styles.placeholder}>
+            <Users size={48} />
+            <h3>Сотрудники</h3>
+            <p>Здесь будет отображаться информация о сотрудниках</p>
+          </div>
+        );
+      case 'tasks':
+        return (
+          <div className={styles.placeholder}>
+            <ClipboardCheck size={48} />
+            <h3>Задачи</h3>
+            <p>Здесь будет отображаться список задач</p>
+          </div>
+        );
+      case 'salary':
+        return (
+          <div className={styles.placeholder}>
+            <RussianRuble size={48} />
+            <h3>Заработная плата</h3>
+            <p>Здесь будет отображаться информация о заработной плате</p>
+          </div>
+        );
+      case 'chat':
+        return (
+          <div className={styles.placeholder}>
+            <MessageCircle size={48} />
+            <h3>Чат</h3>
+            <p>Здесь будет отображаться чат</p>
+          </div>
+        );
+      case 'database':
+        return (
+          <div className={styles.placeholder}>
+            <Database size={48} />
+            <h3>База данных</h3>
+            <p>Здесь будет отображаться информация из базы данных</p>
+          </div>
+        );
+      case 'documents':
+        return (
+          <div className={styles.placeholder}>
+            <FileText size={48} />
+            <h3>Документы</h3>
+            <p>Здесь будет отображаться список документов</p>
+          </div>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -70,7 +127,6 @@ const ProfilePage = () => {
             >
               <Menu size={24} />
             </button>
-
           </div>
 
           <div className={styles.profileInfo}>
@@ -82,12 +138,11 @@ const ProfilePage = () => {
               <User size={24} />
             </div>
           </div>
-
         </header>
 
         <div className={styles.tabsContainer}>
           <nav className={styles.tabs}>
-            {tabs.map(tab => {
+            {tabs.map((tab) => {
               const Icon = isMobile ? tab.mobileIcon : tab.icon;
               return (
                 <button
@@ -105,63 +160,7 @@ const ProfilePage = () => {
         </div>
 
         <main className={styles.content}>
-          <div className={styles.tabContent}>
-            {activeTab === 'departments' && (
-              <div className={styles.placeholder}>
-                <Building2 size={48} />
-                <h3>Департаменты</h3>
-                <p>Здесь будет отображаться информация о департаментах</p>
-              </div>
-            )}
-
-            {activeTab === 'employees' && (
-              <div className={styles.placeholder}>
-                <Users size={48} />
-                <h3>Сотрудники</h3>
-                <p>Здесь будет отображаться информация о сотрудниках</p>
-              </div>
-            )}
-
-            {activeTab === 'tasks' && (
-              <div className={styles.placeholder}>
-                <ClipboardCheck size={48} />
-                <h3>Задачи</h3>
-                <p>Здесь будет отображаться список задач</p>
-              </div>
-            )}
-
-            {activeTab === 'salary' && (
-              <div className={styles.placeholder}>
-                <RussianRuble size={48} />
-                <h3>Заработная плата</h3>
-                <p>Здесь будет отображаться информация о заработной плате</p>
-              </div>
-            )}
-
-            {activeTab === 'chat' && (
-              <div className={styles.placeholder}>
-                <MessageCircle size={48} />
-                <h3>Чат</h3>
-                <p>Здесь будет отображаться чат</p>
-              </div>
-            )}
-
-            {activeTab === 'database' && (
-              <div className={styles.placeholder}>
-                <Database size={48} />
-                <h3>База данных</h3>
-                <p>Здесь будет отображаться информация из базы данных</p>
-              </div>
-            )}
-
-            {activeTab === 'documents' && (
-              <div className={styles.placeholder}>
-                <FileText size={48} />
-                <h3>Документы</h3>
-                <p>Здесь будет отображаться список документов</p>
-              </div>
-            )}
-          </div>
+          <div className={styles.tabContent}>{renderTabContent()}</div>
         </main>
       </div>
     </ProtectedRoute>
