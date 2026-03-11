@@ -1,5 +1,3 @@
-// store/slices/treeSlice.ts (обновленная версия)
-
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import {
   ApiTreeItem,
@@ -13,6 +11,7 @@ import {
 import { fetchMockTreeData, transformTreeDataByViewMode } from '@/utils/treeHelpers';
 import { treeApi } from '@/services/api';
 import { buildTreeFromApiData, enhanceTreeDataWithMockInfo, filterDepartmentsAndDescendants } from '@/utils/apiTransformers';
+import { applyCustomSortToTree } from '@/utils/customSort';
 
 const TREE_STORAGE_KEY = 'company-tree-data';
 const ORIGINAL_API_DATA_KEY = 'company-original-api-data';
@@ -67,6 +66,8 @@ export const loadTreeData = createAsyncThunk(
         const filteredApiData = filterDepartmentsAndDescendants(apiData);
         treeData = buildTreeFromApiData(filteredApiData);
         treeData = enhanceTreeDataWithMockInfo(treeData);
+        console.log('Applying custom sort for Sales Department...');
+        treeData = applyCustomSortToTree(treeData);
       } else {
         treeData = buildTreeFromApiData(apiData);
         if (viewMode === 'store-departments' || viewMode === 'addresses') {
