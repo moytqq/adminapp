@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ChatList from './ChatList';
 import ChatMessages from './ChatMessages';
 import CreateChatModal from './CreateChatModal';
@@ -33,6 +33,10 @@ const ChatView: React.FC = () => {
   const handleChatCreated = () => {
     setRefreshKey(prev => prev + 1);
   };
+
+  const handleMessageSent = useCallback(() => {
+    setRefreshKey(prev => prev + 1);
+  }, []);
 
   const handleBackToList = () => {
     setSelectedChat(undefined);
@@ -68,7 +72,11 @@ const ChatView: React.FC = () => {
               </button>
             </div>
           )}
-          <ChatList key={refreshKey} onSelectChat={handleSelectChat} selectedChatId={selectedChat} />
+          <ChatList
+            key={refreshKey}
+            onSelectChat={handleSelectChat}
+            selectedChatId={selectedChat}
+          />
         </div>
 
         <div className={`${styles.chatColumn} ${!selectedChat && isMobile ? styles.hidden : ''}`}>
@@ -78,6 +86,7 @@ const ChatView: React.FC = () => {
               chatId={selectedChat}
               onBack={handleBackToList}
               isMobile={isMobile}
+              onMessageSent={handleMessageSent}
             />
           ) : (
             !isMobile && (

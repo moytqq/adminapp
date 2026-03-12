@@ -11,9 +11,10 @@ interface ChatMessagesProps {
   chatId: number;
   onBack?: () => void;
   isMobile?: boolean;
+  onMessageSent?: () => void;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ chatId, onBack, isMobile = false }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ chatId, onBack, isMobile = false, onMessageSent }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [chatInfo, setChatInfo] = useState<{
     chat: ChatDetails;
@@ -67,6 +68,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ chatId, onBack, isMobile = 
       await chatApi.sendMessage(chatId, newMessage, chatInfo.chat.hid_from);
       setNewMessage('');
       await loadMessages();
+      if (onMessageSent) {
+        onMessageSent();
+      }
       inputRef.current?.focus();
     } catch (err) {
       console.error('Error sending message:', err);
