@@ -21,6 +21,7 @@ import LogoutButton from '@/components/LogoutButton/LogoutButton';
 import ChatView from '@/components/Profile/Chat/ChatView';
 import DepartmentsView from '@/components/Profile/Departments/DepartmentsView';
 import EmployeesView from '@/components/Profile/EmployeesView/EmployeesView';
+import SalaryView from '@/components/Salary/SalaryView';
 
 type TabType = 'departments' | 'employees' | 'tasks' | 'salary' | 'chat' | 'database' | 'documents';
 
@@ -68,13 +69,7 @@ const ProfilePage = () => {
           </div>
         );
       case 'salary':
-        return (
-          <div className={styles.placeholder}>
-            <RussianRuble size={48} />
-            <h3>Заработная плата</h3>
-            <p>Здесь будет отображаться информация о заработной плате</p>
-          </div>
-        );
+        return <SalaryView />;
       case 'chat':
         return <ChatView />;
       case 'database':

@@ -1,0 +1,451 @@
+// components/Salary/SalaryDetailsTable.module.scss
+
+.detailsTable {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    padding: 12px 16px;
+  }
+}
+
+.backButton {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 50%;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background: #f5f5f5;
+    color: #2196f3;
+    border-color: #2196f3;
+  }
+
+  @media (max-width: 768px) {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.personInfo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    @media (max-width: 768px) {
+      font-size: 14px;
+      max-width: 150px;
+    }
+  }
+}
+
+.summaryInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #e0e0e0;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    padding: 4px 8px;
+  }
+}
+
+.summaryLabel {
+  font-size: 12px;
+  color: #666;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.summaryValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2196f3;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+  }
+}
+
+.tableWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden; // Убираем скролл отсюда
+
+  @media (max-width: 768px) {
+    overflow-x: auto; // Только горизонтальный скролл на мобильных
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.tableHeader {
+  display: flex;
+  background: #fafafa;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 12px;
+  color: #666;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  width: 100%;
+
+  @media (max-width: 768px) {
+    padding: 10px 16px;
+    width: fit-content; // Адаптивная ширина под контент
+  }
+}
+
+.headerCell {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+
+  &:first-child {
+    flex: 2;
+    min-width: 200px;
+
+    @media (max-width: 768px) {
+      min-width: 180px;
+    }
+  }
+
+  &:nth-child(2),
+  &:nth-child(3) {
+    min-width: 100px;
+
+    @media (max-width: 768px) {
+      min-width: 90px;
+    }
+  }
+
+  &:nth-child(4) {
+    min-width: 100px;
+
+    @media (max-width: 768px) {
+      min-width: 90px;
+    }
+  }
+
+  &:last-child {
+    min-width: 120px;
+
+    @media (max-width: 768px) {
+      min-width: 100px;
+    }
+  }
+}
+
+.tableBody {
+  flex: 1;
+  overflow-y: auto; // Только вертикальный скролл
+  min-height: 0;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    overflow-x: visible; // Убираем горизонтальный скролл
+    width: fit-content; // Ширина под контент
+  }
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+
+    &:hover {
+      background: #666;
+    }
+  }
+}
+
+.tableRow {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: all 0.2s ease;
+  width: 100%;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  @media (max-width: 768px) {
+    padding: 10px 16px;
+    width: fit-content; // Ширина под контент
+  }
+}
+
+.cell {
+  flex: 1;
+  font-size: 13px;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:first-child {
+    flex: 2;
+    min-width: 200px;
+
+    @media (max-width: 768px) {
+      min-width: 180px;
+    }
+  }
+
+  &:nth-child(2),
+  &:nth-child(3) {
+    min-width: 100px;
+
+    @media (max-width: 768px) {
+      min-width: 90px;
+    }
+  }
+
+  &:nth-child(4) {
+    min-width: 100px;
+
+    @media (max-width: 768px) {
+      min-width: 90px;
+    }
+  }
+
+  &:last-child {
+    min-width: 120px;
+
+    @media (max-width: 768px) {
+      min-width: 100px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
+}
+
+
+.storeInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  svg {
+    color: #ff9800;
+    flex-shrink: 0;
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.growth {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.positive {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.negative {
+    background: #ffebee;
+    color: #c62828;
+  }
+
+  svg {
+    flex-shrink: 0;
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 2px 6px;
+    font-size: 11px;
+  }
+}
+
+.attendance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  svg {
+    color: #666;
+    flex-shrink: 0;
+
+    @media (max-width: 768px) {
+    }
+  }
+}
+
+.attendanceIcons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    gap: 4px;
+  }
+}
+
+.attendanceIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkIcon {
+  color: #4caf50;
+}
+
+.xIcon {
+  color: #f44336;
+}
+
+.minusIcon {
+  color: #ff9800;
+}
+
+.noAttendance {
+  color: #999;
+  font-size: 12px;
+}
+
+.loading {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+
+  p {
+    margin-top: 16px;
+    font-size: 14px;
+  }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  color: #2196f3;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  p {
+    margin-bottom: 16px;
+    color: #f44336;
+    font-size: 14px;
+  }
+
+  button {
+    padding: 8px 16px;
+    background: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #1976d2;
+    }
+  }
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+}

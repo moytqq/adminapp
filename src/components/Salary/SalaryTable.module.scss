@@ -1,0 +1,330 @@
+.salaryTable {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tableWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden; // Убираем скролл отсюда
+
+  @media (max-width: 768px) {
+    overflow-x: auto; // Только горизонтальный скролл на мобильных
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+.tableHeader {
+  display: flex;
+  background: #f5f5f5;
+  border-bottom: 2px solid #e0e0e0;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #666;
+  flex-shrink: 0;
+  width: 100%; // Фиксированная ширина
+
+  @media (max-width: 768px) {
+    padding: 10px 12px;
+    width: fit-content; // Адаптивная ширина под контент
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+}
+
+.headerCell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+
+  &:first-child {
+    flex: 2;
+    min-width: 200px;
+
+    @media (max-width: 768px) {
+      min-width: 180px;
+    }
+  }
+
+  &:nth-child(2),
+  &:nth-child(3) {
+    min-width: 100px;
+
+    @media (max-width: 768px) {
+      min-width: 90px;
+    }
+  }
+
+  &:last-child {
+    flex: 0 0 40px;
+    justify-content: center;
+    min-width: 40px;
+  }
+
+  &.sortable {
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      color: #2196f3;
+    }
+  }
+
+  &.active {
+    color: #2196f3;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
+}
+
+.sortIcon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.tableBody {
+  flex: 1;
+  overflow-y: auto; // Только вертикальный скролл
+  min-height: 0;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    overflow-x: visible; // Убираем горизонтальный скролл
+    width: fit-content; // Ширина под контент
+  }
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+
+    &:hover {
+      background: #666;
+    }
+  }
+}
+
+.tableRow {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  width: 100%;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+
+  &.selected {
+    background: #e3f2fd;
+    border-left: 3px solid #2196f3;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  @media (max-width: 768px) {
+    padding: 10px 12px;
+    width: fit-content; // Ширина под контент
+  }
+}
+
+.cell {
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:first-child {
+    flex: 2;
+    min-width: 200px;
+
+    @media (max-width: 768px) {
+      min-width: 180px;
+    }
+  }
+
+  &:nth-child(2),
+  &:nth-child(3) {
+    min-width: 100px;
+
+    @media (max-width: 768px) {
+      min-width: 90px;
+    }
+  }
+
+  &:last-child {
+    flex: 0 0 40px;
+    display: flex;
+    justify-content: center;
+    min-width: 40px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+  }
+}
+
+
+.personInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.personName {
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 768px) {
+    max-width: 160px;
+  }
+}
+
+.summary {
+  font-weight: 600;
+  color: #2196f3;
+}
+
+.addition {
+  font-weight: 500;
+  color: #4caf50;
+}
+
+.detailsButton {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background: #e0e0e0;
+    color: #2196f3;
+  }
+
+  @media (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.loading {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+
+  p {
+    margin-top: 16px;
+    font-size: 14px;
+  }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  color: #2196f3;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  p {
+    margin-bottom: 16px;
+    color: #f44336;
+    font-size: 14px;
+  }
+
+  button {
+    padding: 8px 16px;
+    background: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #1976d2;
+    }
+  }
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+}
