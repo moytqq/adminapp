@@ -122,7 +122,7 @@
 .chatAvatar {
   width: 40px;
   height: 40px;
-  background: #e0e0e0;
+  background: #2196f3;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -131,7 +131,7 @@
   flex-shrink: 0;
 
   svg {
-    color: #666;
+    color: white;
   }
 
   @media (max-width: 768px) {
@@ -240,7 +240,7 @@
 .chatType {
   font-size: 10px;
   padding: 2px 6px;
-  background: #e0e0e0;
+  background: #efefef;
   border-radius: 10px;
   color: #666;
   white-space: nowrap;

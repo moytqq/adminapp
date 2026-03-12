@@ -14,6 +14,7 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
+  position: relative; // Для контекста позиционирования
 
   @media (max-width: 768px) {
     overflow-x: auto;
@@ -31,13 +32,14 @@
   color: #666;
   flex-shrink: 0;
   width: 100%;
+  position: relative; // Для контекста позиционирования
 
   @media (max-width: 768px) {
     padding: 10px 12px;
     width: fit-content;
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: 3;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   }
 }
@@ -48,13 +50,21 @@
   align-items: center;
   gap: 4px;
   white-space: nowrap;
+  background: inherit; // Наследуем фон от родителя
+  z-index: 2;
 
   &:first-child {
     flex: 2;
     min-width: 200px;
+    position: sticky;
+    left: 0;
+    background: #f5f5f5; // Фиксируем фон
+    z-index: 4; // Выше остальных
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05); // Тень для отделения
 
     @media (max-width: 768px) {
       min-width: 180px;
+      left: 0;
     }
   }
 
@@ -101,6 +111,7 @@
   overflow-y: auto;
   min-height: 0;
   width: 100%;
+  position: relative;
 
   @media (max-width: 768px) {
     overflow-x: visible;
@@ -134,6 +145,7 @@
   transition: all 0.2s ease;
   cursor: pointer;
   width: 100%;
+  position: relative;
 
   &:hover {
     background: #f5f5f5;
@@ -141,7 +153,10 @@
 
   &.selected {
     background: #e3f2fd;
-    border-left: 3px solid #2196f3;
+
+    .cell:first-child {
+      background: #e3f2fd; // Синхронизируем фон при выборе
+    }
   }
 
   &:last-child {
@@ -161,13 +176,22 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  background: inherit; // Наследуем фон от родителя
+  z-index: 1;
 
   &:first-child {
     flex: 2;
     min-width: 200px;
+    position: sticky;
+    left: 0;
+    background: white;
+    z-index: 2;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+    padding-right: 8px;
 
     @media (max-width: 768px) {
       min-width: 180px;
+      left: 0;
     }
   }
 
