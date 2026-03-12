@@ -31,7 +31,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (savedToken) {
-      router.push('/main');
+      router.push('/profile');
       return;
     }
 
@@ -45,7 +45,7 @@ export default function LoginPage() {
             newUrl.searchParams.delete('token');
             window.history.replaceState({}, '', newUrl.pathname);
 
-            router.push('/main');
+            router.push('/profile');
           } else {
             dispatch(setError("Неверный токен"));
           }

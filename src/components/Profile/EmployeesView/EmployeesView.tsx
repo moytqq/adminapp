@@ -11,12 +11,11 @@ import PositionCard from '@/components/StaffPage/PositionCard';
 import AddPositionModal from '@/components/StaffPage/AddPositionModal';
 import AddStaffModal from '@/components/StaffPage/AddStaffModal';
 import styles from './EmployeesView.module.scss';
-import { Users, Briefcase, RefreshCw } from 'lucide-react';
+import { Users, Briefcase, RefreshCw, ArrowUpDown } from 'lucide-react';
 
-interface EmployeesViewProps {
-}
+type SortOrder = 'asc' | 'desc';
 
-const EmployeesView: React.FC<EmployeesViewProps> = () => {
+const EmployeesView: React.FC = () => {
   const dispatch = useAppDispatch();
   const { positions, staff, loading: personalLoading } = useAppSelector((state) => state.personal);
   const { stores, loading: addressLoading } = useAppSelector((state) => state.address);
@@ -25,6 +24,7 @@ const EmployeesView: React.FC<EmployeesViewProps> = () => {
   const [storeNamesMap, setStoreNamesMap] = useState<Record<string, string>>({});
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
   useEffect(() => {
     loadData();
@@ -66,10 +66,16 @@ const EmployeesView: React.FC<EmployeesViewProps> = () => {
     }
   };
 
+  const toggleSortOrder = () => {
+    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+  };
+
   const sortedPositions = [...positions].sort((a, b) => {
     if (a.lsid === null && b.lsid !== null) return -1;
     if (a.lsid !== null && b.lsid === null) return 1;
-    return a.name.localeCompare(b.name);
+
+    const comparison = a.name.localeCompare(b.name);
+    return sortOrder === 'asc' ? comparison : -comparison;
   });
 
   const vacantPositions = positions.filter(p => p.lsid === null);
@@ -89,6 +95,14 @@ const EmployeesView: React.FC<EmployeesViewProps> = () => {
           >
             <RefreshCw size={16} className={isRefreshing ? styles.spin : ''} />
             <span>Обновить</span>
+          </button>
+          <button
+            className={`${styles.sortButton} ${sortOrder === 'desc' ? styles.desc : ''}`}
+            onClick={toggleSortOrder}
+            title={sortOrder === 'asc' ? 'Сортировка по возрастанию' : 'Сортировка по убыванию'}
+          >
+            <ArrowUpDown size={16} />
+            <span>Сортировка</span>
           </button>
           <button
             className={styles.addButton}

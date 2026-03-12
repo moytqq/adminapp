@@ -23,7 +23,7 @@ const Login = () => {
 
   useEffect(() => {
     if (savedToken) {
-      router.push('/main');
+      router.push('/profile');
     }
   }, [savedToken, router]);
 
@@ -41,7 +41,7 @@ const Login = () => {
       const result = await dispatch(checkToken(token)).unwrap();
 
       if (result.success) {
-        router.push('/main');
+        router.push('/profile');
       }
     } catch (error) {
       console.error('Ошибка авторизации:', error);

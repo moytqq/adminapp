@@ -1,5 +1,3 @@
-// components/Chat/ChatMessages.module.scss
-
 .chatMessages {
   flex: 1;
   display: flex;
@@ -93,7 +91,7 @@
   overflow-y: auto;
   min-height: 0;
   position: relative;
-  -webkit-overflow-scrolling: touch; // Плавный скролл на iOS
+  -webkit-overflow-scrolling: touch;
 }
 
 .messagesList {

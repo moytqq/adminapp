@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks';
 import { loadTreeData, toggleExpand } from '@/store/slices/treeSlice';
-import TreeItem from '@/components/TreeList/TreeItem'; // Импортируем существующий компонент
+import TreeItem from '@/components/TreeList/TreeItem';
 import styles from './DepartmentsView.module.scss';
 import { RefreshCw } from 'lucide-react';
 

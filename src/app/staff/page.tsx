@@ -13,10 +13,12 @@ import PositionCard from '@/components/StaffPage/PositionCard';
 import AddPositionModal from '@/components/StaffPage/AddPositionModal';
 import AddStaffModal from '@/components/StaffPage/AddStaffModal';
 import styles from './staff.module.scss';
-import { Users, Briefcase, Menu } from 'lucide-react';
+import { Users, Briefcase, Menu, ArrowUpDown } from 'lucide-react';
 import { TreeItemType } from '@/types/tree.types';
 import SideMenu from '@/components/SideMenu/SideMenu';
 import stylesSideMenu from '@/app/main/main.module.scss';
+
+type SortOrder = 'asc' | 'desc';
 
 export default function StaffPage() {
   const dispatch = useAppDispatch();
@@ -28,6 +30,7 @@ export default function StaffPage() {
   const [storeNamesMap, setStoreNamesMap] = useState<Record<string, string>>({});
   const [initialLoading, setInitialLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
   useEffect(() => {
     const loadData = async () => {
@@ -59,10 +62,16 @@ export default function StaffPage() {
     }
   }, [stores]);
 
+  const toggleSortOrder = () => {
+    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+  };
+
   const sortedPositions = [...positions].sort((a, b) => {
     if (a.lsid === null && b.lsid !== null) return -1;
     if (a.lsid !== null && b.lsid === null) return 1;
-    return a.name.localeCompare(b.name);
+
+    const comparison = a.name.localeCompare(b.name);
+    return sortOrder === 'asc' ? comparison : -comparison;
   });
 
   const vacantPositions = positions.filter(p => p.lsid === null);
@@ -85,6 +94,14 @@ export default function StaffPage() {
           <h1 className={styles.title}>Сотрудники и вакансии</h1>
         </div>
         <div className={styles.actions}>
+          <button
+            className={`${styles.sortButton} ${sortOrder === 'desc' ? styles.desc : ''}`}
+            onClick={toggleSortOrder}
+            title={sortOrder === 'asc' ? 'Сортировка по возрастанию' : 'Сортировка по убыванию'}
+          >
+            <ArrowUpDown size={18} />
+            <span>Сортировка</span>
+          </button>
           <button
             className={styles.addButton}
             onClick={() => setShowAddPositionModal(true)}
@@ -142,10 +159,8 @@ export default function StaffPage() {
             ) : (
               sortedPositions.map((position) => {
                 const assignedStaff = staff.find(s => s.lsid === position.lsid);
-                // Используем данные из адресов, если есть, иначе пытаемся получить из дерева
                 let storeDisplayName = storeNamesMap[position.hid];
 
-                // Если нет в мапе адресов, пробуем найти в дереве
                 if (!storeDisplayName && treeItems.length > 0) {
                   const findStoreInTree = (items: any[]): string | null => {
                     for (const item of items) {

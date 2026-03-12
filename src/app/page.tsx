@@ -11,7 +11,7 @@ const Page = () => {
 
   useEffect(() => {
     if (token) {
-      router.push('/main');
+      router.push('/profile');
     } else {
       router.push('/login');
     }
