@@ -18,6 +18,7 @@ import styles from './profile.module.scss';
 import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
 import SideMenu from '@/components/SideMenu/SideMenu';
 import LogoutButton from '@/components/LogoutButton/LogoutButton';
+import ChatView from '@/components/Profile/Chat/ChatView';
 import DepartmentsView from '@/components/Profile/Departments/DepartmentsView';
 import EmployeesView from '@/components/Profile/EmployeesView/EmployeesView';
 
@@ -31,7 +32,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 1000);
     };
 
     checkMobile();
@@ -75,13 +76,7 @@ const ProfilePage = () => {
           </div>
         );
       case 'chat':
-        return (
-          <div className={styles.placeholder}>
-            <MessageCircle size={48} />
-            <h3>Чат</h3>
-            <p>Здесь будет отображаться чат</p>
-          </div>
-        );
+        return <ChatView />;
       case 'database':
         return (
           <div className={styles.placeholder}>
