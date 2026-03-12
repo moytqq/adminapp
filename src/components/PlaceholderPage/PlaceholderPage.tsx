@@ -1,5 +1,3 @@
-// components/PlaceholderPage/PlaceholderPage.tsx
-
 'use client';
 
 import React, { useState } from 'react';

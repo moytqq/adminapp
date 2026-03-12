@@ -1,5 +1,3 @@
-// app/planirovschik/page.tsx
-
 'use client';
 
 import React from 'react';
