@@ -131,6 +131,7 @@
   margin-bottom: 20px;
 
   @media (max-width: 767px) {
+    display: none;
     grid-template-columns: repeat(4, 1fr);
     gap: 8px;
     margin-bottom: 12px;
@@ -285,4 +286,136 @@
     width: 100%;
     flex-wrap: wrap;
   }
+}
+
+.searchContainer {
+  position: relative;
+  margin-bottom: 16px;
+  width: 100%;
+  max-width: 400px;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 12px 12px 12px 40px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+
+  &:focus {
+    border-color: #2196f3;
+  }
+
+  @media (max-width: 768px) {
+    padding: 10px 10px 10px 36px;
+    font-size: 13px;
+  }
+}
+
+.filterButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #f5f5f5;
+  color: #666;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #e0e0e0;
+    color: #333;
+  }
+
+  // Режим "Все вакансии" (синий)
+  &.all {
+    background: #2196f3;
+    color: white;
+
+    svg {
+      color: white;
+    }
+
+    &:hover {
+      background: #1976d2;
+    }
+  }
+
+  // Режим "Только свободные" (зеленый)
+  &.vacant {
+    background: #4caf50;
+    color: white;
+
+    svg {
+      color: white;
+    }
+
+    &:hover {
+      background: #43a047;
+    }
+  }
+
+  // Режим "Только занятые" (красный)
+  &.occupied {
+    background: #f44336;
+    color: white;
+
+    svg {
+      color: white;
+    }
+
+    &:hover {
+      background: #d32f2f;
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex: 1;
+    justify-content: center;
+    padding: 10px;
+
+    span {
+      display: none;
+    }
+  }
+}
+
+.resetButton {
+  padding: 8px 16px;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #1976d2;
+  }
+}
+
+.statsFooter {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: #999;
 }

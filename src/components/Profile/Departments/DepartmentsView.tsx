@@ -63,7 +63,6 @@ const DepartmentsView: React.FC = () => {
           disabled={isRefreshing}
         >
           <RefreshCw size={16} className={isRefreshing ? styles.spin : ''} />
-          <span>Обновить</span>
         </button>
       </div>
 
