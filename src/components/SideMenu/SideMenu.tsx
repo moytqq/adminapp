@@ -116,8 +116,8 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
             <span>Результаты</span>
           </Link>
           <Link
-            href=""
-            className={`${styles.navItem} ${pathname === '' ? styles.active : ''}`}
+            href="/chat"
+            className={`${styles.navItem} ${pathname === '/chat' ? styles.active : ''}`}
             onClick={handleLinkClick}
           >
             <MessageCircleMore size={20} />

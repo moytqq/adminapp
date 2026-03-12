@@ -71,7 +71,6 @@ const ChatView: React.FC = () => {
           <ChatList key={refreshKey} onSelectChat={handleSelectChat} selectedChatId={selectedChat} />
         </div>
 
-        {/* Правая колонка - выбранный чат или подсказка */}
         <div className={`${styles.chatColumn} ${!selectedChat && isMobile ? styles.hidden : ''}`}>
           {selectedChat ? (
             <ChatMessages
