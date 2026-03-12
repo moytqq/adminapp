@@ -1,6 +1,6 @@
 .card {
   background: #f8f9fa;
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: visible;
   transition: all 0.2s ease;
@@ -26,6 +26,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  border-radius:16px ;
   padding: 16px;
   background: #f8f9fa;
   border-bottom: 1px solid #e0e0e0;
