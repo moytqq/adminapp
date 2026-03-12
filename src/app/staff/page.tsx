@@ -1,5 +1,3 @@
-// app/staff/page.tsx (обновленная структура)
-
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';

@@ -105,7 +105,6 @@
     color: #333;
   }
 
-  // Режим "Все вакансии" (синий)
   &.all {
     background: #2196f3;
     color: white;
@@ -119,7 +118,6 @@
     }
   }
 
-  // Режим "Только свободные" (зеленый)
   &.vacant {
     background: #4caf50;
     color: white;
@@ -133,7 +131,6 @@
     }
   }
 
-  // Режим "Только занятые" (красный)
   &.occupied {
     background: #f44336;
     color: white;
