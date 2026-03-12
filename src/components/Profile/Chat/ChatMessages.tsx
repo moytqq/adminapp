@@ -12,9 +12,16 @@ interface ChatMessagesProps {
   onBack?: () => void;
   isMobile?: boolean;
   onMessageSent?: () => void;
+  onMessageRead?: (chatId: number) => void;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ chatId, onBack, isMobile = false, onMessageSent }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({
+                                                     chatId,
+                                                     onBack,
+                                                     isMobile = false,
+                                                     onMessageSent,
+                                                     onMessageRead
+                                                   }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [chatInfo, setChatInfo] = useState<{
     chat: ChatDetails;
@@ -27,6 +34,21 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ chatId, onBack, isMobile = 
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [currentUserHid, setCurrentUserHid] = useState<number | null>(null);
+
+  useEffect(() => {
+    const loadCurrentUser = async () => {
+      try {
+        const senders = await chatApi.getSendersList();
+        if (senders.length > 0) {
+          setCurrentUserHid(senders[0].id);
+        }
+      } catch (err) {
+        console.error('Error loading current user:', err);
+      }
+    };
+    loadCurrentUser();
+  }, []);
 
   const loadMessages = async () => {
     setLoading(true);
@@ -38,6 +60,20 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ chatId, onBack, isMobile = 
         userFrom: response.chat.userFrom,
         userTo: response.chat.userTo,
       });
+
+      const hasUnreadFromOthers = response.data.some(
+        msg => msg.is_readed === 0 && msg.hid !== currentUserHid
+      );
+
+      if (hasUnreadFromOthers && onMessageRead) {
+        onMessageRead(chatId);
+      }
+
+      if (onMessageSent) {
+        setTimeout(() => {
+          onMessageSent();
+        }, 300);
+      }
     } catch (err) {
       setError('Ошибка загрузки сообщений');
       console.error(err);
@@ -47,10 +83,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ chatId, onBack, isMobile = 
   };
 
   useEffect(() => {
-    if (chatId) {
+    if (chatId && currentUserHid) {
       loadMessages();
     }
-  }, [chatId]);
+  }, [chatId, currentUserHid]);
 
   useEffect(() => {
     scrollToBottom();
@@ -68,9 +104,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ chatId, onBack, isMobile = 
       await chatApi.sendMessage(chatId, newMessage, chatInfo.chat.hid_from);
       setNewMessage('');
       await loadMessages();
-      if (onMessageSent) {
-        onMessageSent();
-      }
       inputRef.current?.focus();
     } catch (err) {
       console.error('Error sending message:', err);
@@ -179,13 +212,13 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ chatId, onBack, isMobile = 
                         {msg.message}
                       </div>
                       <div className={styles.messageMeta}>
-                      <span className={styles.messageTime}>
-                        {formatMessageTime(msg.timestamp)}
-                      </span>
+                        <span className={styles.messageTime}>
+                          {formatMessageTime(msg.timestamp)}
+                        </span>
                         {isFromMe && (
                           <span className={styles.messageStatus}>
-                          {msg.is_readed ? <CheckCheck size={14} /> : <Check size={14} />}
-                        </span>
+                            {msg.is_readed ? <CheckCheck size={14} /> : <Check size={14} />}
+                          </span>
                         )}
                       </div>
                     </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ChatList from './ChatList';
 import ChatMessages from './ChatMessages';
 import CreateChatModal from './CreateChatModal';
@@ -10,8 +10,10 @@ import { MessageCircle, Plus } from 'lucide-react';
 const ChatView: React.FC = () => {
   const [selectedChat, setSelectedChat] = useState<number | undefined>();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+
+  const updateChatRef = useRef<((chatId: number, isRead: boolean) => void) | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -31,16 +33,29 @@ const ChatView: React.FC = () => {
   };
 
   const handleChatCreated = () => {
-    setRefreshKey(prev => prev + 1);
+    setRefreshTrigger(prev => prev + 1);
   };
 
   const handleMessageSent = useCallback(() => {
-    setRefreshKey(prev => prev + 1);
+    setRefreshTrigger(prev => prev + 1);
+  }, []);
+
+  const handleMessageRead = useCallback((chatId: number) => {
+    if (updateChatRef.current) {
+      updateChatRef.current(chatId, true);
+    }
+    setTimeout(() => {
+      setRefreshTrigger(prev => prev + 1);
+    }, 100);
   }, []);
 
   const handleBackToList = () => {
     setSelectedChat(undefined);
   };
+
+  const setUpdateChatCallback = useCallback((callback: (chatId: number, isRead: boolean) => void) => {
+    updateChatRef.current = callback;
+  }, []);
 
   return (
     <div className={styles.chatView}>
@@ -73,9 +88,10 @@ const ChatView: React.FC = () => {
             </div>
           )}
           <ChatList
-            key={refreshKey}
+            key={refreshTrigger}
             onSelectChat={handleSelectChat}
             selectedChatId={selectedChat}
+            onUpdateChatCallback={setUpdateChatCallback}
           />
         </div>
 
@@ -87,6 +103,7 @@ const ChatView: React.FC = () => {
               onBack={handleBackToList}
               isMobile={isMobile}
               onMessageSent={handleMessageSent}
+              onMessageRead={handleMessageRead}
             />
           ) : (
             !isMobile && (

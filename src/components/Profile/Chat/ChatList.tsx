@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks';
-import { ChatListItem, chatApi, ChatDetails, ChatUser } from '@/services/chatApi';
+import React, { useEffect, useState, useCallback } from 'react';
+import { ChatListItem, chatApi, ChatUser } from '@/services/chatApi';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import styles from './ChatList.module.scss';
@@ -11,73 +10,119 @@ import { MessageCircle, Check, CheckCheck } from 'lucide-react';
 interface ChatListProps {
   onSelectChat: (chatId: number) => void;
   selectedChatId?: number;
+  refreshTrigger?: number;
+  onUpdateChatCallback?: (callback: (chatId: number, isRead: boolean) => void) => void;
 }
 
-interface ChatWithDetails extends ChatListItem {
-  chatDetails?: {
-    chat: ChatDetails;
-    userFrom: ChatUser;
-    userTo: ChatUser;
-  };
+interface ChatWithNames extends ChatListItem {
+  fromName?: string;
+  toName?: string;
+  fromType?: string;
+  toType?: string;
 }
 
-const ChatList: React.FC<ChatListProps> = ({ onSelectChat, selectedChatId }) => {
-  const [chats, setChats] = useState<ChatWithDetails[]>([]);
+const ChatList: React.FC<ChatListProps> = ({
+                                             onSelectChat,
+                                             selectedChatId,
+                                             refreshTrigger,
+                                             onUpdateChatCallback
+                                           }) => {
+  const [chats, setChats] = useState<ChatWithNames[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [usersMap, setUsersMap] = useState<Map<number, ChatUser>>(new Map());
+  const [currentUserHid, setCurrentUserHid] = useState<number | null>(null);
 
-  const loadChats = async () => {
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const [senders, receivers] = await Promise.all([
+          chatApi.getSendersList(),
+          chatApi.getReceiversList(),
+        ]);
+
+        const map = new Map<number, ChatUser>();
+        [...senders, ...receivers].forEach(user => {
+          map.set(user.id, user);
+        });
+        setUsersMap(map);
+
+        if (senders.length > 0) {
+          setCurrentUserHid(senders[0].id);
+        }
+      } catch (err) {
+        console.error('Error loading users:', err);
+      }
+    };
+
+    loadUsers();
+  }, []);
+
+  const loadChats = useCallback(async () => {
     setLoading(true);
     try {
       const chatList = await chatApi.getChatList();
 
-      const chatsWithDetails = await Promise.all(
-        chatList.map(async (chat) => {
-          try {
-            const messages = await chatApi.getMessages(chat.id);
-            return {
-              ...chat,
-              chatDetails: {
-                chat: messages.chat.data,
-                userFrom: messages.chat.userFrom,
-                userTo: messages.chat.userTo,
-              },
-            };
-          } catch (err) {
-            console.error(`Error loading details for chat ${chat.id}:`, err);
-            return chat;
-          }
-        })
-      );
+      const chatsWithNames = chatList.map(chat => {
+        const fromUser = usersMap.get(chat.hid_from);
+        const toUser = usersMap.get(chat.hid_to);
 
-      setChats(chatsWithDetails);
+        return {
+          ...chat,
+          fromName: fromUser?.name,
+          toName: toUser?.name,
+          fromType: fromUser?.type,
+          toType: toUser?.type,
+        };
+      });
+
+      setChats(chatsWithNames);
     } catch (err) {
       setError('Ошибка загрузки чатов');
       console.error(err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [usersMap]);
 
   useEffect(() => {
-    loadChats();
+    if (usersMap.size > 0) {
+      loadChats();
+    }
+  }, [loadChats, refreshTrigger, usersMap]);
+
+  const updateChatLastMessage = useCallback((chatId: number, isRead: boolean) => {
+    setChats(prevChats =>
+      prevChats.map(chat => {
+        if (chat.id === chatId && typeof chat.last_message !== 'string') {
+          return {
+            ...chat,
+            last_message: {
+              ...chat.last_message,
+              is_readed: isRead ? 1 : 0
+            }
+          };
+        }
+        return chat;
+      })
+    );
   }, []);
 
-  const getChatName = (chat: ChatWithDetails): string => {
-    if (chat.chatDetails) {
-      return chat.chatDetails.userTo.name;
+  useEffect(() => {
+    if (onUpdateChatCallback) {
+      onUpdateChatCallback(updateChatLastMessage);
     }
-    // Запасной вариант
-    return `Чат #${chat.id}`;
+  }, [onUpdateChatCallback, updateChatLastMessage]);
+
+  const getChatName = (chat: ChatWithNames): string => {
+    return chat.toName || `Чат #${chat.id}`;
   };
 
-  const getChatType = (chat: ChatWithDetails): string => {
-    if (chat.chatDetails) {
-      const type = chat.chatDetails.userTo.type;
-      return type === 'Person' ? 'Сотрудник' :
-        type === 'Department' ? 'Департамент' : 'Компания';
-    }
-    return '';
+  const getChatType = (chat: ChatWithNames): string => {
+    const type = chat.toType;
+    if (!type) return '';
+    return type === 'Person' ? 'Сотрудник' :
+      type === 'Department' ? 'Департамент' : 'Компания';
   };
 
   const formatMessageTime = (timestamp: string) => {
@@ -89,21 +134,31 @@ const ChatList: React.FC<ChatListProps> = ({ onSelectChat, selectedChatId }) => 
     }
   };
 
-  const getLastMessagePreview = (chat: ChatWithDetails): string => {
+  const getLastMessagePreview = (chat: ChatWithNames): string => {
     if (typeof chat.last_message === 'string') {
       return chat.last_message;
     }
     return chat.last_message.message || '';
   };
 
-  const isLastMessageRead = (chat: ChatWithDetails): boolean => {
+  const getLastMessageTime = (chat: ChatWithNames): string => {
+    if (typeof chat.last_message === 'string') return '';
+    return formatMessageTime(chat.last_message.timestamp);
+  };
+
+  const isLastMessageFromMe = (chat: ChatWithNames): boolean => {
+    if (typeof chat.last_message === 'string' || !currentUserHid) return false;
+    return chat.last_message.hid === currentUserHid;
+  };
+
+  const isLastMessageRead = (chat: ChatWithNames): boolean => {
     if (typeof chat.last_message === 'string') return false;
     return chat.last_message.is_readed === 1;
   };
 
-  const getLastMessageTime = (chat: ChatWithDetails): string => {
-    if (typeof chat.last_message === 'string') return '';
-    return formatMessageTime(chat.last_message.timestamp);
+  const showUnreadIndicator = (chat: ChatWithNames): boolean => {
+    if (typeof chat.last_message === 'string' || !currentUserHid) return false;
+    return !isLastMessageFromMe(chat) && !isLastMessageRead(chat);
   };
 
   if (loading) {
@@ -146,7 +201,7 @@ const ChatList: React.FC<ChatListProps> = ({ onSelectChat, selectedChatId }) => 
               <div className={styles.chatHeader}>
                 <div className={styles.chatNameContainer}>
                   <span className={styles.chatName}>{getChatName(chat)}</span>
-                  {chat.chatDetails && (
+                  {chat.toType && (
                     <span className={styles.chatType}>{getChatType(chat)}</span>
                   )}
                 </div>
@@ -156,15 +211,20 @@ const ChatList: React.FC<ChatListProps> = ({ onSelectChat, selectedChatId }) => 
                 <span className={styles.messagePreview}>
                   {getLastMessagePreview(chat)}
                 </span>
-                {typeof chat.last_message !== 'string' && (
-                  <span className={styles.readStatus}>
-                    {isLastMessageRead(chat) ? (
-                      <CheckCheck size={14} />
-                    ) : (
-                      <Check size={14} />
-                    )}
-                  </span>
-                )}
+                <div className={styles.messageStatus}>
+                  {showUnreadIndicator(chat) && (
+                    <span className={styles.unreadDot} />
+                  )}
+                  {typeof chat.last_message !== 'string' && isLastMessageFromMe(chat) && (
+                    <span className={styles.readStatus}>
+                      {isLastMessageRead(chat) ? (
+                        <CheckCheck size={14} />
+                      ) : (
+                        <Check size={14} />
+                      )}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
