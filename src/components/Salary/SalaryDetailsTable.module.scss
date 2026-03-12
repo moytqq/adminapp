@@ -1,5 +1,3 @@
-// components/Salary/SalaryDetailsTable.module.scss
-
 .detailsTable {
   height: 100%;
   display: flex;
@@ -112,10 +110,10 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  overflow: hidden; // Убираем скролл отсюда
+  overflow: hidden;
 
   @media (max-width: 768px) {
-    overflow-x: auto; // Только горизонтальный скролл на мобильных
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
 }
@@ -136,7 +134,7 @@
 
   @media (max-width: 768px) {
     padding: 10px 16px;
-    width: fit-content; // Адаптивная ширина под контент
+    width: fit-content;
   }
 }
 
@@ -182,13 +180,13 @@
 
 .tableBody {
   flex: 1;
-  overflow-y: auto; // Только вертикальный скролл
+  overflow-y: auto;
   min-height: 0;
   width: 100%;
 
   @media (max-width: 768px) {
-    overflow-x: visible; // Убираем горизонтальный скролл
-    width: fit-content; // Ширина под контент
+    overflow-x: visible;
+    width: fit-content;
   }
 
   &::-webkit-scrollbar {
@@ -228,7 +226,7 @@
 
   @media (max-width: 768px) {
     padding: 10px 16px;
-    width: fit-content; // Ширина под контент
+    width: fit-content;
   }
 }
 

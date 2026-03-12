@@ -1,5 +1,3 @@
-// components/Salary/SalaryView.tsx
-
 'use client';
 
 import React, { useState } from 'react';
@@ -45,7 +43,7 @@ const SalaryView: React.FC = () => {
           <SalaryTable
             month={selectedMonth}
             onSelectPerson={handleSelectPerson}
-            selectedPersonId={undefined} // Явно передаем undefined, когда никто не выбран
+            selectedPersonId={undefined}
           />
         )}
       </div>

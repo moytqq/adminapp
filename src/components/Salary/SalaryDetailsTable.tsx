@@ -1,5 +1,3 @@
-// components/Salary/SalaryDetailsTable.tsx
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -99,7 +97,6 @@ const SalaryDetailsTable: React.FC<SalaryDetailsTableProps> = ({
     );
   }
 
-  // Объединяем данные роста и посещаемости
   const combinedData = data.details.growth.map(growthItem => {
     const attendanceItem = data.details.attendance.find(a => a.item.id === growthItem.item.id);
     return {
@@ -142,7 +139,6 @@ const SalaryDetailsTable: React.FC<SalaryDetailsTableProps> = ({
               <div key={item.item.id} className={styles.tableRow}>
                 <div className={styles.cell}>
                   <div className={styles.storeInfo}>
-                    <Store size={14} />
                     <span>{item.item.name}</span>
                   </div>
                 </div>

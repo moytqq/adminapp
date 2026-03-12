@@ -1,5 +1,3 @@
-// components/Salary/MonthSelector.tsx
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -41,7 +39,6 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({ selectedMonth, onMonthCha
       const data = await salaryApi.getMonths();
       setMonths(data);
 
-      // Если есть месяцы и не выбран ни один, выбираем первый
       if (data.length > 0 && !selectedMonth) {
         onMonthChange(data[0].month);
       }

@@ -1,5 +1,3 @@
-// components/Salary/SalaryTable.tsx
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -133,7 +131,6 @@ const SalaryTable: React.FC<SalaryTableProps> = ({
               >
                 <div className={styles.cell}>
                   <div className={styles.personInfo}>
-                    <div className={styles.avatar} />
                     <span className={styles.personName}>{item.person.name}</span>
                   </div>
                 </div>
