@@ -340,7 +340,6 @@
     flex-shrink: 0;
 
     @media (max-width: 768px) {
-      display: none;
     }
   }
 
@@ -353,14 +352,16 @@
 .attendance {
   display: flex;
   align-items: center;
+  justify-items: center;
   gap: 8px;
+  padding: 0px 15px;
 
   svg {
-    color: #666;
+    //color: #666;
     flex-shrink: 0;
 
     @media (max-width: 768px) {
-      display: none;
+      //display: none;
     }
   }
 }
