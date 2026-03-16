@@ -26,7 +26,7 @@ export const customSortSalesDepartment = (items: TreeItem[]): TreeItem[] => {
 
   const result = [...orderedItems, ...otherItems];
 
-  console.log('Custom sort result:', result.map(item => item.label));
+  //console.log('Custom sort result:', result.map(item => item.label));
 
   return result;
 };
@@ -48,12 +48,12 @@ export const applyCustomSortToTree = (items: TreeItem[]): TreeItem[] => {
     }
 
     if (isSalesDepartment(processedItem) && processedItem.children && processedItem.children.length > 0) {
-      console.log('Applying custom sort to Sales Department:', processedItem.label);
-      console.log('Original order:', processedItem.children.map(c => c.label));
+      //console.log('Applying custom sort to Sales Department:', processedItem.label);
+      //console.log('Original order:', processedItem.children.map(c => c.label));
 
       const sortedChildren = customSortSalesDepartment(processedItem.children);
 
-      console.log('New order:', sortedChildren.map(c => c.label));
+      //console.log('New order:', sortedChildren.map(c => c.label));
 
       return {
         ...processedItem,
