@@ -5,6 +5,35 @@
   flex-direction: column;
 }
 
+.buttonHoverGray {
+  @media(hover: hover) {
+    &:hover {
+      background: #e0e0e0;
+      color: #333;
+    }
+  }
+
+  @media(hover: none) {
+    &:active {
+      background: #e0e0e0;
+      color: #333;
+    }
+  }
+}
+
+.buttonHoverBlue {
+  @media(hover: hover) {
+    &:hover {
+      background: #1976d2;;
+    }
+  }
+
+  @media(hover: none) {
+    &:active {
+    }
+  }
+}
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -43,7 +72,9 @@
   }
 }
 
+
 .refreshButton {
+  composes: buttonHoverGray;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -56,11 +87,6 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-
-  &:hover:not(:disabled) {
-    background: #e0e0e0;
-    color: #333;
-  }
 
   &:disabled {
     opacity: 0.6;
@@ -83,6 +109,7 @@
 }
 
 .addButton {
+  composes: buttonHoverBlue;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -243,6 +270,7 @@
 }
 
 .sortButton {
+  composes: buttonHoverGray;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -256,10 +284,6 @@
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover:not(:disabled) {
-    background: #e0e0e0;
-    color: #333;
-  }
 
   &.desc {
     svg {
@@ -353,8 +377,14 @@
       color: white;
     }
 
-    &:hover {
-      background: #1976d2;
+    @media (hover: none) {
+      &:active {
+      }
+    }
+    @media (hover: hover) {
+      &:hover {
+        background: #1976d2;
+      }
     }
   }
 
@@ -366,8 +396,14 @@
       color: white;
     }
 
-    &:hover {
-      background: #43a047;
+    @media (hover: none) {
+      &:active {
+      }
+    }
+    @media (hover: hover) {
+      &:hover {
+        background: #43a047;
+      }
     }
   }
 
@@ -379,8 +415,14 @@
       color: white;
     }
 
-    &:hover {
-      background: #d32f2f;
+    @media (hover: none) {
+      &:active {
+      }
+    }
+    @media (hover: hover) {
+      &:hover {
+        background: #d32f2f;
+      }
     }
   }
 

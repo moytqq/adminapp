@@ -41,9 +41,17 @@
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover:not(:disabled) {
-    background: #e0e0e0;
-    color: #333;
+  @media(hover: hover) {
+    &:hover {
+      background: #e0e0e0;
+      color: #333;
+    }
+  }
+  @media(hover: none) {
+    &:active {
+      background: #e0e0e0;
+      color: #333;
+    }
   }
 
   &:disabled {
@@ -56,7 +64,7 @@
   }
 
   @media (max-width: 768px) {
-    padding:  10px;
+    padding: 10px;
     font-size: 12px;
   }
 }

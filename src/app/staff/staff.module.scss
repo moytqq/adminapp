@@ -64,10 +64,19 @@
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover {
-    background: #e0e0e0;
-    color: #333;
+  @media (hover: hover) {
+    &:hover {
+      background: #e0e0e0;
+      color: #333;
+    }
   }
+  @media (hover: none) {
+    &:active {
+      background: #e0e0e0;
+      color: #333;
+    }
+  }
+
 
   &.desc {
     svg {
@@ -113,8 +122,14 @@
       color: white;
     }
 
-    &:hover {
-      background: #1976d2;
+    @media (hover: none) {
+      &:active {
+      }
+    }
+    @media (hover: hover) {
+      &:hover {
+        background: #1976d2;
+      }
     }
   }
 
@@ -126,8 +141,14 @@
       color: white;
     }
 
-    &:hover {
-      background: #43a047;
+    @media (hover: none) {
+      &:active {
+      }
+    }
+    @media (hover: hover) {
+      &:hover {
+        background: #43a047;
+      }
     }
   }
 
@@ -138,9 +159,14 @@
     svg {
       color: white;
     }
-
-    &:hover {
-      background: #d32f2f;
+    @media (hover: none) {
+      &:active {
+      }
+    }
+    @media (hover: hover) {
+      &:hover {
+        background: #d32f2f;
+      }
     }
   }
 
@@ -328,8 +354,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .emptyState {
