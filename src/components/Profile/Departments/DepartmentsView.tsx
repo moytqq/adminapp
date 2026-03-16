@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks';
-import { loadTreeData, toggleExpand } from '@/store/slices/treeSlice';
+import { loadTreeData, switchViewMode, toggleExpand } from '@/store/slices/treeSlice';
 import TreeItem from '@/components/TreeList/TreeItem';
 import styles from './DepartmentsView.module.scss';
 import { RefreshCw } from 'lucide-react';
@@ -13,6 +13,7 @@ const DepartmentsView: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
+    dispatch(switchViewMode('hierarchy'));
     if (items.length === 0) {
       dispatch(loadTreeData());
     }
