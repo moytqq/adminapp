@@ -126,7 +126,7 @@ export const filterDepartmentsAndDescendants = (apiItems: ApiTreeItem[]): ApiTre
   const idsToKeep = new Set<number>([...departmentIds]);
 
   const addDescendants = (parentId: number) => {
-    const children = apiItems.filter(item => (item.parent_id === parentId && item.type !== 'Person' ));
+    const children = apiItems.filter(item => (item.parent_id === parentId));
     children.forEach(child => {
       if (!idsToKeep.has(child.id)) {
         idsToKeep.add(child.id);

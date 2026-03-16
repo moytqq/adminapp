@@ -77,10 +77,16 @@ const TreeItem: React.FC<TreeItemProps> = ({
 
     switch (itemLevel) {
       case 1:
-        levelPadding = 20;
+        levelPadding = 10;
         break;
       case 2:
-        levelPadding = 30;
+        levelPadding = 10;
+        break;
+      case 3:
+        levelPadding = 10;
+        break;
+      case 4:
+        levelPadding = 10;
         break;
       default:
         levelPadding = 0;
