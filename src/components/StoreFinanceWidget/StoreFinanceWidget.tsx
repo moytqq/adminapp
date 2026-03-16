@@ -95,7 +95,7 @@ const StoreFinanceWidget: React.FC<StoreFinanceWidgetProps> = ({
         monthsCount = 6;
         break;
       case 'year':
-        monthsCount = 12;
+        monthsCount = 13;
         break;
       default:
         setFilteredData(sorted);
