@@ -227,7 +227,7 @@ const StoreInfoWidget: React.FC<StoreInfoWidgetProps> = ({
 
   const getStoreName = () => editedData.storeName || 'Не указано';
   const getDescription = () => editedData.description || 'Не указано';
-  const getAddress = () => editedData.address || 'Не указано';
+  const getAddress = () => editedData.description || 'Не указано';
   const getPhone = () => editedData.phone || 'Не указано';
   const getEmail = () => editedData.email || 'Не указано';
   const getRevenue = () => editedData.revenue || 0;

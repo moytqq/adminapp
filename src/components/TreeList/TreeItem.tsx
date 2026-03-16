@@ -72,7 +72,7 @@ const TreeItem: React.FC<TreeItemProps> = ({
   }, [showWidgets]);
 
   const getIndentStyle = (itemLevel: number) => {
-    const basePadding = 15;
+    const basePadding = 10;
     let levelPadding = 0;
 
     switch (itemLevel) {
@@ -83,10 +83,10 @@ const TreeItem: React.FC<TreeItemProps> = ({
         levelPadding = 10;
         break;
       case 3:
-        levelPadding = 10;
+        levelPadding = 15;
         break;
       case 4:
-        levelPadding = 10;
+        levelPadding = 19;
         break;
       default:
         levelPadding = 0;
@@ -116,6 +116,8 @@ const TreeItem: React.FC<TreeItemProps> = ({
   };
 
   const itemColor = getColorForType(item.type);
+
+  //console.log(item);
 
   return (
     <>
@@ -147,9 +149,13 @@ const TreeItem: React.FC<TreeItemProps> = ({
           </div>
 
           <div className={styles.contentWrapper}>
-            <span className={styles.label}>
-              {item.label}
-            </span>
+            {item.type === 'Store' ?
+              (<span className={styles.label}>
+                {item.data.description}
+              </span>) :
+              <span className={styles.label}>
+                {item.label}
+              </span>}
 
             {item.type === ItemType.PERSON && item.subLabel && (
               <span className={styles.subLabel}>
@@ -189,15 +195,15 @@ const TreeItem: React.FC<TreeItemProps> = ({
         )}
       </div>
 
-      {showWidgets && createPortal(
-        <WidgetPopup
-          itemId={item.id}
-          itemType={item.type}
-          onAddWidget={handleAddWidget}
-          onClose={() => setShowWidgets(false)}
-        />,
-        document.body,
-      )}
+        {showWidgets && createPortal(
+          <WidgetPopup
+            itemId={item.id}
+            itemType={item.type}
+            onAddWidget={handleAddWidget}
+            onClose={() => setShowWidgets(false)}
+          />,
+          document.body,
+        )}
     </>
   );
 };
