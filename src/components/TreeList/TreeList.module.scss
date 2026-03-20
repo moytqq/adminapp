@@ -408,6 +408,7 @@
   gap: 12px;
 
   @media (max-width: 767px) {
+    margin: 10px 15px;
     flex-direction: row;
     align-items: stretch;
     gap: 16px;
