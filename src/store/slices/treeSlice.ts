@@ -12,6 +12,7 @@ import { fetchMockTreeData, transformTreeDataByViewMode } from '@/utils/treeHelp
 import { treeApi } from '@/services/api';
 import { buildTreeFromApiData, enhanceTreeDataWithMockInfo, filterDepartmentsAndDescendants } from '@/utils/apiTransformers';
 import { applyCustomSortToTree } from '@/utils/customSort';
+import { transformToAddressView } from '@/utils/addressTransformer';
 
 const TREE_STORAGE_KEY = 'company-tree-data';
 const ORIGINAL_API_DATA_KEY = 'company-original-api-data';
@@ -34,6 +35,7 @@ const getInitialState = (): TreeState => {
     loading: false,
     error: null,
     viewMode: 'hierarchy',
+    storeFilter: null,
   };
 };
 
@@ -70,8 +72,11 @@ export const loadTreeData = createAsyncThunk(
         treeData = applyCustomSortToTree(treeData);
       } else {
         treeData = buildTreeFromApiData(apiData);
-        if (viewMode === 'store-departments' || viewMode === 'addresses') {
-          treeData = transformTreeDataByViewMode(apiData, treeData, viewMode);
+        if (viewMode === 'addresses') {
+          const state = getState() as { tree: TreeState };
+          const storeFilter = state.tree.storeFilter;
+          apiData = await treeApi.getAddressTree();
+          treeData = transformToAddressView(apiData, storeFilter);
         } else {
           treeData = enhanceTreeDataWithMockInfo(treeData);
         }
@@ -123,6 +128,11 @@ const treeSlice = createSlice({
 
     selectItem: (state, action: PayloadAction<string>) => {
       state.selectedItemId = action.payload;
+    },
+
+    setStoreFilter: (state, action: PayloadAction<string | null>) => {
+      state.storeFilter = action.payload;
+      state.items = [];
     },
 
     updateItem: (state, action: PayloadAction<{ id: string; updates: Partial<TreeItem> }>) => {
@@ -256,5 +266,6 @@ export const {
   updatePersonData,
   switchViewMode,
   updateItem,
+  setStoreFilter
 } = treeSlice.actions;
 export default treeSlice.reducer;

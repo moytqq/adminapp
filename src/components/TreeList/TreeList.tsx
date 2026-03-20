@@ -12,20 +12,20 @@ import SideMenu from '@/components/SideMenu/SideMenu';
 
 const TreeList: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { items, loading, error, viewMode } = useAppSelector(
+  const { items, loading, error, viewMode, storeFilter } = useAppSelector(
     (state) => state.tree,
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const loadData = useCallback(() => {
     dispatch(loadTreeData());
   }, [dispatch]);
 
   useEffect(() => {
-    console.log('TreeList useEffect triggered, viewMode:', viewMode);
     loadData();
-  }, [loadData, viewMode]);
+  }, [loadData, viewMode, storeFilter]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -105,19 +105,9 @@ const TreeList: React.FC = () => {
                 <Menu size={24} />
               </button>
             </div>
-            <h1>
-              {getTitle()}
-            </h1>
+            <h1>{getTitle()}</h1>
           </div>
-          {isMobile && (
-            <div className={styles.mobileToggleContainer}>
-              <ViewModeToggle />
-            </div>
-          )}
-          {!isMobile && (
-            <div className={styles.actions}>
-              <ViewModeToggle />
-            </div>)}
+          <ViewModeToggle />
         </div>
       </div>
 
@@ -126,8 +116,10 @@ const TreeList: React.FC = () => {
           <div className={styles.emptyState}>
             <p>Нет данных для отображения</p>
             <p className={styles.emptyHint}>
-              {viewMode === 'store-departments'
-                ? 'В данных не найдено магазинов'
+              {viewMode === 'addresses'
+                ? storeFilter
+                  ? `Нет магазинов типа "${storeFilter}"`
+                  : 'В данных не найдено адресов'
                 : 'Нет данных для отображения иерархии'
               }
             </p>

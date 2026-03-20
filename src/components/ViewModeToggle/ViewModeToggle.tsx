@@ -1,17 +1,21 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { LayoutGrid, Store, MapPin } from 'lucide-react';
+import { LayoutGrid, MapPin, Filter, X } from 'lucide-react';
 import styles from './ViewModeToggle.module.scss';
 import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks';
-import { switchViewMode } from '@/store/slices/treeSlice';
+import { switchViewMode, setStoreFilter } from '@/store/slices/treeSlice';
 import { TreeViewMode } from '@/types/tree.types';
 
 const ViewModeToggle: React.FC = () => {
   const dispatch = useAppDispatch();
   const viewMode = useAppSelector((state) => state.tree.viewMode);
+  const storeFilter = useAppSelector((state) => state.tree.storeFilter);
   const loading = useAppSelector((state) => state.tree.loading);
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const storeTypes = ['Колбаса', 'Мясо', 'Молоко', 'Гастроном', 'Кура', 'Молочка'];
 
   useEffect(() => {
     const checkMobile = () => {
@@ -31,29 +35,105 @@ const ViewModeToggle: React.FC = () => {
     dispatch(switchViewMode(mode));
   };
 
-  return (
-    <div className={`${styles.toggleContainer} ${isMobile === null ? styles.hidden :  isMobile ? styles.mobile : styles.desktop}`}>
-      <button
-        className={`${styles.toggleButton} ${viewMode === 'hierarchy' ? styles.active : ''}`}
-        onClick={() => handleSwitchView('hierarchy')}
-        disabled={loading}
-        aria-label={isMobile ? "Компания" : "Иерархическое отображение"}
-        title="Иерархическое отображение"
-      >
-        <LayoutGrid size={isMobile ? 20 : 18} />
-        {!isMobile && <span>Компания</span>}
-      </button>
+  const handleFilterSelect = (type: string) => {
+    const newFilter = storeFilter === type ? null : type;
+    dispatch(setStoreFilter(newFilter));
+    setIsFilterOpen(false);
+  };
 
-      <button
-        className={`${styles.toggleButton} ${viewMode === 'addresses' ? styles.active : ''}`}
-        onClick={() => handleSwitchView('addresses')}
-        disabled={loading}
-        aria-label={isMobile ? "Адреса" : "Отображение по адресам"}
-        title="Отображение по адресам"
-      >
-        <MapPin size={isMobile ? 20 : 18} />
-        {!isMobile && <span>Адреса</span>}
-      </button>
+  const clearFilter = () => {
+    dispatch(setStoreFilter(null));
+    setIsFilterOpen(false);
+  };
+
+  const isAddressMode = viewMode === 'addresses';
+
+  if (isMobile === null) return null;
+
+  return (
+    <div className={`${styles.container} ${isMobile ? styles.mobile : styles.desktop}`}>
+      <div className={styles.toggleGroup}>
+        {isAddressMode && (
+          <div className={styles.filterWrapper}>
+            <div className={styles.filterContainer}>
+              <button
+                className={`${styles.filterButton} ${storeFilter ? styles.active : ''}`}
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                disabled={loading}
+                aria-label="Фильтр по типу магазина"
+                title="Фильтр по типу магазина"
+              >
+                <Filter size={isMobile ? 18 : 16} />
+                {!isMobile && <span>Фильтр</span>}
+                {storeFilter && !isMobile && (
+                  <span className={styles.filterBadge}>{storeFilter}</span>
+                )}
+              </button>
+
+              {/*{storeFilter && (*/}
+              {/*  <button*/}
+              {/*    className={styles.clearButton}*/}
+              {/*    onClick={clearFilter}*/}
+              {/*    aria-label="Сбросить фильтр"*/}
+              {/*    title="Сбросить фильтр"*/}
+              {/*  >*/}
+              {/*    <X size={isMobile ? 16 : 14} />*/}
+              {/*  </button>*/}
+              {/*)}*/}
+
+              {isFilterOpen && (
+                <>
+                  <div className={styles.filterOverlay} onClick={() => setIsFilterOpen(false)} />
+                  <div className={styles.filterDropdown}>
+                    <div className={styles.dropdownHeader}>
+                      <span>Тип магазина</span>
+                      <button onClick={() => setIsFilterOpen(false)}>×</button>
+                    </div>
+                    <div className={styles.dropdownList}>
+                      {storeTypes.map(type => (
+                        <button
+                          key={type}
+                          className={`${styles.typeOption} ${storeFilter === type ? styles.selected : ''}`}
+                          onClick={() => handleFilterSelect(type)}
+                        >
+                          {type}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+        <button
+          className={`${styles.toggleButton} ${viewMode === 'hierarchy' ? styles.active : ''}`}
+          onClick={() => handleSwitchView('hierarchy')}
+          disabled={loading}
+          aria-label={isMobile ? "Компания" : "Иерархическое отображение"}
+          title="Иерархическое отображение"
+        >
+          <LayoutGrid size={isMobile ? 20 : 18} />
+          {!isMobile && <span>Компания</span>}
+        </button>
+
+        <button
+          className={`${styles.toggleButton} ${viewMode === 'addresses' ? styles.active : ''}`}
+          onClick={() => handleSwitchView('addresses')}
+          disabled={loading}
+          aria-label={isMobile ? "Адреса" : "Отображение по адресам"}
+          title="Отображение по адресам"
+        >
+          <MapPin size={isMobile ? 20 : 18} />
+          {!isMobile && <span>Адреса</span>}
+        </button>
+      </div>
+
+      {/*{isAddressMode && storeFilter && isMobile && (*/}
+      {/*  <div className={styles.mobileFilterIndicator}>*/}
+      {/*    <span className={styles.mobileFilterBadge}>{storeFilter}</span>*/}
+      {/*  </div>*/}
+      {/*)}*/}
     </div>
   );
 };

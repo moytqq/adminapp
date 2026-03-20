@@ -7,13 +7,24 @@ import {
 } from '@/types/tree.types';
 
 export const transformToAddressView = (
-  apiItems: ApiTreeItem[]
+  apiItems: ApiTreeItem[],
+  storeFilter: string | null = null
 ): TreeItem[] => {
   const addressApiItems = apiItems.filter(item => item.type === 'Address');
-  const storeApiItems = apiItems.filter(item => item.type === 'Store');
+  let storeApiItems = apiItems.filter(item => item.type === 'Store');
 
-  console.log('Address items:', addressApiItems.length);
-  console.log('Store items:', storeApiItems.length);
+  // Применяем фильтр по типу магазина
+  if (storeFilter) {
+    storeApiItems = storeApiItems.filter(store => {
+      // Извлекаем тип из description (формат: "адрес, тип")
+      const typeMatch = store.description?.match(/,\s*(\S+)$/);
+      const type = typeMatch ? typeMatch[1] : '';
+      // Также проверяем название в скобках
+      const nameMatch = store.name?.match(/\(([^)]+)\)/);
+      const nameType = nameMatch ? nameMatch[1] : '';
+      return type === storeFilter || nameType === storeFilter;
+    });
+  }
 
   const storesByAddress = new Map<number, ApiTreeItem[]>();
 
@@ -25,35 +36,35 @@ export const transformToAddressView = (
     storesByAddress.get(addressId)!.push(store);
   });
 
-  const addressItems: AddressItem[] = addressApiItems.map(addressApiItem => {
-    const addressStores = storesByAddress.get(addressApiItem.id) || [];
+  const addressItems: AddressItem[] = addressApiItems
+    .filter(address => storesByAddress.has(address.id))
+    .map(addressApiItem => {
+      const addressStores = storesByAddress.get(addressApiItem.id) || [];
 
-    const storeItems: StoreItem[] = addressStores.map(storeApiItem => {
-      return createStoreItem(storeApiItem, addressApiItem.id);
+      const storeItems: StoreItem[] = addressStores.map(storeApiItem => {
+        return createStoreItem(storeApiItem, addressApiItem.id);
+      });
+
+      const addressItem: AddressItem = {
+        id: `address-${addressApiItem.id}`,
+        label: addressApiItem.name,
+        type: TreeItemType.ADDRESS,
+        level: 0,
+        parentId: '0',
+        isExpanded: false,
+        hasChildren: storeItems.length > 0,
+        children: storeItems,
+        data: {
+          addressName: addressApiItem.name,
+          fullAddress: addressApiItem.description || '',
+          storeCount: storeItems.length,
+        }
+      };
+
+      return addressItem;
     });
 
-    const addressItem: AddressItem = {
-      id: `address-${addressApiItem.id}`,
-      label: addressApiItem.name,
-      type: TreeItemType.ADDRESS,
-      level: 0,
-      parentId: '0',
-      isExpanded: false,
-      hasChildren: storeItems.length > 0,
-      children: storeItems,
-      data: {
-        addressName: addressApiItem.name,
-        fullAddress: addressApiItem.description || '',
-        storeCount: storeItems.length,
-      }
-    };
-
-    return addressItem;
-  });
-
   addressItems.sort((a, b) => a.label.localeCompare(b.label));
-
-  console.log('Address view created with', addressItems.length, 'addresses');
 
   return addressItems;
 };

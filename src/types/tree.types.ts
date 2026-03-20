@@ -7,6 +7,7 @@ export interface TreeState {
   loading: boolean;
   error: string | null;
   viewMode: TreeViewMode;
+  storeFilter: string | null,
 }
 
 export interface BaseTreeItem {
