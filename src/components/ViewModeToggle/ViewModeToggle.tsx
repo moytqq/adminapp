@@ -15,7 +15,7 @@ const ViewModeToggle: React.FC = () => {
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const storeTypes = ['Колбаса', 'Мясо', 'Молоко', 'Гастроном', 'Кура', 'Молочка'];
+  const storeTypes = ['Колбаса', 'Мясо', 'Молоко', 'Гастроном', 'Кура'];
 
   useEffect(() => {
     const checkMobile = () => {
