@@ -1,5 +1,3 @@
-// utils/addressTransformer.ts
-
 import {
   ApiTreeItem,
   TreeItem,
@@ -8,7 +6,6 @@ import {
   StoreItem
 } from '@/types/tree.types';
 
-// Функция для извлечения номера дома из описания
 const extractHouseNumber = (description: string): string => {
   if (!description) return '';
 
@@ -28,13 +25,11 @@ const extractHouseNumber = (description: string): string => {
   return description;
 };
 
-// Функция для проверки наличия типа улицы в названии
 const hasStreetType = (name: string): boolean => {
   const streetTypes = ['ул.', 'пр.', 'проспект', 'шоссе', 'пер.', 'переулок', 'наб.', 'бульвар', 'аллея', 'линия'];
   return streetTypes.some(type => name.includes(type));
 };
 
-// Функция для форматирования названия адреса
 const formatAddressLabel = (name: string, description: string): string => {
   if (!description) return name;
 
@@ -49,7 +44,6 @@ const formatAddressLabel = (name: string, description: string): string => {
   }
 };
 
-// Функция для создания плоского списка магазинов (без адресов)
 const createFlatStoreList = (
   stores: ApiTreeItem[],
   addressMap: Map<number, ApiTreeItem>
@@ -58,7 +52,6 @@ const createFlatStoreList = (
     const address = addressMap.get(store.parent_id);
     const addressLabel = address ? formatAddressLabel(address.name, address.description || '') : '';
 
-    // Формируем название магазина с указанием адреса
     let storeLabel = store.name;
     const typeMatch = store.description?.match(/,\s*(\S+)$/);
     const storeType = typeMatch ? typeMatch[1] : '';
@@ -67,7 +60,6 @@ const createFlatStoreList = (
       storeLabel = `${storeLabel} (${storeType})`;
     }
 
-    // Если есть адрес, добавляем его в название
     if (addressLabel && !storeLabel.includes(addressLabel)) {
       storeLabel = `${storeLabel} - ${addressLabel}`;
     }
@@ -102,13 +94,11 @@ export const transformToAddressView = (
   const addressApiItems = apiItems.filter(item => item.type === 'Address');
   let storeApiItems = apiItems.filter(item => item.type === 'Store');
 
-  // Создаем мапу адресов для быстрого доступа
   const addressMap = new Map<number, ApiTreeItem>();
   addressApiItems.forEach(address => {
     addressMap.set(address.id, address);
   });
 
-  // Применяем фильтр по типу магазина
   if (storeFilter) {
     storeApiItems = storeApiItems.filter(store => {
       const typeMatch = store.description?.match(/,\s*(\S+)$/);
@@ -119,14 +109,12 @@ export const transformToAddressView = (
     });
   }
 
-  // Если фильтр активен - показываем плоский список магазинов
   if (storeFilter) {
     const flatStoreList = createFlatStoreList(storeApiItems, addressMap);
     flatStoreList.sort((a, b) => a.label.localeCompare(b.label));
     return flatStoreList;
   }
 
-  // Без фильтра - показываем иерархию адресов
   const storesByAddress = new Map<number, ApiTreeItem[]>();
 
   storeApiItems.forEach(store => {
