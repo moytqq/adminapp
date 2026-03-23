@@ -26,8 +26,60 @@ const extractHouseNumber = (description: string): string => {
 };
 
 const hasStreetType = (name: string): boolean => {
-  const streetTypes = ['ул.', 'пр.', 'проспект', 'шоссе', 'пер.', 'переулок', 'наб.', 'бульвар', 'аллея', 'линия'];
+  const streetTypes = ['ул.', 'пр.', 'проспект', 'шоссе', 'пер.', 'переулок', 'наб.', 'бульвар', 'аллея',];
   return streetTypes.some(type => name.includes(type));
+};
+
+const extractStreetType = (name: string): string => {
+  const streetTypes = ['ул.', 'пр.', 'проспект', 'шоссе', 'пер.', 'переулок', 'наб.', 'бульвар', 'аллея',];
+  for (const type of streetTypes) {
+    if (name.includes(type)) {
+      return type;
+    }
+  }
+  return '';
+};
+
+const extractStreetName = (name: string): string => {
+  const streetType = extractStreetType(name);
+  if (streetType) {
+    let streetName = name.replace(streetType, '').trim();
+    streetName = streetName.replace(/\s*\([^)]*\)/, '');
+    return streetName;
+  }
+  return name;
+};
+
+const extractStoreType = (description: string): string => {
+  const match = description?.match(/,\s*(\S+)$/);
+  return match ? match[1] : '';
+};
+
+const formatStoreLabel = (storeName: string, description: string): string => {
+  const streetType = extractStreetType(storeName);
+
+  if (!streetType) {
+    return description;
+  }
+
+  const streetName = extractStreetName(storeName);
+
+  const streetNamePattern = new RegExp(`^${streetName}\\s+(\\d+[\\/\\d]*\\s*[а-яА-Яa-zA-Z]?)`);
+  const match = description.match(streetNamePattern);
+
+  if (match) {
+    const houseNumber = match[1];
+    const restOfDescription = description.substring(match[0].length);
+    return `${streetName} ${streetType} ${houseNumber}${restOfDescription}`;
+  }
+
+  const houseNumberMatch = description.match(/(\d+[\/\d]*\s*[а-яА-Яa-zA-Z]?)/);
+  if (houseNumberMatch) {
+    const houseNumber = houseNumberMatch[0];
+    return description.replace(houseNumber, `${streetType} ${houseNumber}`);
+  }
+
+  return description;
 };
 
 const formatAddressLabel = (name: string, description: string): string => {
@@ -51,18 +103,7 @@ const createFlatStoreList = (
   return stores.map(store => {
     const address = addressMap.get(store.parent_id);
     const addressLabel = address ? formatAddressLabel(address.name, address.description || '') : '';
-
-    let storeLabel = store.name;
-    const typeMatch = store.description?.match(/,\s*(\S+)$/);
-    const storeType = typeMatch ? typeMatch[1] : '';
-
-    if (storeType && !storeLabel.includes(storeType)) {
-      storeLabel = `${storeLabel} (${storeType})`;
-    }
-
-    if (addressLabel && !storeLabel.includes(addressLabel)) {
-      storeLabel = `${storeLabel} - ${addressLabel}`;
-    }
+    const storeLabel = formatStoreLabel(store.name, store.description || '');
 
     return {
       id: `store-${store.id}`,
@@ -101,11 +142,10 @@ export const transformToAddressView = (
 
   if (storeFilter) {
     storeApiItems = storeApiItems.filter(store => {
-      const typeMatch = store.description?.match(/,\s*(\S+)$/);
-      const type = typeMatch ? typeMatch[1] : '';
+      const storeType = extractStoreType(store.description || '');
       const nameMatch = store.name?.match(/\(([^)]+)\)/);
       const nameType = nameMatch ? nameMatch[1] : '';
-      return type === storeFilter || nameType === storeFilter;
+      return storeType === storeFilter || nameType === storeFilter;
     });
   }
 
@@ -167,17 +207,11 @@ const createStoreItem = (
   storeApiItem: ApiTreeItem,
   addressId: number
 ): StoreItem => {
-  let displayName = storeApiItem.name;
-  const typeMatch = storeApiItem.description?.match(/,\s*(\S+)$/);
-  const storeType = typeMatch ? typeMatch[1] : '';
-
-  if (storeType && !displayName.includes(storeType)) {
-    displayName = `${displayName} (${storeType})`;
-  }
+  const storeLabel = formatStoreLabel(storeApiItem.name, storeApiItem.description || '');
 
   return {
     id: `store-${storeApiItem.id}`,
-    label: displayName,
+    label: storeLabel,
     type: TreeItemType.STORE,
     level: 1,
     parentId: `address-${addressId}`,
