@@ -66,11 +66,14 @@ const ViewModeToggle: React.FC = () => {
                 >
                   <Filter size={isMobile ? 18 : 16} />
                   {!isMobile && <span>Фильтр</span>}
-                  {storeFilter && !isMobile && (
-                    <span className={styles.filterBadge}>{storeFilter}</span>
-                  )}
-                </button>
 
+                </button>
+                {storeFilter && !isMobile && (
+                  <button
+                    className={styles.filterBadge}
+                    onClick={() => handleFilterSelect(storeFilter)}>
+                    {storeFilter} x</button>
+                )}
                 {/*{storeFilter && (*/}
                 {/*  <button*/}
                 {/*    className={styles.clearButton}*/}
@@ -134,7 +137,8 @@ const ViewModeToggle: React.FC = () => {
         <div className={styles.mobileFilterIndicator}>
           <button
             className={styles.mobileFilterBadge}
-            onClick={() => handleFilterSelect(storeFilter)}>{storeFilter} x</button>
+            onClick={() => handleFilterSelect(storeFilter)}>{storeFilter} x
+          </button>
         </div>
       )}
     </div>
