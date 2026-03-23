@@ -10,7 +10,6 @@ import { MessageCircle, Plus } from 'lucide-react';
 const ChatView: React.FC = () => {
   const [selectedChat, setSelectedChat] = useState<number | undefined>();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
   const updateChatRef = useRef<((chatId: number, isRead: boolean) => void) | null>(null);
@@ -19,34 +18,25 @@ const ChatView: React.FC = () => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-
     checkMobile();
     window.addEventListener('resize', checkMobile);
-
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-    };
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const handleSelectChat = (chatId: number) => {
+  const handleSelectChat = useCallback((chatId: number) => {
     setSelectedChat(chatId);
-  };
+  }, []);
 
-  const handleChatCreated = () => {
-    setRefreshTrigger(prev => prev + 1);
-  };
+  const handleChatCreated = useCallback(() => {
+  }, []);
 
   const handleMessageSent = useCallback(() => {
-    setRefreshTrigger(prev => prev + 1);
   }, []);
 
   const handleMessageRead = useCallback((chatId: number) => {
     if (updateChatRef.current) {
       updateChatRef.current(chatId, true);
     }
-    setTimeout(() => {
-      setRefreshTrigger(prev => prev + 1);
-    }, 100);
   }, []);
 
   const handleBackToList = () => {
@@ -57,19 +47,24 @@ const ChatView: React.FC = () => {
     updateChatRef.current = callback;
   }, []);
 
+  const setRefreshCallback = useCallback((callback: () => void) => {
+  }, []);
+
   return (
     <div className={styles.chatView}>
       {!isMobile && (
         <div className={styles.header}>
           <h2>Чаты</h2>
-          <button
-            className={styles.newChatButton}
-            onClick={() => setIsCreateModalOpen(true)}
-            title="Новый чат"
-          >
-            <Plus size={20} />
-            <span>Новый чат</span>
-          </button>
+          <div className={styles.headerActions}>
+            <button
+              className={styles.newChatButton}
+              onClick={() => setIsCreateModalOpen(true)}
+              title="Новый чат"
+            >
+              <Plus size={20} />
+              <span>Новый чат</span>
+            </button>
+          </div>
         </div>
       )}
 
@@ -88,10 +83,10 @@ const ChatView: React.FC = () => {
             </div>
           )}
           <ChatList
-            key={refreshTrigger}
             onSelectChat={handleSelectChat}
             selectedChatId={selectedChat}
             onUpdateChatCallback={setUpdateChatCallback}
+            onRefreshRequest={setRefreshCallback}
           />
         </div>
 
