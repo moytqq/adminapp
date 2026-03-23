@@ -15,7 +15,7 @@ const ViewModeToggle: React.FC = () => {
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const storeTypes = ['Колбаса', 'Мясо', 'Молоко', 'Гастроном', 'Кура'];
+  const storeTypes = ['Колбаса', 'Мясо', 'Молоко'];
 
   useEffect(() => {
     const checkMobile = () => {
@@ -51,89 +51,92 @@ const ViewModeToggle: React.FC = () => {
   if (isMobile === null) return null;
 
   return (
-    <div className={`${styles.container} ${isMobile ? styles.mobile : styles.desktop}`}>
-      <div className={styles.toggleGroup}>
-        {isAddressMode && (
-          <div className={styles.filterWrapper}>
-            <div className={styles.filterContainer}>
-              <button
-                className={`${styles.filterButton} ${storeFilter ? styles.active : ''}`}
-                onClick={() => setIsFilterOpen(!isFilterOpen)}
-                disabled={loading}
-                aria-label="Фильтр по типу магазина"
-                title="Фильтр по типу магазина"
-              >
-                <Filter size={isMobile ? 18 : 16} />
-                {!isMobile && <span>Фильтр</span>}
-                {storeFilter && !isMobile && (
-                  <span className={styles.filterBadge}>{storeFilter}</span>
+    <div>
+      <div className={`${styles.container} ${isMobile ? styles.mobile : styles.desktop}`}>
+        <div className={styles.toggleGroup}>
+          {isAddressMode && (
+            <div className={styles.filterWrapper}>
+              <div className={styles.filterContainer}>
+                <button
+                  className={`${styles.filterButton} ${storeFilter ? styles.active : ''}`}
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  disabled={loading}
+                  aria-label="Фильтр по типу магазина"
+                  title="Фильтр по типу магазина"
+                >
+                  <Filter size={isMobile ? 18 : 16} />
+                  {!isMobile && <span>Фильтр</span>}
+                  {storeFilter && !isMobile && (
+                    <span className={styles.filterBadge}>{storeFilter}</span>
+                  )}
+                </button>
+
+                {/*{storeFilter && (*/}
+                {/*  <button*/}
+                {/*    className={styles.clearButton}*/}
+                {/*    onClick={clearFilter}*/}
+                {/*    aria-label="Сбросить фильтр"*/}
+                {/*    title="Сбросить фильтр"*/}
+                {/*  >*/}
+                {/*    <X size={isMobile ? 16 : 14} />*/}
+                {/*  </button>*/}
+                {/*)}*/}
+
+                {isFilterOpen && (
+                  <>
+                    <div className={styles.filterOverlay} onClick={() => setIsFilterOpen(false)} />
+                    <div className={styles.filterDropdown}>
+                      <div className={styles.dropdownHeader}>
+                        <span>Тип магазина</span>
+                        <button onClick={() => setIsFilterOpen(false)}>×</button>
+                      </div>
+                      <div className={styles.dropdownList}>
+                        {storeTypes.map(type => (
+                          <button
+                            key={type}
+                            className={`${styles.typeOption} ${storeFilter === type ? styles.selected : ''}`}
+                            onClick={() => handleFilterSelect(type)}
+                          >
+                            {type}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </>
                 )}
-              </button>
-
-              {/*{storeFilter && (*/}
-              {/*  <button*/}
-              {/*    className={styles.clearButton}*/}
-              {/*    onClick={clearFilter}*/}
-              {/*    aria-label="Сбросить фильтр"*/}
-              {/*    title="Сбросить фильтр"*/}
-              {/*  >*/}
-              {/*    <X size={isMobile ? 16 : 14} />*/}
-              {/*  </button>*/}
-              {/*)}*/}
-
-              {isFilterOpen && (
-                <>
-                  <div className={styles.filterOverlay} onClick={() => setIsFilterOpen(false)} />
-                  <div className={styles.filterDropdown}>
-                    <div className={styles.dropdownHeader}>
-                      <span>Тип магазина</span>
-                      <button onClick={() => setIsFilterOpen(false)}>×</button>
-                    </div>
-                    <div className={styles.dropdownList}>
-                      {storeTypes.map(type => (
-                        <button
-                          key={type}
-                          className={`${styles.typeOption} ${storeFilter === type ? styles.selected : ''}`}
-                          onClick={() => handleFilterSelect(type)}
-                        >
-                          {type}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
+              </div>
             </div>
-          </div>
-        )}
-        <button
-          className={`${styles.toggleButton} ${viewMode === 'hierarchy' ? styles.active : ''}`}
-          onClick={() => handleSwitchView('hierarchy')}
-          disabled={loading}
-          aria-label={isMobile ? "Компания" : "Иерархическое отображение"}
-          title="Иерархическое отображение"
-        >
-          <LayoutGrid size={isMobile ? 20 : 18} />
-          {!isMobile && <span>Компания</span>}
-        </button>
+          )}
+          <button
+            className={`${styles.toggleButton} ${viewMode === 'hierarchy' ? styles.active : ''}`}
+            onClick={() => handleSwitchView('hierarchy')}
+            disabled={loading}
+            aria-label={isMobile ? 'Компания' : 'Иерархическое отображение'}
+            title="Иерархическое отображение"
+          >
+            <LayoutGrid size={isMobile ? 20 : 18} />
+            {!isMobile && <span>Компания</span>}
+          </button>
 
-        <button
-          className={`${styles.toggleButton} ${viewMode === 'addresses' ? styles.active : ''}`}
-          onClick={() => handleSwitchView('addresses')}
-          disabled={loading}
-          aria-label={isMobile ? "Адреса" : "Отображение по адресам"}
-          title="Отображение по адресам"
-        >
-          <MapPin size={isMobile ? 20 : 18} />
-          {!isMobile && <span>Адреса</span>}
-        </button>
+          <button
+            className={`${styles.toggleButton} ${viewMode === 'addresses' ? styles.active : ''}`}
+            onClick={() => handleSwitchView('addresses')}
+            disabled={loading}
+            aria-label={isMobile ? 'Адреса' : 'Отображение по адресам'}
+            title="Отображение по адресам"
+          >
+            <MapPin size={isMobile ? 20 : 18} />
+            {!isMobile && <span>Адреса</span>}
+          </button>
+        </div>
       </div>
-
-      {/*{isAddressMode && storeFilter && isMobile && (*/}
-      {/*  <div className={styles.mobileFilterIndicator}>*/}
-      {/*    <span className={styles.mobileFilterBadge}>{storeFilter}</span>*/}
-      {/*  </div>*/}
-      {/*)}*/}
+      {isAddressMode && storeFilter && isMobile && (
+        <div className={styles.mobileFilterIndicator}>
+          <button
+            className={styles.mobileFilterBadge}
+            onClick={() => handleFilterSelect(storeFilter)}>{storeFilter} x</button>
+        </div>
+      )}
     </div>
   );
 };
