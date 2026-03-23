@@ -149,13 +149,9 @@ const TreeItem: React.FC<TreeItemProps> = ({
           </div>
 
           <div className={styles.contentWrapper}>
-            {item.type === 'Store' ?
-              (<span className={styles.label}>
-                {item.data.description}
-              </span>) :
-              <span className={styles.label}>
-                {item.label}
-              </span>}
+            <span className={styles.label}>
+              {item.label}
+            </span>
 
             {item.type === ItemType.PERSON && item.subLabel && (
               <span className={styles.subLabel}>
@@ -195,15 +191,15 @@ const TreeItem: React.FC<TreeItemProps> = ({
         )}
       </div>
 
-        {showWidgets && createPortal(
-          <WidgetPopup
-            itemId={item.id}
-            itemType={item.type}
-            onAddWidget={handleAddWidget}
-            onClose={() => setShowWidgets(false)}
-          />,
-          document.body,
-        )}
+      {showWidgets && createPortal(
+        <WidgetPopup
+          itemId={item.id}
+          itemType={item.type}
+          onAddWidget={handleAddWidget}
+          onClose={() => setShowWidgets(false)}
+        />,
+        document.body,
+      )}
     </>
   );
 };
