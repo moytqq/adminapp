@@ -15,7 +15,7 @@ const StoreFilter: React.FC<StoreFilterProps> = ({ onFilterChange, isVisible, se
   const [selectedType, setSelectedType] = useState<string | null>(externalSelectedType || null);
   const [isMobile, setIsMobile] = useState(false);
 
-  const storeTypes = ['Колбаса', 'Мясо', 'Молоко', 'Гастроном', 'Кура',];
+  const storeTypes = ['Колбаса', 'Мясо', 'Молоко'];
 
   useEffect(() => {
     const checkMobile = () => {
