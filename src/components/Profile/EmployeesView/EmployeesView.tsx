@@ -55,7 +55,7 @@ const EmployeesView: React.FC = () => {
     if (stores.length > 0) {
       const map: Record<string, string> = {};
       stores.forEach(store => {
-        map[store.hid] = store.address ? `${store.name} (${store.address})` : store.name;
+        map[store.hid] = store.formattedName;
       });
       setStoreNamesMap(map);
     }

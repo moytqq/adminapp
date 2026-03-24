@@ -1,9 +1,19 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { treeApi } from '@/services/api';
 import { ApiTreeItem } from '@/types/tree.types';
+import { createStoreItem } from '@/utils/addressTransformer';
+
+interface StoreOption {
+  id: string;
+  name: string;
+  hid: string;
+  address?: string;
+  formattedName: string;
+}
 
 interface AddressState {
-  stores: Array<{ id: string; name: string; hid: string; address?: string }>;
+  stores: StoreOption[];
+  rawAddressData: ApiTreeItem[];
   loading: boolean;
   error: string | null;
   lastFetched: number | null;
@@ -11,11 +21,13 @@ interface AddressState {
 
 const initialState: AddressState = {
   stores: [],
+  rawAddressData: [],
   loading: false,
   error: null,
   lastFetched: null,
 };
 
+// 5 минут кэширования
 const CACHE_DURATION = 5 * 60 * 1000;
 
 export const loadStores = createAsyncThunk(
@@ -24,33 +36,43 @@ export const loadStores = createAsyncThunk(
     try {
       const state = getState() as { address: AddressState };
 
+      // Проверяем кэш
       if (state.address.lastFetched &&
         Date.now() - state.address.lastFetched < CACHE_DURATION &&
         state.address.stores.length > 0) {
-        return state.address.stores;
+        return { stores: state.address.stores, rawData: state.address.rawAddressData };
       }
 
       const addressData = await treeApi.getAddressTree();
 
+      const addressMap = new Map<number, ApiTreeItem>();
+      addressData.forEach(item => {
+        if (item.type === 'Address') {
+          addressMap.set(item.id, item);
+        }
+      });
+
       const storeItems = addressData.filter(item => item.type === 'Store');
 
-      const storeList = storeItems.map(item => {
-        const match = item.id.toString().match(/\d+$/);
-        const hid = match ? match[0] : item.id.toString();
+      const storeList: StoreOption[] = storeItems.map(store => {
+        const match = store.id.toString().match(/\d+$/);
+        const hid = match ? match[0] : store.id.toString();
+        const address = addressMap.get(store.parent_id);
 
-        const address = addressData.find(a => a.id === item.parent_id);
+        const storeItem = createStoreItem(store, store.parent_id);
 
         return {
-          id: item.id.toString(),
-          name: item.name,
+          id: store.id.toString(),
+          name: store.name,
           hid: hid,
-          address: address?.description || address?.name || ''
+          address: address?.description || address?.name || '',
+          formattedName: storeItem.data.description || storeItem.label,
         };
       });
 
-      storeList.sort((a, b) => a.name.localeCompare(b.name));
+      storeList.sort((a, b) => a.formattedName.localeCompare(b.formattedName));
 
-      return storeList;
+      return { stores: storeList, rawData: addressData };
     } catch (error: any) {
       return rejectWithValue(error.message || 'Ошибка загрузки магазинов');
     }
@@ -63,6 +85,7 @@ const addressSlice = createSlice({
   reducers: {
     clearAddressCache: (state) => {
       state.stores = [];
+      state.rawAddressData = [];
       state.lastFetched = null;
     },
   },
@@ -74,7 +97,8 @@ const addressSlice = createSlice({
       })
       .addCase(loadStores.fulfilled, (state, action) => {
         state.loading = false;
-        state.stores = action.payload;
+        state.stores = action.payload.stores;
+        state.rawAddressData = action.payload.rawData;
         state.lastFetched = Date.now();
       })
       .addCase(loadStores.rejected, (state, action) => {

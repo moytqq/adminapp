@@ -203,7 +203,7 @@ export const transformToAddressView = (
   return addressItems;
 };
 
-const createStoreItem = (
+export const createStoreItem = (
   storeApiItem: ApiTreeItem,
   addressId: number
 ): StoreItem => {

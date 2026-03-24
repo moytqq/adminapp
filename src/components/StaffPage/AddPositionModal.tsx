@@ -84,7 +84,7 @@ const AddPositionModal: React.FC<AddPositionModalProps> = ({ isOpen, onClose }) 
               </option>
               {stores.map(store => (
                 <option key={store.id} value={store.id}>
-                  {store.name} {store.address ? `(${store.address})` : ''}
+                  {store.formattedName}
                 </option>
               ))}
             </select>
