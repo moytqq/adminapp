@@ -539,7 +539,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
             <div className={styles.infoItem}>
               <div className={styles.infoLabelWithIcon}>
                 <Building2 size={14} />
-                <span>Отдел:</span>
+                <span>Департамент:</span>
               </div>
               {isEditing ? (
                 <input
