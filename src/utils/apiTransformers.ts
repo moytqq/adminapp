@@ -9,6 +9,7 @@ import {
   StoreItem,
   PersonItem, AddressItem,
 } from '@/types/tree.types';
+import treeItem from '@/components/TreeList/TreeItem';
 
 const mapApiTypeToTreeItemType = (apiType: string): TreeItemType => {
   switch (apiType) {
@@ -85,20 +86,48 @@ const transformApiItemToTreeItem = (apiItem: ApiTreeItem): TreeItem => {
       } as AddressItem;
 
     case TreeItemType.PERSON:
-      const nameParts = apiItem.name.split(' ');
-      const firstName = nameParts[0] || '';
-      const lastName = nameParts.slice(1).join(' ') || '';
+      const nameParts = apiItem.name.trim().split(' ');
+      let lastName = '';
+      let firstName = '';
+      let middleName = '';
+
+      if (nameParts.length === 3) {
+        lastName = nameParts[0];
+        firstName = nameParts[1];
+        middleName = nameParts[2];
+      } else if (nameParts.length === 2) {
+        lastName = nameParts[0];
+        firstName = nameParts[1];
+        middleName = '';
+      } else if (nameParts.length === 1) {
+        firstName = nameParts[0];
+        lastName = '';
+        middleName = '';
+      }
+
+      const existingFirstName = apiItem.data?.firstName || '';
+      const existingLastName = apiItem.data?.lastName || '';
+      const existingMiddleName = apiItem.data?.middleName || '';
 
       return {
         ...baseItem,
         type: TreeItemType.PERSON,
         subLabel: apiItem.description || '',
         data: {
-          firstName,
-          lastName,
+          firstName: existingFirstName || firstName,
+          lastName: existingLastName || lastName,
+          middleName: existingMiddleName || middleName,
           position: apiItem.description || 'Сотрудник',
-          email: '',
-          ...(apiItem.data || {}),
+          email: apiItem.data?.email || '',
+          phone: apiItem.data?.phone || '',
+          hireDate: apiItem.data?.hireDate || '',
+          salary: apiItem.data?.salary || 0,
+          isManager: apiItem.data?.isManager || false,
+          birthDate: apiItem.data?.birthDate || '',
+          citizenship: apiItem.data?.citizenship || '',
+          registration: apiItem.data?.registration || '',
+          contractType: apiItem.data?.contractType || 'none',
+          department: apiItem.data?.department || '',
         },
       } as PersonItem;
 
@@ -253,6 +282,7 @@ export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
         break;
 
       case TreeItemType.PERSON:
+        if (item.id === '1005' || item.id === '1004'){
         const middleNames = ['Иванович', 'Петрович', 'Сергеевич', 'Александровна', 'Дмитриевна', 'Владимировна', 'Алексеевич', 'Николаевна'];
 
         const existingFirstName = item.data?.firstName || '';
@@ -275,7 +305,7 @@ export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
             middleName: existingMiddleName,
             birthDate: item.data?.birthDate || `198${Math.floor(Math.random() * 9)}-${(Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0')}-${(Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0')}`,
             citizenship: item.data?.citizenship || 'РФ',
-            registration: item.data?.registration || `г. Москва, ул. ${['Ленина', 'Пушкина', 'Гагарина'][Math.floor(Math.random() * 3)]}, д. ${Math.floor(Math.random() * 100) + 1}`,
+            registration: item.data?.registration || `г. Санкт-Петербург, ул. ${['Ленина', 'Пушкина', 'Гагарина'][Math.floor(Math.random() * 3)]}, д. ${Math.floor(Math.random() * 100) + 1}`,
             contractType: item.data?.contractType || ['employment', 'gph', 'patent', 'none'][Math.floor(Math.random() * 4)],
             department: item.data?.department || '',
             email: item.data?.email || generateEmail(),
@@ -284,7 +314,7 @@ export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
             salary: item.data?.salary || Math.floor(Math.random() * 200000) + 50000,
             isManager: item.data?.isManager !== undefined ? item.data.isManager : Math.random() > 0.5,
           },
-        } as PersonItem;
+        } as PersonItem;}
         break;
     }
 

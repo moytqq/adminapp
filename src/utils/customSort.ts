@@ -3,7 +3,7 @@ import { TreeItem } from '@/types/tree.types';
 export const customSortSalesDepartment = (items: TreeItem[]): TreeItem[] => {
   const itemsCopy = [...items];
 
-  const desiredOrder = ['Удачный', 'Кулинария', 'Свежий хлеб'];
+  const desiredOrder = ['Колбаса', 'Молоко', 'Мясо', 'Кулинария'];
 
   const orderedItems: TreeItem[] = [];
   const otherItems: TreeItem[] = [];

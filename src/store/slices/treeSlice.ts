@@ -210,15 +210,19 @@ const treeSlice = createSlice({
         return items.map(item => {
           if (item.id === id && item.type === 'Person') {
             const personItem = item as PersonItem;
+            const fullName = [
+              data.lastName !== undefined ? data.lastName : personItem.data.lastName,
+              data.firstName !== undefined ? data.firstName : personItem.data.firstName,
+              data.middleName !== undefined ? data.middleName : personItem.data.middleName
+            ].filter(Boolean).join(' ');
+
             return {
               ...personItem,
               data: {
                 ...personItem.data,
                 ...data,
               },
-              label: data.firstName && data.lastName
-                ? `${data.firstName} ${data.lastName}`
-                : personItem.label,
+              label: fullName || personItem.label,
               subLabel: data.position || personItem.subLabel,
             } as PersonItem;
           }

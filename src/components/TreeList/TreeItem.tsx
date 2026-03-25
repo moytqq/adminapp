@@ -149,9 +149,15 @@ const TreeItem: React.FC<TreeItemProps> = ({
           </div>
 
           <div className={styles.contentWrapper}>
-            <span className={styles.label}>
-              {item.label}
-            </span>
+            {item.type === ItemType.PERSON ? (
+              <span className={styles.label}>
+                {`${item.data.lastName} ${item.data.firstName} ${item.data.middleName}`.trim()}
+              </span>
+            ) : (
+              <span className={styles.label}>
+                {item.label}
+              </span>
+            )}
 
             {item.type === ItemType.PERSON && item.subLabel && (
               <span className={styles.subLabel}>

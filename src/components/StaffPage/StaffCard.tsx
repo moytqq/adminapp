@@ -256,7 +256,6 @@ const StaffCard: React.FC<StaffCardProps> = ({ staff, position, onUnassign }) =>
       'employment': 'Трудовой договор',
       'gph': 'ГПХ',
       'patent': 'Патент',
-      'none': 'Не зарегистрировано',
     };
     return labels[type] || type;
   };

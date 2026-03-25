@@ -64,7 +64,7 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
     'employment': 'Трудовой договор',
     'gph': 'ГПХ',
     'patent': 'Патент',
-    'none': 'Не зарегистрировано'
+    'none': 'Не зарегистрировано',
   };
 
   const findNearestDepartment = (personId: string): string | null => {
@@ -293,14 +293,16 @@ const PersonInfoWidget: React.FC<PersonInfoWidgetProps> = ({
   const getFirstName = () => editedData.firstName || 'Не указано';
   const getLastName = () => editedData.lastName || 'Не указано';
   const getMiddleName = () => editedData.middleName || 'Не указано';
+
   const getFullName = () => {
     const parts = [
-      editedData.firstName,
       editedData.lastName,
-      editedData.middleName
+      editedData.firstName,
+      editedData.middleName,
     ].filter(Boolean);
     return parts.length > 0 ? parts.join(' ') : 'Не указано';
   };
+
   const getPosition = () => editedData.position || 'Не указано';
   const getEmail = () => editedData.email || 'Не указано';
   const getPhone = () => editedData.phone || 'Не указано';
