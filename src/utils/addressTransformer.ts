@@ -207,11 +207,9 @@ export const createStoreItem = (
   storeApiItem: ApiTreeItem,
   addressId: number
 ): StoreItem => {
-  const storeLabel = formatStoreLabel(storeApiItem.name, storeApiItem.description || '');
-
   return {
     id: `store-${storeApiItem.id}`,
-    label: storeLabel,
+    label: storeApiItem.name,
     type: TreeItemType.STORE,
     level: 1,
     parentId: `address-${addressId}`,
@@ -220,12 +218,12 @@ export const createStoreItem = (
     data: {
       storeName: storeApiItem.name,
       description: storeApiItem.description || '',
-      address: '',
-      phone: generatePhone(),
-      email: `${storeApiItem.name.toLowerCase().replace(/[^a-z0-9]/g, '')}@company.ru`,
-      revenue: Math.floor(Math.random() * 5000000) + 1000000,
-      employeeCount: Math.floor(Math.random() * 50) + 5,
-      openingDate: generateOpeningDate(),
+      address: storeApiItem.description || '',
+      phone: '',
+      email: '',
+      revenue: 0,
+      employeeCount: 0,
+      openingDate: '',
       originalId: storeApiItem.id
     }
   };

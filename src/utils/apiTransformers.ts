@@ -267,18 +267,22 @@ export const enhanceTreeDataWithMockInfo = (items: TreeItem[]): TreeItem[] => {
         break;
 
       case TreeItemType.STORE:
-        enhancedItem = {
-          ...item,
-          data: {
-            ...item.data,
-            address: `г. Москва, ул. Примерная, д. ${Math.floor(Math.random() * 100) + 1}`,
-            phone: `+7 (495) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 90) + 10}-${Math.floor(Math.random() * 90) + 10}`,
-            email: `${item.data.storeName.toLowerCase().replace(/[^a-z0-9]/g, '')}@company.ru`,
-            revenue: Math.floor(Math.random() * 5000000) + 1000000,
-            employeeCount: Math.floor(Math.random() * 50) + 5,
-            openingDate: `202${Math.floor(Math.random() * 3)}-${(Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0')}-${(Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0')}`,
-          },
-        } as StoreItem;
+        if (item.id === '3004' || item.id === 'store-3004' || item.id === 'store-3061' || item.id === 'store-3119') {
+          enhancedItem = {
+            ...item,
+            data: {
+              ...item.data,
+              address: `г. Москва, ул. Примерная, д. ${Math.floor(Math.random() * 100) + 1}`,
+              phone: `+7 (495) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 90) + 10}-${Math.floor(Math.random() * 90) + 10}`,
+              email: `${item.data.storeName.toLowerCase().replace(/[^a-z0-9]/g, '')}@company.ru`,
+              revenue: Math.floor(Math.random() * 5000000) + 1000000,
+              employeeCount: Math.floor(Math.random() * 50) + 5,
+              openingDate: `202${Math.floor(Math.random() * 3)}-${(Math.floor(Math.random() * 12) + 1).toString().padStart(2, '0')}-${(Math.floor(Math.random() * 28) + 1).toString().padStart(2, '0')}`,
+            },
+          } as StoreItem;
+        } else {
+          enhancedItem = item;
+        }
         break;
 
       case TreeItemType.PERSON:

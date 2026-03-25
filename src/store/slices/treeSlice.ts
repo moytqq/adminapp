@@ -77,7 +77,6 @@ export const loadTreeData = createAsyncThunk(
           const storeFilter = state.tree.storeFilter;
           apiData = await treeApi.getAddressTree();
           treeData = transformToAddressView(apiData, storeFilter);
-        } else {
           treeData = enhanceTreeDataWithMockInfo(treeData);
         }
       }

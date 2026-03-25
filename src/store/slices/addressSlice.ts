@@ -27,7 +27,6 @@ const initialState: AddressState = {
   lastFetched: null,
 };
 
-// 5 минут кэширования
 const CACHE_DURATION = 5 * 60 * 1000;
 
 export const loadStores = createAsyncThunk(
@@ -36,7 +35,6 @@ export const loadStores = createAsyncThunk(
     try {
       const state = getState() as { address: AddressState };
 
-      // Проверяем кэш
       if (state.address.lastFetched &&
         Date.now() - state.address.lastFetched < CACHE_DURATION &&
         state.address.stores.length > 0) {
