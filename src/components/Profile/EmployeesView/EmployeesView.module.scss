@@ -158,7 +158,6 @@
   margin-bottom: 20px;
 
   @media (max-width: 767px) {
-    display: none;
     grid-template-columns: repeat(4, 1fr);
     gap: 8px;
     margin-bottom: 12px;
