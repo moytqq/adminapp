@@ -1,17 +1,53 @@
+// app/rezultaty/page.tsx
+
 'use client';
 
-import React from 'react';
-import PlaceholderPage from '@/components/PlaceholderPage/PlaceholderPage';
-import { BarChart3 } from 'lucide-react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
+import SideMenu from '@/components/SideMenu/SideMenu';
+import ReportsView from '@/components/Reports/ReportsView';
+import styles from './rezultaty.module.scss';
+import { Menu, ArrowLeft } from 'lucide-react';
+import stylesSideMenu from '@/app/main/main.module.scss';
 
 const RezultatyPage = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const router = useRouter();
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
-    <PlaceholderPage
-      title="Результаты"
-      description="Здесь будет отображаться статистика продаж, отчёты и аналитика эффективности"
-      icon={<BarChart3 size={48} />}
-      color="#9c27b0"
-    />
+    <ProtectedRoute>
+      <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+
+      <div className={styles.container}>
+        <header className={styles.header}>
+          <div className={styles.headerLeft}>
+            <button
+              className={stylesSideMenu.menuButton}
+              onClick={() => setIsMenuOpen(true)}
+              aria-label="Открыть меню"
+            >
+              <Menu size={24} />
+            </button>
+            <h1 className={styles.title}>Результаты</h1>
+          </div>
+        </header>
+
+        <main className={styles.content}>
+          <ReportsView />
+        </main>
+      </div>
+    </ProtectedRoute>
   );
 };
 
