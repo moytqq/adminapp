@@ -15,9 +15,17 @@
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover {
-    border-color: #2196f3;
+  @media (hover: hover) {
+    &:hover {
+      border-color: #2196f3;
+    }
   }
+  @media (hover: hover) {
+    &:active {
+      border-color: #2196f3;
+    }
+  }
+
 
   svg {
     color: #666;

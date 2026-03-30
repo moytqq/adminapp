@@ -30,7 +30,7 @@ const RezultatyPage = () => {
 
   const reportTypes = [
     { value: 'drinks', label: 'Напитки' },
-    { value: 'culinary', label: 'Кулинария' },
+   // { value: 'culinary', label: 'Кулинария' },
   ];
 
   return (
