@@ -6,6 +6,10 @@ import { exportService } from '@/services/exportService';
 import styles from './ReportsView.module.scss';
 import { Loader, Download, FileSpreadsheet } from 'lucide-react';
 
+interface ReportsViewProps {
+  reportType: string;
+}
+
 const ADDRESSES = [
   { value: 'Бугры', label: 'Бугры' },
   { value: 'Сведлово', label: 'Сведлово' },
@@ -13,10 +17,10 @@ const ADDRESSES = [
   { value: 'Мурино', label: 'Мурино' },
   { value: 'Ветеранов', label: 'Ветеранов' },
   { value: 'Тихорецкий', label: 'Тихорецкий' },
-  { value: 'Ленсовета', label: 'Ленсовета' },
+  //{ value: 'Ленсовета', label: 'Ленсовета' },
   { value: 'Абрамова', label: 'Абрамова' },
   { value: 'Гагарина', label: 'Гагарина' },
-  { value: 'Горелово', label: 'Горелово' },
+  //{ value: 'Горелово', label: 'Горелово' },
 ];
 
 interface ProductRow {
@@ -26,7 +30,7 @@ interface ProductRow {
   totalSum: number;
 }
 
-const ReportsView: React.FC = () => {
+const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
   const [selectedAddress, setSelectedAddress] = useState<string>('Сведлово');
   const [data, setData] = useState<ProductSale[]>([]);
   const [loading, setLoading] = useState(false);
@@ -34,19 +38,43 @@ const ReportsView: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [selectedAddress]);
+  }, [selectedAddress, reportType]);
 
   const loadData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await reportsApi.getProductSales(selectedAddress);
+      let result: ProductSale[];
+      switch (reportType) {
+        case 'drinks':
+        default:
+          result = await reportsApi.getProductSales(selectedAddress);
+          break;
+      }
       setData(result);
     } catch (err) {
       setError('Ошибка при загрузке данных');
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getReportTitle = () => {
+    switch (reportType) {
+      case 'drinks':
+        return 'Напитки';
+      default:
+        return 'Отчет';
+    }
+  };
+
+  const getExportName = () => {
+    switch (reportType) {
+      case 'drinks':
+        return 'напитков';
+      default:
+        return 'отчет';
     }
   };
 
@@ -152,7 +180,7 @@ const ReportsView: React.FC = () => {
     if (productRows.length === 0) return;
 
     exportService.exportSalesReport(
-      selectedAddress,
+      `${selectedAddress}_${getExportName()}`,
       months,
       productRows,
       monthlyTotals,
@@ -182,10 +210,10 @@ const ReportsView: React.FC = () => {
     rows.push(totalRow);
 
     exportService.exportToCSV({
-      sheetName: `Отчет_${selectedAddress}`,
+      sheetName: `Отчет_${getExportName()}_${selectedAddress}`,
       headers,
       rows,
-    }, `Отчет_по_продажам_${selectedAddress}_${new Date().toLocaleDateString('ru-RU')}`);
+    }, `Отчет_по_${getExportName()}_${selectedAddress}_${new Date().toLocaleDateString('ru-RU')}`);
   };
 
   if (loading) {
@@ -208,40 +236,28 @@ const ReportsView: React.FC = () => {
 
   return (
     <div className={styles.reportsView}>
-      <div className={styles.subHeader}>
-        <h3>Отчеты по продажам напитков</h3>
-        <div className={styles.controls}>
-          <select
-            className={styles.addressSelect}
-            value={selectedAddress}
-            onChange={(e) => setSelectedAddress(e.target.value)}
+      <div className={styles.controls}>
+        <select
+          className={styles.addressSelect}
+          value={selectedAddress}
+          onChange={(e) => setSelectedAddress(e.target.value)}
+        >
+          {ADDRESSES.map(addr => (
+            <option key={addr.value} value={addr.value}>
+              {addr.label}
+            </option>
+          ))}
+        </select>
+        <div className={styles.exportButtons}>
+          <button
+            className={styles.exportExcelButton}
+            onClick={handleExportExcel}
+            disabled={productRows.length === 0}
+            title="Экспорт в Excel"
           >
-            {ADDRESSES.map(addr => (
-              <option key={addr.value} value={addr.value}>
-                {addr.label}
-              </option>
-            ))}
-          </select>
-          <div className={styles.exportButtons}>
-            <button
-              className={styles.exportExcelButton}
-              onClick={handleExportExcel}
-              disabled={productRows.length === 0}
-              title="Экспорт в Excel"
-            >
-              <Download size={18} />
-              <span>Excel</span>
-            </button>
-            {/*<button
-              className={styles.exportButton}
-              onClick={handleExportCSV}
-              disabled={productRows.length === 0}
-              title="Экспорт в CSV"
-            >
-              <FileSpreadSheet size={18} />
-              <span>CSV</span>
-            </button>*/}
-          </div>
+            <Download size={18} />
+            <span>Excel</span>
+          </button>
         </div>
       </div>
 

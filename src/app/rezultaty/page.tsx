@@ -1,5 +1,3 @@
-// app/rezultaty/page.tsx
-
 'use client';
 
 import React, { useState } from 'react';
@@ -14,6 +12,7 @@ import stylesSideMenu from '@/app/main/main.module.scss';
 const RezultatyPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [reportType, setReportType] = useState<string>('drinks');
   const router = useRouter();
 
   React.useEffect(() => {
@@ -24,6 +23,15 @@ const RezultatyPage = () => {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  const handleBack = () => {
+    router.push('/main');
+  };
+
+  const reportTypes = [
+    { value: 'drinks', label: 'Напитки' },
+    { value: 'culinary', label: 'Кулинария' },
+  ];
 
   return (
     <ProtectedRoute>
@@ -41,10 +49,23 @@ const RezultatyPage = () => {
             </button>
             <h1 className={styles.title}>Результаты</h1>
           </div>
+          <div className={styles.headerRight}>
+            <select
+              className={styles.reportTypeSelect}
+              value={reportType}
+              onChange={(e) => setReportType(e.target.value)}
+            >
+              {reportTypes.map(type => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </header>
 
         <main className={styles.content}>
-          <ReportsView />
+          <ReportsView reportType={reportType} />
         </main>
       </div>
     </ProtectedRoute>

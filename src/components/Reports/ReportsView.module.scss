@@ -36,9 +36,11 @@
   display: flex;
   gap: 12px;
   align-items: center;
+  padding: 12px 12px 0 12px;
 
   @media (max-width: 768px) {
     width: 100%;
+    padding: 10px 10px 0 10px;
   }
 }
 
