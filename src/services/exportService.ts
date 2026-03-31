@@ -16,26 +16,13 @@ export interface ExportData {
 export const exportService = {
   exportToExcel: (data: ExportData, fileName: string) => {
     const workbook = XLSX.utils.book_new();
-
     const worksheet = XLSX.utils.aoa_to_sheet([data.headers, ...data.rows]);
 
     if (data.columnWidths) {
       worksheet['!cols'] = data.columnWidths;
     }
 
-    const headerRange = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
-    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
-      const address = XLSX.utils.encode_cell({ r: 0, c: C });
-      if (!worksheet[address]) continue;
-      worksheet[address].s = {
-        font: { bold: true, sz: 12 },
-        fill: { fgColor: { rgb: "E0E0E0" } },
-        alignment: { horizontal: "center", vertical: "center" }
-      };
-    }
-
     XLSX.utils.book_append_sheet(workbook, worksheet, data.sheetName);
-
     XLSX.writeFile(workbook, `${fileName}.xlsx`);
   },
 
@@ -44,42 +31,67 @@ export const exportService = {
     months: { key: string; label: string; fullLabel: string }[],
     productRows: any[],
     monthlyTotals: Record<string, { count: number; sum: number }>,
-    grandTotal: { count: number; sum: number }
+    grandTotal: { count: number; sum: number },
+    getChangePercent: (current: number, previous: number) => number | null
   ) => {
     const headers: string[] = ['Товар'];
 
     months.forEach(month => {
-      headers.push(`${month.fullLabel} (кол-во)`, `${month.fullLabel} (сумма)`);
+      headers.push(month.fullLabel);
     });
-    headers.push('Итого (кол-во)', 'Итого (сумма)');
+    headers.push('Итого');
 
     const rows: (string | number)[][] = [];
 
     productRows.forEach(product => {
       const row: (string | number)[] = [product.productName];
 
-      months.forEach(month => {
-        const monthData = product.months[month.key] || { count: 0, sum: 0 };
-        row.push(monthData.count, monthData.sum);
+      months.forEach((month, idx) => {
+        const currentData = product.months[month.key] || { count: 0, sum: 0 };
+        const previousData = idx > 0 ? product.months[months[idx - 1].key] || { count: 0, sum: 0 } : null;
+
+        let changeText = '';
+        if (idx > 0 && previousData && previousData.sum > 0) {
+          const change = getChangePercent(currentData.sum, previousData.sum);
+          if (change !== null) {
+            const sign = change > 0 ? '+' : '';
+            changeText = ` (${sign}${change.toFixed(2)}%)`;
+          }
+        }
+
+        row.push(`${currentData.count}\n${currentData.sum.toLocaleString('ru-RU')} ₽\n${changeText}`);
       });
 
-      row.push(product.totalCount, product.totalSum);
+      row.push(`${product.totalCount}\n${product.totalSum.toLocaleString('ru-RU')} ₽`);
       rows.push(row);
     });
 
     const totalRow: (string | number)[] = ['ИТОГО'];
-    months.forEach(month => {
-      totalRow.push(monthlyTotals[month.key]?.count || 0, monthlyTotals[month.key]?.sum || 0);
+
+    months.forEach((month, idx) => {
+      const currentTotal = monthlyTotals[month.key] || { count: 0, sum: 0 };
+      const previousTotal = idx > 0 ? monthlyTotals[months[idx - 1].key] || { count: 0, sum: 0 } : null;
+
+      let changeText = '';
+      if (idx > 0 && previousTotal && previousTotal.sum > 0) {
+        const change = getChangePercent(currentTotal.sum, previousTotal.sum);
+        if (change !== null) {
+          const sign = change > 0 ? '+' : '';
+          changeText = ` (${sign}${change.toFixed(2)}%)`;
+        }
+      }
+
+      totalRow.push(`${currentTotal.count}\n${currentTotal.sum.toLocaleString('ru-RU')} ₽\n${changeText}`);
     });
-    totalRow.push(grandTotal.count, grandTotal.sum);
+
+    totalRow.push(`${grandTotal.count}\n${grandTotal.sum.toLocaleString('ru-RU')} ₽`);
     rows.push(totalRow);
 
-    //Ширина колонок
+    // Ширина колонок
     const columnWidths = [
-      { wch: 25 }, // Название товара
-      ...months.flatMap(() => [{ wch: 22 }, { wch: 22 }]), // Кол-во и сумма для каждого месяца
-      { wch: 15 }, // Итого кол-во
-      { wch: 15 }, // Итого сумма
+      { wch: 20 }, // Название товара
+      ...months.map(() => ({ wch: 15 })), // Ширина месяца
+      { wch: 15 }, // Итого
     ];
 
     exportService.exportToExcel({
@@ -92,11 +104,13 @@ export const exportService = {
 
   exportToCSV: (data: ExportData, fileName: string) => {
     const csvRows: string[] = [];
-
     csvRows.push(data.headers.join(';'));
 
     data.rows.forEach(row => {
-      csvRows.push(row.join(';'));
+      const processedRow = row.map(cell =>
+        String(cell).replace(/\n/g, ' ').replace(/"/g, '""')
+      );
+      csvRows.push(processedRow.join(';'));
     });
 
     const blob = new Blob(["\uFEFF" + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });

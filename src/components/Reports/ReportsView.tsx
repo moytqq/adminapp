@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { reportsApi, ProductSale } from '@/services/reportsApi';
 import { exportService } from '@/services/exportService';
 import styles from './ReportsView.module.scss';
-import { Loader, Download, FileSpreadsheet, ZoomIn, ZoomOut, Maximize2, Minimize2, X } from 'lucide-react';
+import { Loader, Download, FileSpreadsheet, ZoomIn, ZoomOut, Maximize2, Minimize2 } from 'lucide-react';
 
 interface ReportsViewProps {
   reportType: string;
@@ -21,11 +21,24 @@ const ADDRESSES = [
   { value: 'Гагарина', label: 'Гагарина' },
 ];
 
+interface MonthData {
+  key: string;
+  label: string;
+  fullLabel: string;
+  year: number;
+  monthNumber: number;
+}
+
 interface ProductRow {
   productName: string;
   months: Record<string, { count: number; sum: number }>;
   totalCount: number;
   totalSum: number;
+}
+
+interface MonthlyTotal {
+  count: number;
+  sum: number;
 }
 
 const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
@@ -106,7 +119,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
     }
   };
 
-  const months = useMemo(() => {
+  const months: MonthData[] = useMemo(() => {
     const monthSet = new Set<string>();
     data.forEach(item => {
       const date = new Date(item.timestamp);
@@ -121,8 +134,8 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
         const date = new Date(parseInt(year), parseInt(monthNum) - 1);
         return {
           key: monthKey,
-          label: date.toLocaleDateString('ru-RU', { month: 'short', year: 'numeric' }),
-          fullLabel: date.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' }),
+          label: date.toLocaleDateString('ru-RU', { month: 'short', year: 'numeric' }).replace(' г.', ''),
+          fullLabel: date.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' }).replace(' г.', ''),
           year: parseInt(year),
           monthNumber: parseInt(monthNum),
         };
@@ -163,7 +176,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
   }, [data]);
 
   const monthlyTotals = useMemo(() => {
-    const totals: Record<string, { count: number; sum: number }> = {};
+    const totals: Record<string, MonthlyTotal> = {};
 
     months.forEach(month => {
       totals[month.key] = { count: 0, sum: 0 };
@@ -204,6 +217,16 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
     }).format(num);
   };
 
+  const formatPercent = (change: number) => {
+    const sign = change > 0 ? '+' : '';
+    return `${sign}${change.toFixed(2)}%`;
+  };
+
+  const getChangePercent = (current: number, previous: number): number | null => {
+    if (previous === 0) return null;
+    return ((current - previous) / previous) * 100;
+  };
+
   const handleExportExcel = () => {
     if (productRows.length === 0) return;
 
@@ -212,7 +235,8 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
       months,
       productRows,
       monthlyTotals,
-      grandTotal
+      grandTotal,
+      getChangePercent
     );
   };
 
@@ -234,6 +258,34 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
     );
   }
 
+  const renderCombinedCell = (
+    currentData: { count: number; sum: number },
+    previousData: { count: number; sum: number } | null,
+    monthIndex: number
+  ) => {
+    const count = currentData?.count || 0;
+    const sum = currentData?.sum || 0;
+
+    let percentChange: number | null = null;
+    if (monthIndex > 0 && previousData && previousData.sum > 0) {
+      percentChange = getChangePercent(currentData?.sum || 0, previousData.sum);
+    }
+
+    return (
+      <td className={styles.combinedCell}>
+        <div className={styles.combinedCellContent}>
+          <div className={styles.countRow}>{formatNumber(count)}</div>
+          <div className={styles.sumRow}>{formatCurrency(sum)}</div>
+          {percentChange !== null && (
+            <div className={`${styles.changeRow} ${percentChange >= 0 ? styles.positive : styles.negative}`}>
+              {formatPercent(percentChange)}
+            </div>
+          )}
+        </div>
+      </td>
+    );
+  };
+
   const tableContent = (
     <div className={styles.tableContainer}>
       <table className={styles.reportTable}>
@@ -241,63 +293,54 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
         <tr>
           <th className={styles.productColumn}>Товар</th>
           {months.map(month => (
-            <th key={`${month.key}-count`} colSpan={2} className={styles.monthHeader}>
+            <th key={month.key} className={styles.monthHeader}>
               {month.label}
             </th>
           ))}
-          <th colSpan={2} className={styles.totalHeader}>Итого</th>
-        </tr>
-        <tr>
-          <th className={styles.productColumn}></th>
-          {months.map(month => (
-            <React.Fragment key={month.key}>
-              <th className={styles.countHeader}>Кол-во</th>
-              <th className={styles.sumHeader}>Сумма</th>
-            </React.Fragment>
-          ))}
-          <th className={styles.totalCountHeader}>Кол-во</th>
-          <th className={styles.totalSumHeader}>Сумма</th>
+          <th className={styles.totalHeader}>Итого</th>
         </tr>
         </thead>
         <tbody>
-        {productRows.map(product => (
-          <tr key={product.productName}>
-            <td className={styles.productCell}>{product.productName}</td>
-            {months.map(month => (
-              <React.Fragment key={month.key}>
-                <td className={styles.countCell}>
-                  {formatNumber(product.months[month.key]?.count || 0)}
-                </td>
-                <td className={styles.sumCell}>
-                  {formatCurrency(product.months[month.key]?.sum || 0)}
-                </td>
-              </React.Fragment>
-            ))}
-            <td className={styles.totalCountCell}>
-              {formatNumber(product.totalCount)}
-            </td>
-            <td className={styles.totalSumCell}>
-              {formatCurrency(product.totalSum)}
-            </td>
-          </tr>
-        ))}
+        {productRows.map(product => {
+          const monthEntries = months.map((month, index) => ({
+            month,
+            data: product.months[month.key] || { count: 0, sum: 0 },
+            previousData: index > 0 ? product.months[months[index - 1].key] || { count: 0, sum: 0 } : null,
+          }));
+
+          return (
+            <tr key={product.productName}>
+              <td className={styles.productCell}>{product.productName}</td>
+              {monthEntries.map((entry, idx) => (
+                <React.Fragment key={entry.month.key}>
+                  {renderCombinedCell(entry.data, entry.previousData, idx)}
+                </React.Fragment>
+              ))}
+              <td className={styles.totalCell}>
+                <div className={styles.totalCellContent}>
+                  <div className={styles.totalCountRow}>{formatNumber(product.totalCount)}</div>
+                  <div className={styles.totalSumRow}>{formatCurrency(product.totalSum)}</div>
+                </div>
+              </td>
+            </tr>
+          );
+        })}
         <tr className={styles.totalRow}>
           <td className={styles.productCell}>ИТОГО</td>
-          {months.map(month => (
-            <React.Fragment key={month.key}>
-              <td className={styles.countCell}>
-                {formatNumber(monthlyTotals[month.key]?.count || 0)}
-              </td>
-              <td className={styles.sumCell}>
-                {formatCurrency(monthlyTotals[month.key]?.sum || 0)}
-              </td>
-            </React.Fragment>
-          ))}
-          <td className={styles.totalCountCell}>
-            {formatNumber(grandTotal.count)}
-          </td>
-          <td className={styles.totalSumCell}>
-            {formatCurrency(grandTotal.sum)}
+          {months.map((month, idx) => {
+            const currentTotal = monthlyTotals[month.key] || { count: 0, sum: 0 };
+            const previousTotal = idx > 0 ? monthlyTotals[months[idx - 1].key] || { count: 0, sum: 0 } : null;
+            return (
+              <React.Fragment key={month.key}>
+                {renderCombinedCell(currentTotal, previousTotal, idx)}
+              </React.Fragment>
+            );
+          })}
+          <td className={styles.totalCell}>
+            <div className={styles.totalCellContent}>
+              <div className={styles.totalCountRow}>{formatNumber(grandTotal.count)}</div>
+              <div className={styles.totalSumRow}>{formatCurrency(grandTotal.sum)}</div>
+            </div>
           </td>
         </tr>
         </tbody>
@@ -379,7 +422,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
             <button
               className={styles.fontSizeButton}
               onClick={increaseFontSize}
-              disabled={fontSize >= 24}
+              disabled={fontSize >= 18}
               title="Увеличить шрифт"
             >
               <ZoomIn size={18} />

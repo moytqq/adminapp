@@ -174,7 +174,6 @@
     font-weight: 600;
     color: #666;
     position: sticky;
-    z-index: 10;
   }
 
   td {
@@ -186,7 +185,7 @@
   }
 
   thead tr:last-child th {
-    top: 31px;
+   // top: 31px;
   }
 
   @media (max-width: 768px) {
@@ -197,7 +196,7 @@
     }
 
     thead tr:last-child th {
-      top: 25px;
+      //top: 25px;
     }
   }
 }
@@ -227,19 +226,29 @@
 }
 
 .monthHeader {
+  overflow-wrap: break-word;
   text-align: center;
   background: #fafafa;
+  min-width: 75px;
 
   @media (max-width: 768px) {
+    min-width: 30px;
+    max-width: 50px;
+  }
+}
+
+.totalHeader {
+  text-align: center;
+  background: #fff3e0;
+  min-width: 100px;
+
+  @media (max-width: 768px) {
+    min-width: 80px;
   }
 }
 
 .countHeader, .sumHeader, .totalCountHeader, .totalSumHeader {
-  min-width: 50px;
-
-  @media (max-width: 768px) {
-    min-width: 40px;
-  }
+  display: none;
 }
 
 .countHeader, .countCell {
@@ -571,4 +580,84 @@
     min-width: 40px;
     font-size: 12px;
   }
+}
+.combinedCell {
+  vertical-align: middle;
+  padding: 6px 4px !important;
+
+  @media (max-width: 768px) {
+    padding: 4px 2px !important;
+  }
+}
+
+.combinedCellContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.countRow {
+  font-weight: 500;
+  //color: #2196f3;
+  font-size: inherit;
+  white-space: nowrap;
+}
+
+.sumRow {
+  font-weight: 500;
+  //color: #4caf50;
+  font-size: inherit;
+  white-space: nowrap;
+}
+
+.changeRow {
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 2px 6px;
+  border-radius: 12px;
+
+  &.positive {
+    //background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.negative {
+    //background: #ffebee;
+    color: #c62828;
+  }
+}
+
+.totalCell {
+  vertical-align: middle;
+  padding: 8px 6px !important;
+  background: #fff3e0;
+
+  @media (max-width: 768px) {
+    padding: 6px 4px !important;
+  }
+}
+
+.totalCellContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.totalCountRow {
+  font-weight: 600;
+  //color: #ff9800;
+  font-size: inherit;
+  white-space: nowrap;
+}
+
+.totalSumRow {
+  font-weight: 600;
+ //color: #ff9800;
+  font-size: inherit;
+  white-space: nowrap;
 }
