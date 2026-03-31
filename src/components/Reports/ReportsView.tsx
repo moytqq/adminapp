@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { reportsApi, ProductSale } from '@/services/reportsApi';
 import { exportService } from '@/services/exportService';
 import styles from './ReportsView.module.scss';
-import { Loader, Download, FileSpreadsheet, ZoomIn, ZoomOut } from 'lucide-react';
+import { Loader, Download, FileSpreadsheet, ZoomIn, ZoomOut, Maximize2, Minimize2, X } from 'lucide-react';
 
 interface ReportsViewProps {
   reportType: string;
@@ -34,10 +34,32 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fontSize, setFontSize] = useState<number>(14);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     document.documentElement.style.setProperty('--reports-table-font-size', `${fontSize}px`);
   }, [fontSize]);
+
+  useEffect(() => {
+    if (isFullscreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isFullscreen]);
 
   const increaseFontSize = () => {
     setFontSize(prev => Math.min(prev + 2, 18));
@@ -45,6 +67,10 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
 
   const decreaseFontSize = () => {
     setFontSize(prev => Math.max(prev - 2, 10));
+  };
+
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
   };
 
   useEffect(() => {
@@ -68,15 +94,6 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
       console.error(err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getReportTitle = () => {
-    switch (reportType) {
-      case 'drinks':
-        return 'Напитки';
-      default:
-        return 'Отчет';
     }
   };
 
@@ -217,6 +234,124 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
     );
   }
 
+  // Основной контент таблицы
+  const tableContent = (
+    <div className={styles.tableContainer}>
+      <table className={styles.reportTable}>
+        <thead>
+        <tr>
+          <th className={styles.productColumn}>Товар</th>
+          {months.map(month => (
+            <th key={`${month.key}-count`} colSpan={2} className={styles.monthHeader}>
+              {month.label}
+            </th>
+          ))}
+          <th colSpan={2} className={styles.totalHeader}>Итого</th>
+        </tr>
+        <tr>
+          <th className={styles.productColumn}></th>
+          {months.map(month => (
+            <React.Fragment key={month.key}>
+              <th className={styles.countHeader}>Кол-во</th>
+              <th className={styles.sumHeader}>Сумма</th>
+            </React.Fragment>
+          ))}
+          <th className={styles.totalCountHeader}>Кол-во</th>
+          <th className={styles.totalSumHeader}>Сумма</th>
+        </tr>
+        </thead>
+        <tbody>
+        {productRows.map(product => (
+          <tr key={product.productName}>
+            <td className={styles.productCell}>{product.productName}</td>
+            {months.map(month => (
+              <React.Fragment key={month.key}>
+                <td className={styles.countCell}>
+                  {formatNumber(product.months[month.key]?.count || 0)} шт.
+                </td>
+                <td className={styles.sumCell}>
+                  {formatCurrency(product.months[month.key]?.sum || 0)}
+                </td>
+              </React.Fragment>
+            ))}
+            <td className={styles.totalCountCell}>
+              {formatNumber(product.totalCount)} шт.
+            </td>
+            <td className={styles.totalSumCell}>
+              {formatCurrency(product.totalSum)}
+            </td>
+          </tr>
+        ))}
+        <tr className={styles.totalRow}>
+          <td className={styles.productCell}>ИТОГО</td>
+          {months.map(month => (
+            <React.Fragment key={month.key}>
+              <td className={styles.countCell}>
+                {formatNumber(monthlyTotals[month.key]?.count || 0)} шт.
+              </td>
+              <td className={styles.sumCell}>
+                {formatCurrency(monthlyTotals[month.key]?.sum || 0)}
+              </td>
+            </React.Fragment>
+          ))}
+          <td className={styles.totalCountCell}>
+            {formatNumber(grandTotal.count)} шт.
+          </td>
+          <td className={styles.totalSumCell}>
+            {formatCurrency(grandTotal.sum)}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+
+  // Полноэкранный режим
+  if (isFullscreen && isMobile) {
+    return (
+      <div className={styles.fullscreenOverlay}>
+        <div className={styles.fullscreenHeader}>
+          <div className={styles.fullscreenTitle}>
+            <span>Таблица продаж</span>
+            <span className={styles.fullscreenAddress}>{selectedAddress}</span>
+          </div>
+          <div className={styles.fullscreenControls}>
+            <div className={styles.fontSizeControls}>
+              <button
+                className={styles.fontSizeButton}
+                onClick={decreaseFontSize}
+                disabled={fontSize <= 10}
+                title="Уменьшить шрифт"
+              >
+                <ZoomOut size={18} />
+              </button>
+              <span className={styles.fontSizeValue}>{fontSize}px</span>
+              <button
+                className={styles.fontSizeButton}
+                onClick={increaseFontSize}
+                disabled={fontSize >= 18}
+                title="Увеличить шрифт"
+              >
+                <ZoomIn size={18} />
+              </button>
+            </div>
+            <button
+              className={styles.fullscreenCloseButton}
+              onClick={toggleFullscreen}
+              title="Закрыть полноэкранный режим"
+            >
+              <Minimize2 size={20} />
+            </button>
+          </div>
+        </div>
+        <div className={styles.fullscreenContent}>
+          {tableContent}
+        </div>
+      </div>
+    );
+  }
+
+  // Обычный режим
   return (
     <div className={styles.reportsView}>
       <div className={styles.controls}>
@@ -245,12 +380,21 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
             <button
               className={styles.fontSizeButton}
               onClick={increaseFontSize}
-              disabled={fontSize >= 18}
+              disabled={fontSize >= 24}
               title="Увеличить шрифт"
             >
               <ZoomIn size={18} />
             </button>
           </div>
+          {isMobile && (
+            <button
+              className={styles.fullscreenButton}
+              onClick={toggleFullscreen}
+              title="Полноэкранный режим"
+            >
+              <Maximize2 size={18} />
+            </button>
+          )}
         </div>
         <div className={styles.exportButtons}>
           <button
@@ -270,74 +414,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
           <p>Нет данных для отображения</p>
         </div>
       ) : (
-        <div className={styles.tableContainer}>
-          <table className={styles.reportTable}>
-            <thead>
-            <tr>
-              <th className={styles.productColumn}>Товар</th>
-              {months.map(month => (
-                <th key={`${month.key}-count`} colSpan={2} className={styles.monthHeader}>
-                  {month.label}
-                </th>
-              ))}
-              <th colSpan={2} className={styles.totalHeader}>Итого</th>
-            </tr>
-            <tr>
-              <th className={styles.productColumn}></th>
-              {months.map(month => (
-                <React.Fragment key={month.key}>
-                  <th className={styles.countHeader}>Кол-во</th>
-                  <th className={styles.sumHeader}>Сумма</th>
-                </React.Fragment>
-              ))}
-              <th className={styles.totalCountHeader}>Кол-во</th>
-              <th className={styles.totalSumHeader}>Сумма</th>
-            </tr>
-            </thead>
-            <tbody>
-            {productRows.map(product => (
-              <tr key={product.productName}>
-                <td className={styles.productCell}>{product.productName}</td>
-                {months.map(month => (
-                  <React.Fragment key={month.key}>
-                    <td className={styles.countCell}>
-                      {formatNumber(product.months[month.key]?.count || 0)} шт.
-                    </td>
-                    <td className={styles.sumCell}>
-                      {formatCurrency(product.months[month.key]?.sum || 0)}
-                    </td>
-                  </React.Fragment>
-                ))}
-                <td className={styles.totalCountCell}>
-                  {formatNumber(product.totalCount)} шт.
-                </td>
-                <td className={styles.totalSumCell}>
-                  {formatCurrency(product.totalSum)}
-                </td>
-              </tr>
-            ))}
-            <tr className={styles.totalRow}>
-              <td className={styles.productCell}>ИТОГО</td>
-              {months.map(month => (
-                <React.Fragment key={month.key}>
-                  <td className={styles.countCell}>
-                    {formatNumber(monthlyTotals[month.key]?.count || 0)} шт.
-                  </td>
-                  <td className={styles.sumCell}>
-                    {formatCurrency(monthlyTotals[month.key]?.sum || 0)}
-                  </td>
-                </React.Fragment>
-              ))}
-              <td className={styles.totalCountCell}>
-                {formatNumber(grandTotal.count)} шт.
-              </td>
-              <td className={styles.totalSumCell}>
-                {formatCurrency(grandTotal.sum)}
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
+        tableContent
       )}
     </div>
   );
