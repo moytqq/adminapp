@@ -234,7 +234,6 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
     );
   }
 
-  // Основной контент таблицы
   const tableContent = (
     <div className={styles.tableContainer}>
       <table className={styles.reportTable}>
@@ -267,7 +266,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
             {months.map(month => (
               <React.Fragment key={month.key}>
                 <td className={styles.countCell}>
-                  {formatNumber(product.months[month.key]?.count || 0)} шт.
+                  {formatNumber(product.months[month.key]?.count || 0)}
                 </td>
                 <td className={styles.sumCell}>
                   {formatCurrency(product.months[month.key]?.sum || 0)}
@@ -275,7 +274,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
               </React.Fragment>
             ))}
             <td className={styles.totalCountCell}>
-              {formatNumber(product.totalCount)} шт.
+              {formatNumber(product.totalCount)}
             </td>
             <td className={styles.totalSumCell}>
               {formatCurrency(product.totalSum)}
@@ -287,7 +286,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
           {months.map(month => (
             <React.Fragment key={month.key}>
               <td className={styles.countCell}>
-                {formatNumber(monthlyTotals[month.key]?.count || 0)} шт.
+                {formatNumber(monthlyTotals[month.key]?.count || 0)}
               </td>
               <td className={styles.sumCell}>
                 {formatCurrency(monthlyTotals[month.key]?.sum || 0)}
@@ -295,7 +294,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
             </React.Fragment>
           ))}
           <td className={styles.totalCountCell}>
-            {formatNumber(grandTotal.count)} шт.
+            {formatNumber(grandTotal.count)}
           </td>
           <td className={styles.totalSumCell}>
             {formatCurrency(grandTotal.sum)}
