@@ -12,7 +12,7 @@ interface ReportsViewProps {
 
 const ADDRESSES = [
   { value: 'Бугры', label: 'Бугры' },
-  { value: 'Сведлово', label: 'Сведлово' },
+  { value: 'Свердлово', label: 'Сведлово' },
   { value: 'Ропша', label: 'Ропша' },
   { value: 'Мурино', label: 'Мурино' },
   { value: 'Ветеранов', label: 'Ветеранов' },

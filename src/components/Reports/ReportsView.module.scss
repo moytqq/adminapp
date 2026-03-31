@@ -632,10 +632,10 @@
 
 .totalCell {
   vertical-align: middle;
-  padding: 8px 6px !important;
+  padding: 6px 8px;
   background: #fff3e0 !important;
   @media (max-width: 768px) {
-    padding: 6px 4px !important;
+    padding: 4px 6px;
   }
 }
 
