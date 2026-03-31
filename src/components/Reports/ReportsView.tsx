@@ -42,7 +42,7 @@ interface MonthlyTotal {
 }
 
 const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
-  const [selectedAddress, setSelectedAddress] = useState<string>('Свердлово');
+  const [selectedAddress, setSelectedAddress] = useState<string>('Бугры');
   const [data, setData] = useState<ProductSale[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
