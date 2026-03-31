@@ -276,12 +276,12 @@
   font-weight: 600;
 
   td {
-    background: #fafafa;
+    background: #f5f5f5;
     font-weight: 600;
   }
 
   .productCell {
-    background: #fafafa;
+    background: #f5f5f5;
   }
 }
 
@@ -633,8 +633,7 @@
 .totalCell {
   vertical-align: middle;
   padding: 8px 6px !important;
-  background: #fff3e0;
-
+  background: #fff3e0 !important;
   @media (max-width: 768px) {
     padding: 6px 4px !important;
   }
