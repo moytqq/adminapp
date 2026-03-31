@@ -12,7 +12,7 @@ interface ReportsViewProps {
 
 const ADDRESSES = [
   { value: 'Бугры', label: 'Бугры' },
-  { value: 'Свердлово', label: 'Сведлово' },
+  { value: 'Свердлово', label: 'Свердлово' },
   { value: 'Ропша', label: 'Ропша' },
   { value: 'Мурино', label: 'Мурино' },
   { value: 'Ветеранов', label: 'Ветеранов' },
@@ -42,7 +42,7 @@ interface MonthlyTotal {
 }
 
 const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
-  const [selectedAddress, setSelectedAddress] = useState<string>('Сведлово');
+  const [selectedAddress, setSelectedAddress] = useState<string>('Свердлово');
   const [data, setData] = useState<ProductSale[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
