@@ -60,3 +60,10 @@ a {
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+:root {
+    --reports-table-font-size: 24px;
+
+    @media (max-width: 768px) {
+        --reports-table-font-size: 12px;
+    }
+}

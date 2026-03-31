@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { reportsApi, ProductSale } from '@/services/reportsApi';
 import { exportService } from '@/services/exportService';
 import styles from './ReportsView.module.scss';
-import { Loader, Download, FileSpreadsheet } from 'lucide-react';
+import { Loader, Download, FileSpreadsheet, ZoomIn, ZoomOut } from 'lucide-react';
 
 interface ReportsViewProps {
   reportType: string;
@@ -17,10 +17,8 @@ const ADDRESSES = [
   { value: 'Мурино', label: 'Мурино' },
   { value: 'Ветеранов', label: 'Ветеранов' },
   { value: 'Тихорецкий', label: 'Тихорецкий' },
-  //{ value: 'Ленсовета', label: 'Ленсовета' },
   { value: 'Абрамова', label: 'Абрамова' },
   { value: 'Гагарина', label: 'Гагарина' },
-  //{ value: 'Горелово', label: 'Горелово' },
 ];
 
 interface ProductRow {
@@ -35,6 +33,19 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
   const [data, setData] = useState<ProductSale[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fontSize, setFontSize] = useState<number>(14);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--reports-table-font-size', `${fontSize}px`);
+  }, [fontSize]);
+
+  const increaseFontSize = () => {
+    setFontSize(prev => Math.min(prev + 2, 18));
+  };
+
+  const decreaseFontSize = () => {
+    setFontSize(prev => Math.max(prev - 2, 10));
+  };
 
   useEffect(() => {
     loadData();
@@ -188,34 +199,6 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
     );
   };
 
-  const handleExportCSV = () => {
-    if (productRows.length === 0) return;
-
-    const headers = ['Товар', ...months.map(m => `${m.fullLabel} (кол-во)`), ...months.map(m => `${m.fullLabel} (сумма)`), 'Итого кол-во', 'Итого сумма'];
-
-    const rows = productRows.map(product => {
-      const monthCounts = months.map(m => product.months[m.key]?.count || 0);
-      const monthSums = months.map(m => product.months[m.key]?.sum || 0);
-      return [product.productName, ...monthCounts, ...monthSums, product.totalCount, product.totalSum];
-    });
-
-    const totalRow = [
-      'ИТОГО',
-      ...months.map(m => monthlyTotals[m.key]?.count || 0),
-      ...months.map(m => monthlyTotals[m.key]?.sum || 0),
-      grandTotal.count,
-      grandTotal.sum,
-    ];
-
-    rows.push(totalRow);
-
-    exportService.exportToCSV({
-      sheetName: `Отчет_${getExportName()}_${selectedAddress}`,
-      headers,
-      rows,
-    }, `Отчет_по_${getExportName()}_${selectedAddress}_${new Date().toLocaleDateString('ru-RU')}`);
-  };
-
   if (loading) {
     return (
       <div className={styles.loading}>
@@ -237,17 +220,38 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
   return (
     <div className={styles.reportsView}>
       <div className={styles.controls}>
-        <select
-          className={styles.addressSelect}
-          value={selectedAddress}
-          onChange={(e) => setSelectedAddress(e.target.value)}
-        >
-          {ADDRESSES.map(addr => (
-            <option key={addr.value} value={addr.value}>
-              {addr.label}
-            </option>
-          ))}
-        </select>
+        <div className={styles.leftControls}>
+          <select
+            className={styles.addressSelect}
+            value={selectedAddress}
+            onChange={(e) => setSelectedAddress(e.target.value)}
+          >
+            {ADDRESSES.map(addr => (
+              <option key={addr.value} value={addr.value}>
+                {addr.label}
+              </option>
+            ))}
+          </select>
+          <div className={styles.fontSizeControls}>
+            <button
+              className={styles.fontSizeButton}
+              onClick={decreaseFontSize}
+              disabled={fontSize <= 10}
+              title="Уменьшить шрифт"
+            >
+              <ZoomOut size={18} />
+            </button>
+            <span className={styles.fontSizeValue}>{fontSize}px</span>
+            <button
+              className={styles.fontSizeButton}
+              onClick={increaseFontSize}
+              disabled={fontSize >= 18}
+              title="Увеличить шрифт"
+            >
+              <ZoomIn size={18} />
+            </button>
+          </div>
+        </div>
         <div className={styles.exportButtons}>
           <button
             className={styles.exportExcelButton}
@@ -255,7 +259,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
             disabled={productRows.length === 0}
             title="Экспорт в Excel"
           >
-            <Download size={18} />
+            <FileSpreadsheet size={18} />
             <span>Excel</span>
           </button>
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { Inter } from 'next/font/google';
-import './globals.css';
+import './globals.scss';
 import { Provider } from 'react-redux';
 import { makeStore } from '@/store/store';
 import { useEffect } from 'react';
