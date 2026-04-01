@@ -25,7 +25,7 @@ export const pdfExportService = {
       title = '',
       orientation = 'landscape',
       scale = 2,
-      margin = 8,
+      margin = 5,
       isMobile = false,
     } = options;
     const originalOverflow = document.body.style.overflow;
@@ -269,7 +269,7 @@ export const pdfExportService = {
     const title = `Отчет по продажам ${reportType}\n${address}\n${new Date().toLocaleDateString('ru-RU')}`;
     const isMobile = pdfExportService.isMobileDevice();
 
-    const margin = isMobile ? 0 : 0;
+    const margin = isMobile ? 4 : 0;
 
     await pdfExportService.exportToPdf(tableElement, {
       fileName: `Отчет_${address}_${new Date().toLocaleDateString('ru-RU')}`,
