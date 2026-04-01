@@ -4,8 +4,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { reportsApi, ProductSale } from '@/services/reportsApi';
 import { exportService } from '@/services/exportService';
 import styles from './ReportsView.module.scss';
-import { Loader, Download, FileSpreadsheet, ZoomIn, ZoomOut, Maximize2, Minimize2 } from 'lucide-react';
+import { Loader, Download, FileSpreadsheet, ZoomIn, ZoomOut, Maximize2, Minimize2, FileText } from 'lucide-react';
 import DynamicCharts from './DynamicCharts';
+import { pdfExportService } from '@/services/pdfExportService';
 
 interface ReportsViewProps {
   reportType: string;
@@ -50,6 +51,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
   const [fontSize, setFontSize] = useState<number>(14);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [pdfExporting, setPdfExporting] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -80,7 +82,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
   };
 
   const decreaseFontSize = () => {
-    setFontSize(prev => Math.max(prev - 2, 10));
+    setFontSize(prev => Math.max(prev - 2, 8));
   };
 
   const toggleFullscreen = () => {
@@ -241,6 +243,54 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
     );
   };
 
+  const handleExportPDF = async () => {
+    if (productRows.length === 0) return;
+
+    const tableContainer = document.querySelector(`.${styles.tableContainer}`);
+    if (!tableContainer) return;
+
+    setPdfExporting(true);
+    setError(null);
+
+    try {
+      // Показываем уведомление о начале экспорта
+      const notification = document.createElement('div');
+      notification.textContent = 'Подготовка PDF...';
+      notification.style.position = 'fixed';
+      notification.style.bottom = '20px';
+      notification.style.right = '20px';
+      notification.style.backgroundColor = '#4caf50';
+      notification.style.color = 'white';
+      notification.style.padding = '10px 20px';
+      notification.style.borderRadius = '8px';
+      notification.style.zIndex = '10001';
+      notification.style.fontSize = '14px';
+      document.body.appendChild(notification);
+
+      await pdfExportService.exportReportToPdf(
+        tableContainer as HTMLElement,
+        selectedAddress,
+        getExportName()
+      );
+
+      notification.textContent = 'PDF успешно сохранен!';
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 2000);
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+      setError('Ошибка при экспорте в PDF. Возможно, таблица слишком большая.');
+
+      // Удаляем уведомление если оно есть
+      const existingNotification = document.querySelector('[data-pdf-notification]');
+      if (existingNotification) {
+        existingNotification.remove();
+      }
+    } finally {
+      setPdfExporting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.loading}>
@@ -311,7 +361,8 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
 
           return (
             <tr key={product.productName}>
-              <td className={styles.productCell}>{product.productName}</td>
+              <td className={styles.productCell}>
+                {product.productName}</td>
               {monthEntries.map((entry, idx) => (
                 <React.Fragment key={entry.month.key}>
                   {renderCombinedCell(entry.data, entry.previousData, idx)}
@@ -371,7 +422,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
               <button
                 className={styles.fontSizeButton}
                 onClick={decreaseFontSize}
-                disabled={fontSize <= 10}
+                disabled={fontSize <= 8}
                 title="Уменьшить шрифт"
               >
                 <ZoomOut size={18} />
@@ -422,7 +473,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
             <button
               className={styles.fontSizeButton}
               onClick={decreaseFontSize}
-              disabled={fontSize <= 10}
+              disabled={fontSize <= 8}
               title="Уменьшить шрифт"
             >
               <ZoomOut size={18} />
@@ -448,6 +499,19 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
           )}
         </div>
         <div className={styles.exportButtons}>
+          <button
+            className={styles.exportPdfButton}
+            onClick={handleExportPDF}
+            disabled={productRows.length === 0 || pdfExporting}
+            title="Экспорт в PDF"
+          >
+            {pdfExporting ? (
+              <Loader size={18} className={styles.spinnerSmall} />
+            ) : (
+              <FileText size={18} />
+            )}
+            <span>PDF</span>
+          </button>
           <button
             className={styles.exportExcelButton}
             onClick={handleExportExcel}

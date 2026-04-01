@@ -180,7 +180,7 @@
   border-radius: 12px;
   font-size: var(--reports-table-font-size);
   th, td {
-    padding: 6px 8px;
+    padding: 2px 4px;
     text-align: center;
     //white-space: nowrap;
     border-bottom: 1px solid #e0e0e0;
@@ -222,7 +222,7 @@
   @media (max-width: 768px) {
 
     th, td {
-      padding: 4px 6px;
+      padding: 2px 4px;
       text-align: center;
     }
 
@@ -271,7 +271,7 @@
 .totalHeader {
   text-align: center;
   background: #fff3e0;
-  min-width: 100px;
+  min-width: 0;
 
   @media (max-width: 768px) {
     min-width: 80px;
@@ -386,6 +386,50 @@
 .exportButtons {
   display: flex;
   gap: 8px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+
+    button {
+      flex: 1;
+    }
+  }
+}
+
+@media print {
+  .controls,
+  .fullscreenButton,
+  .exportButtons,
+  .fontSizeControls,
+  .fullscreenOverlay {
+    display: none !important;
+  }
+
+  .reportsView {
+    height: auto;
+    overflow: visible;
+  }
+
+  .scrollableContent {
+    overflow: visible;
+  }
+
+  .tableContainer {
+    overflow: visible;
+  }
+
+  .reportTable {
+    page-break-inside: avoid;
+  }
+
+  .productColumn,
+  .productCell {
+    position: static;
+  }
+}
+
+.spinnerSmall {
+  animation: spin 1s linear infinite;
 }
 
 .exportExcelButton {
@@ -412,6 +456,48 @@
   @media (hover: none) {
     &:active {
       background: #45a049;
+      transform: translateY(-1px);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 768px) {
+    padding: 10px 16px;
+
+    span {
+      display: none;
+    }
+  }
+}
+
+.exportPdfButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background: #d32f2f;
+      transform: translateY(-1px);
+    }
+  }
+  @media (hover: none) {
+    &:active:not(:disabled) {
+      background: #d32f2f;
       transform: translateY(-1px);
     }
   }
@@ -614,10 +700,11 @@
 }
 .combinedCell {
   vertical-align: middle;
-  padding: 6px 4px !important;
+  padding: 2px 4px ;
+  font-size: var(--reports-table-font-size);
 
   @media (max-width: 768px) {
-    padding: 4px 2px !important;
+    padding: 2px 4px ;
   }
 }
 
@@ -644,20 +731,24 @@
 }
 
 .changeRow {
-  font-size: 11px;
+  font-size: 0.85em;
   font-weight: 500;
   white-space: nowrap;
   padding: 2px 6px;
   border-radius: 12px;
+  font-size: calc(var(--reports-table-font-size) * 0.85);
 
   &.positive {
-    //background: #e8f5e9;
     color: #2e7d32;
   }
 
   &.negative {
-    //background: #ffebee;
     color: #c62828;
+  }
+
+  @media (max-width: 768px) {
+    font-size: calc(var(--reports-table-font-size) * 0.85);
+    padding: 1px 4px;
   }
 }
 
@@ -665,6 +756,7 @@
   vertical-align: middle;
   padding: 6px 8px;
   background: #fff3e0 !important;
+  font-size: var(--reports-table-font-size);
   @media (max-width: 768px) {
     padding: 4px 6px;
   }
