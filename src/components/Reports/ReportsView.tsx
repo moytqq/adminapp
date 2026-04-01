@@ -253,39 +253,17 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
     setError(null);
 
     try {
-      // Показываем уведомление о начале экспорта
-      const notification = document.createElement('div');
-      notification.textContent = 'Подготовка PDF...';
-      notification.style.position = 'fixed';
-      notification.style.bottom = '20px';
-      notification.style.right = '20px';
-      notification.style.backgroundColor = '#4caf50';
-      notification.style.color = 'white';
-      notification.style.padding = '10px 20px';
-      notification.style.borderRadius = '8px';
-      notification.style.zIndex = '10001';
-      notification.style.fontSize = '14px';
-      document.body.appendChild(notification);
-
       await pdfExportService.exportReportToPdf(
         tableContainer as HTMLElement,
         selectedAddress,
         getExportName()
       );
 
-      notification.textContent = 'PDF успешно сохранен!';
-      setTimeout(() => {
-        document.body.removeChild(notification);
-      }, 2000);
+
     } catch (error) {
       console.error('Error exporting to PDF:', error);
       setError('Ошибка при экспорте в PDF. Возможно, таблица слишком большая.');
 
-      // Удаляем уведомление если оно есть
-      const existingNotification = document.querySelector('[data-pdf-notification]');
-      if (existingNotification) {
-        existingNotification.remove();
-      }
     } finally {
       setPdfExporting(false);
     }
