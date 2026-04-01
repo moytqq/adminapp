@@ -43,6 +43,7 @@
   @media (max-width: 768px) {
     width: 100%;
     padding: 10px 10px 0 10px;
+    flex-direction: column;
   }
 }
 
@@ -392,6 +393,7 @@
 
     button {
       flex: 1;
+      justify-content: center;
     }
   }
 }
@@ -468,9 +470,6 @@
   @media (max-width: 768px) {
     padding: 10px 16px;
 
-    span {
-      display: none;
-    }
   }
 }
 
@@ -510,9 +509,7 @@
   @media (max-width: 768px) {
     padding: 10px 16px;
 
-    span {
-      display: none;
-    }
+
   }
 }
 
