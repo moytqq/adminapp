@@ -5,6 +5,7 @@ import { reportsApi, ProductSale } from '@/services/reportsApi';
 import { exportService } from '@/services/exportService';
 import styles from './ReportsView.module.scss';
 import { Loader, Download, FileSpreadsheet, ZoomIn, ZoomOut, Maximize2, Minimize2 } from 'lucide-react';
+import DynamicCharts from './DynamicCharts';
 
 interface ReportsViewProps {
   reportType: string;
@@ -348,6 +349,14 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
     </div>
   );
 
+  const chartsContent = !isFullscreen && productRows.length > 0 && (
+    <DynamicCharts
+      productRows={productRows}
+      months={months}
+      isMobile={isMobile}
+    />
+  );
+
   // Полноэкранный режим
   if (isFullscreen && isMobile) {
     return (
@@ -456,7 +465,10 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
           <p>Нет данных для отображения</p>
         </div>
       ) : (
-        tableContent
+        <div className={styles.scrollableContent}>
+          {tableContent}
+          {chartsContent}
+        </div>
       )}
     </div>
   );

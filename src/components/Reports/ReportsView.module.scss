@@ -38,10 +38,41 @@
   gap: 12px;
   align-items: center;
   padding: 12px 12px 0 12px;
+  flex-shrink: 0;
 
   @media (max-width: 768px) {
     width: 100%;
     padding: 10px 10px 0 10px;
+  }
+}
+
+.scrollableContent {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  padding: 0 0 20px 0;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+
+    &:hover {
+      background: #666;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 0;
   }
 }
 

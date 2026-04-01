@@ -1,0 +1,301 @@
+.dynamicCharts {
+  padding: 20px;
+  background: white;
+  border-top: 1px solid #e0e0e0;
+
+  @media (max-width: 768px) {
+    padding: 12px;
+  }
+}
+
+.sectionTitle {
+  margin: 0 0 20px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    margin-bottom: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.totalProducts {
+  font-size: 12px;
+  font-weight: 400;
+  color: #666;
+  background: #f5f5f5;
+  padding: 4px 8px;
+  border-radius: 16px;
+
+  @media (max-width: 768px) {
+    font-size: 11px;
+  }
+}
+
+.chartsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 32px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 768px) {
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+}
+
+.chartGroup {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+
+  @media (max-width: 768px) {
+    padding: 12px;
+  }
+}
+
+.groupTitle {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+    margin-bottom: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.chartCard {
+  width: 100%;
+}
+
+.chartTitle {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  @media (max-width: 768px) {
+    font-size: 11px;
+    margin-bottom: 10px;
+  }
+}
+
+.subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: #888;
+
+  @media (max-width: 768px) {
+    font-size: 10px;
+  }
+}
+
+.rangeInfo {
+  font-size: 10px;
+  font-weight: 400;
+  color: #999;
+
+  @media (max-width: 768px) {
+    font-size: 9px;
+  }
+}
+
+.chartWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.emptyChart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  color: #999;
+  font-size: 14px;
+
+  @media (max-width: 768px) {
+    height: 150px;
+    font-size: 12px;
+  }
+}
+
+.customTooltip {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-width: 160px;
+  max-width: 280px;
+  max-height: 350px;
+  overflow-y: auto;
+
+  @media (max-width: 768px) {
+    min-width: 140px;
+    max-width: 220px;
+    max-height: 250px;
+    padding: 6px 8px;
+  }
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 2px;
+  }
+}
+
+.tooltipLabel {
+  font-weight: 600;
+  font-size: 12px;
+  color: #333;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  background: white;
+
+  @media (max-width: 768px) {
+    font-size: 11px;
+  }
+}
+
+.tooltipItems {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  @media (max-width: 768px) {
+    gap: 4px;
+  }
+}
+
+.tooltipItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+
+  @media (max-width: 768px) {
+    font-size: 10px;
+    gap: 6px;
+  }
+}
+
+.tooltipColor {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+.tooltipName {
+  color: #666;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+
+  @media (max-width: 768px) {
+    max-width: 110px;
+  }
+}
+
+.tooltipValue {
+  font-weight: 500;
+  color: #333;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.customLegend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 0;
+  padding: 8px 0 4px;
+  list-style: none;
+
+  @media (max-width: 768px) {
+    gap: 8px;
+  }
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  cursor: default;
+
+  @media (max-width: 768px) {
+    font-size: 10px;
+    gap: 3px;
+  }
+}
+
+.legendIcon {
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+.legendText {
+  white-space: nowrap;
+
+  @media (max-width: 768px) {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
