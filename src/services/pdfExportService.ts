@@ -11,7 +11,6 @@ export interface PdfExportOptions {
 }
 
 export const pdfExportService = {
-
   isMobileDevice: (): boolean => {
     if (typeof window === 'undefined') return false;
     return window.innerWidth < 768;
@@ -29,7 +28,6 @@ export const pdfExportService = {
       margin = 5,
       isMobile = false,
     } = options;
-
     const originalOverflow = document.body.style.overflow;
     try {
       document.body.style.overflow = 'hidden';
@@ -51,6 +49,16 @@ export const pdfExportService = {
 
       const clone = element.cloneNode(true) as HTMLElement;
 
+      const dropdowns = clone.querySelectorAll('.dropdown, .dropdownMenu, [class*="dropdown"], [class*="menu"]');
+      dropdowns.forEach(dropdown => {
+        (dropdown as HTMLElement).style.display = 'none';
+      });
+
+      const modals = clone.querySelectorAll('.modal, .overlay, [class*="modal"], [class*="overlay"]');
+      modals.forEach(modal => {
+        (modal as HTMLElement).style.display = 'none';
+      });
+
       clone.style.position = 'static';
       clone.style.transform = 'none';
       clone.style.width = '100%';
@@ -68,7 +76,6 @@ export const pdfExportService = {
 
       const style = document.createElement('style');
       style.textContent = `
-        /* Сброс всех sticky-эффектов */
         * {
           position: static !important;
           top: auto !important;
@@ -76,12 +83,24 @@ export const pdfExportService = {
           transform: none !important;
         }
         
-        /* Переопределяем CSS переменную */
+        .dropdown,
+        .dropdownMenu,
+        [class*="dropdown"],
+        [class*="menu"],
+        .modal,
+        .overlay,
+        [class*="modal"],
+        [class*="overlay"] {
+          display: none !important;
+          visibility: hidden !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+        }
+        
         :root {
           --reports-table-font-size: ${baseFontSize}px !important;
         }
         
-        /* Принудительно устанавливаем размер шрифта для таблицы */
         .reportTable,
         .reportTable * {
           font-size: ${baseFontSize}px !important;
@@ -126,7 +145,6 @@ export const pdfExportService = {
           font-size: ${baseFontSize}px !important;
         }
         
-        /* Убираем медиа-запросы */
         @media (max-width: 2000px) {
           .reportTable th,
           .reportTable td {
@@ -135,7 +153,6 @@ export const pdfExportService = {
           }
         }
         
-        /* Убираем минимальную ширину для нормального отображения */
         .reportTable {
           min-width: auto !important;
           width: 100% !important;
@@ -153,7 +170,6 @@ export const pdfExportService = {
           min-width: 50px !important;
         }
         
-        /* Скрываем элементы управления */
         .controls,
         .fullscreenButton,
         .exportButtons,
@@ -195,6 +211,12 @@ export const pdfExportService = {
         backgroundColor: '#ffffff',
         windowWidth: cloneContainer.scrollWidth,
         windowHeight: cloneContainer.scrollHeight,
+        onclone: (clonedDoc) => {
+          const clonedDropdowns = clonedDoc.querySelectorAll('.dropdown, .dropdownMenu, [class*="dropdown"], [class*="menu"]');
+          clonedDropdowns.forEach(el => {
+            (el as HTMLElement).style.display = 'none';
+          });
+        }
       });
 
       const imgData = canvas.toDataURL('image/png');
