@@ -30,8 +30,8 @@ export const pdfExportService = {
       isMobile = false,
     } = options;
 
+    const originalOverflow = document.body.style.overflow;
     try {
-      const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
 
       const baseFontSize = isMobile ? 10 : 16;
