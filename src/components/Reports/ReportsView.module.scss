@@ -181,6 +181,7 @@
   min-width: 800px;
   border-radius: 12px;
   font-size: var(--reports-table-font-size);
+
   th, td {
     padding: 2px 4px;
     text-align: center;
@@ -218,7 +219,7 @@
   }
 
   thead tr:last-child th {
-   // top: 31px;
+    // top: 31px;
   }
 
   @media (max-width: 768px) {
@@ -767,9 +768,17 @@
   transition: all 0.2s ease;
   color: #666;
 
-  &:hover:not(:disabled) {
-    background: #e0e0e0;
-    color: #333;
+  @media (hover: hover) {
+    &:hover {
+      background: #e0e0e0;
+      color: #333;
+    }
+  }
+  @media (hover: none) {
+    &:active {
+      background: #e0e0e0;
+      color: #333;
+    }
   }
 
   &:disabled {
@@ -795,13 +804,14 @@
     font-size: 12px;
   }
 }
+
 .combinedCell {
   vertical-align: middle;
-  padding: 2px 4px ;
+  padding: 2px 4px;
   font-size: var(--reports-table-font-size);
 
   @media (max-width: 768px) {
-    padding: 2px 4px ;
+    padding: 2px 4px;
   }
 }
 
@@ -876,10 +886,11 @@
 
 .totalSumRow {
   font-weight: 600;
- //color: #ff9800;
+  //color: #ff9800;
   font-size: inherit;
   white-space: nowrap;
 }
+
 .header {
   display: flex;
   align-items: center;
