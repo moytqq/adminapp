@@ -292,8 +292,8 @@ export const chartExportService = {
 
     if (isMobile) {
       chartExportService.applyDesktopStylesToAllCharts(chartGroupsArray, isMobile);
-      await new Promise(resolve => setTimeout(resolve, 3000));
     }
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
     for (let i = 0; i < chartGroupsArray.length; i++) {
       const chartGroup = chartGroupsArray[i];
