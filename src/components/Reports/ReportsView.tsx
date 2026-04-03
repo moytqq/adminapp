@@ -4,9 +4,21 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { reportsApi, ProductSale } from '@/services/reportsApi';
 import { exportService } from '@/services/exportService';
 import styles from './ReportsView.module.scss';
-import { Loader, Download, FileSpreadsheet, ZoomIn, ZoomOut, Maximize2, Minimize2, FileText } from 'lucide-react';
+import {
+  Loader,
+  Download,
+  FileSpreadsheet,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  Minimize2,
+  FileText,
+  Image,
+} from 'lucide-react';
 import DynamicCharts from './DynamicCharts';
 import { pdfExportService } from '@/services/pdfExportService';
+import { toPng } from 'html-to-image';
+import { chartExportService } from '@/services/chartExportService';
 
 interface ReportsViewProps {
   reportType: string;
@@ -52,6 +64,8 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [pdfExporting, setPdfExporting] = useState(false);
+  const [downloadingCharts, setDownloadingCharts] = useState(false);
+  const [exportingChartsPdf, setExportingChartsPdf] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -174,7 +188,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
     });
 
     return Array.from(productsMap.values()).sort((a, b) =>
-      a.productName.localeCompare(b.productName)
+      a.productName.localeCompare(b.productName),
     );
   }, [data]);
 
@@ -239,8 +253,46 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
       productRows,
       monthlyTotals,
       grandTotal,
-      getChangePercent
+      getChangePercent,
     );
+  };
+
+  const exportChartsToPdf = async () => {
+    let chartGroups = document.querySelectorAll(`.${styles.chartGroup}`);
+
+    if (chartGroups.length === 0) {
+      const dynamicCharts = document.querySelector(`.${styles.dynamicCharts}`);
+      if (dynamicCharts) {
+        chartGroups = dynamicCharts.querySelectorAll(`.${styles.chartGroup}`);
+      }
+    }
+
+    if (chartGroups.length === 0) {
+      chartGroups = document.querySelectorAll('[class*="chartGroup"]');
+    }
+
+    if (chartGroups.length === 0) {
+      console.error('No chart groups found');
+      return;
+    }
+
+    setExportingChartsPdf(true);
+
+    try {
+      await chartExportService.exportAllChartsToPdf(
+        chartGroups,
+        `charts_${selectedAddress}`,
+        isMobile,
+        (current, total) => {
+          console.log(`Processing chart ${current} of ${total}`);
+        },
+      );
+    } catch (error) {
+      console.error('Error exporting charts to PDF:', error);
+      setError('Ошибка при создании PDF с графиками');
+    } finally {
+      setExportingChartsPdf(false);
+    }
   };
 
   const handleExportPDF = async () => {
@@ -256,7 +308,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
       await pdfExportService.exportReportToPdf(
         tableContainer as HTMLElement,
         selectedAddress,
-        getExportName()
+        getExportName(),
       );
 
 
@@ -290,7 +342,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
   const renderCombinedCell = (
     currentData: { count: number; sum: number },
     previousData: { count: number; sum: number } | null,
-    monthIndex: number
+    monthIndex: number,
   ) => {
     const count = currentData?.count || 0;
     const sum = currentData?.sum || 0;
@@ -477,6 +529,19 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
           )}
         </div>
         <div className={styles.exportButtons}>
+          <button
+            className={styles.exportChartsPdfButton}
+            onClick={exportChartsToPdf}
+            disabled={productRows.length === 0 || exportingChartsPdf}
+            title="Экспорт графиков в PDF"
+          >
+            {exportingChartsPdf ? (
+              <Loader size={18} className={styles.spinnerSmall} />
+            ) : (
+              <FileText size={18} />
+            )}
+            <span>Графики PDF</span>
+          </button>
           <button
             className={styles.exportPdfButton}
             onClick={handleExportPDF}
