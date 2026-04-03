@@ -110,10 +110,10 @@ const ProfilePage = () => {
           </div>
 
           <div className={styles.profileInfo}>
-            <div className={styles.userInfo}>
+            {/*<div className={styles.userInfo}>
               <span className={styles.userName}>Иван Иванов</span>
               {!isMobile && <span className={styles.userRole}>Администратор</span>}
-            </div>
+            </div>*/}
             <div className={styles.userAvatar}>
               <User size={24} />
             </div>
