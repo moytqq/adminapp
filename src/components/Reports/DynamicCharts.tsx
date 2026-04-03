@@ -1,3 +1,5 @@
+// components/Reports/DynamicCharts.tsx
+
 'use client';
 
 import React, { useMemo } from 'react';
@@ -23,6 +25,7 @@ interface DynamicChartsProps {
   productRows: ProductData[];
   months: MonthData[];
   isMobile: boolean;
+  reportType?: string; // Добавляем тип отчета
 }
 
 interface ChartDataPoint {
@@ -60,12 +63,25 @@ const CustomDot = (props: any) => {
   );
 };
 
-const DynamicCharts: React.FC<DynamicChartsProps> = ({ productRows, months, isMobile }) => {
-  const filteredProducts = useMemo(() => {
+const DynamicCharts: React.FC<DynamicChartsProps> = ({ productRows, months, isMobile, reportType = 'drinks' }) => {
+  // Фильтруем товары, исключая те, у которых в названии есть "сотрудники"
+  let filteredProducts = useMemo(() => {
     return productRows.filter(product =>
       !product.productName.toLowerCase().includes('сотрудник')
     );
   }, [productRows]);
+
+  // Для десертов оставляем только 12 лучших товаров по выручке
+  filteredProducts = useMemo(() => {
+    if (reportType === 'desserts') {
+      // Сортируем по общей выручке и берем топ 12
+      const sorted = [...filteredProducts].sort((a, b) => b.totalSum - a.totalSum);
+      const top12 = sorted.slice(0, 12);
+      console.log(`Desserts mode: showing top ${top12.length} products out of ${filteredProducts.length}`);
+      return top12;
+    }
+    return filteredProducts;
+  }, [filteredProducts, reportType]);
 
   const productStyleMap = useMemo(() => {
     const map = new Map<string, { color: string; shape: string }>();
@@ -355,11 +371,19 @@ const DynamicCharts: React.FC<DynamicChartsProps> = ({ productRows, months, isMo
   const topSumCount = topSumProducts.length;
   const bottomSumCount = bottomSumProducts.length;
 
+  // Для десертов показываем только лучшие 50% (так как у нас уже топ 12)
+  const showOnlyTop = reportType === 'desserts';
+
   return (
     <div className={styles.dynamicCharts}>
       <h3 className={styles.sectionTitle}>
         Динамика продаж
-        <span className={styles.totalProducts}>Всего товаров: {filteredProducts.length}</span>
+        <span className={styles.totalProducts}>
+          {reportType === 'desserts'
+            ? `Показаны лучшие ${filteredProducts.length} товаров из ${productRows.filter(p => !p.productName.toLowerCase().includes('сотрудник')).length}`
+            : `Всего товаров: ${filteredProducts.length}`
+          }
+        </span>
       </h3>
 
       <div className={styles.chartsSection}>
@@ -376,23 +400,30 @@ const DynamicCharts: React.FC<DynamicChartsProps> = ({ productRows, months, isMo
           )}
         </div>
 
-        <div className={styles.chartGroup}>
-          <h4 className={styles.groupTitle}>
-            Количество продаж — худшие 50% ({bottomCountCount} товаров)
-          </h4>
-          {renderChart(
-            bottomCountProducts,
-            'Товары с низкими продажами',
-            `(ниже среднего: ${avgCount.toLocaleString('ru-RU')} шт.)`,
-            'count',
-            'шт.'
-          )}
-        </div>
+        {!showOnlyTop && (
+          <div className={styles.chartGroup}>
+            <h4 className={styles.groupTitle}>
+              Количество продаж — худшие 50% ({bottomCountCount} товаров)
+            </h4>
+            {renderChart(
+              bottomCountProducts,
+              'Товары с низкими продажами',
+              `(ниже среднего: ${avgCount.toLocaleString('ru-RU')} шт.)`,
+              'count',
+              'шт.'
+            )}
+          </div>
+        )}
       </div>
 
       <h3 className={styles.sectionTitle}>
         Динамика выручки
-        <span className={styles.totalProducts}>Всего товаров: {filteredProducts.length}</span>
+        <span className={styles.totalProducts}>
+          {reportType === 'desserts'
+            ? `Показаны лучшие ${filteredProducts.length} товаров из ${productRows.filter(p => !p.productName.toLowerCase().includes('сотрудник')).length}`
+            : `Всего товаров: ${filteredProducts.length}`
+          }
+        </span>
       </h3>
 
       <div className={styles.chartsSection}>
@@ -409,18 +440,20 @@ const DynamicCharts: React.FC<DynamicChartsProps> = ({ productRows, months, isMo
           )}
         </div>
 
-        <div className={styles.chartGroup}>
-          <h4 className={styles.groupTitle}>
-            Выручка — худшие 50% ({bottomSumCount} товаров)
-          </h4>
-          {renderChart(
-            bottomSumProducts,
-            'Товары с низкой выручкой',
-            `(ниже среднего: ${avgSum.toLocaleString('ru-RU')} ₽)`,
-            'sum',
-            '₽'
-          )}
-        </div>
+        {!showOnlyTop && (
+          <div className={styles.chartGroup}>
+            <h4 className={styles.groupTitle}>
+              Выручка — худшие 50% ({bottomSumCount} товаров)
+            </h4>
+            {renderChart(
+              bottomSumProducts,
+              'Товары с низкой выручкой',
+              `(ниже среднего: ${avgSum.toLocaleString('ru-RU')} ₽)`,
+              'sum',
+              '₽'
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

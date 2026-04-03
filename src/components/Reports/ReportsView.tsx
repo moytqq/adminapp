@@ -13,15 +13,16 @@ import {
   Maximize2,
   Minimize2,
   FileText,
-  Image,
+  ArrowLeft,
 } from 'lucide-react';
 import DynamicCharts from './DynamicCharts';
-import { pdfExportService } from '@/services/pdfExportService';
-import { toPng } from 'html-to-image';
+import { pdfExportDrinksService } from '@/services/pdfExportDrinksService';
 import { chartExportService } from '@/services/chartExportService';
+import { pdfExportDessertsService } from '@/services/pdfExportDessertsService';
 
 interface ReportsViewProps {
   reportType: string;
+  onBack?: () => void;
 }
 
 const ADDRESSES = [
@@ -55,7 +56,7 @@ interface MonthlyTotal {
   sum: number;
 }
 
-const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
+const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
   const [selectedAddress, setSelectedAddress] = useState<string>('Бугры');
   const [data, setData] = useState<ProductSale[]>([]);
   const [loading, setLoading] = useState(false);
@@ -64,7 +65,6 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [pdfExporting, setPdfExporting] = useState(false);
-  const [downloadingCharts, setDownloadingCharts] = useState(false);
   const [exportingChartsPdf, setExportingChartsPdf] = useState(false);
 
   useEffect(() => {
@@ -114,9 +114,13 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
       let result: ProductSale[];
       switch (reportType) {
         case 'drinks':
-        default:
-          result = await reportsApi.getProductSales(selectedAddress);
+          result = await reportsApi.getDrinksSales(selectedAddress);
           break;
+        case 'desserts':
+          result = await reportsApi.getDessertsSales(selectedAddress);
+          break;
+        default:
+          result = [];
       }
       setData(result);
     } catch (err) {
@@ -127,10 +131,23 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
     }
   };
 
+  const getReportTitle = () => {
+    switch (reportType) {
+      case 'drinks':
+        return 'Напитки';
+      case 'desserts':
+        return 'Десерты';
+      default:
+        return 'Отчет';
+    }
+  };
+
   const getExportName = () => {
     switch (reportType) {
       case 'drinks':
         return 'напитков';
+      case 'desserts':
+        return 'десертов';
       default:
         return 'отчет';
     }
@@ -146,13 +163,9 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
 
     return Array.from(monthSet)
       .sort((a, b) => {
-        // Сортируем как даты, а не как строки
         const [yearA, monthA] = a.split('-').map(Number);
         const [yearB, monthB] = b.split('-').map(Number);
-
-        if (yearA !== yearB) {
-          return yearA - yearB;
-        }
+        if (yearA !== yearB) return yearA - yearB;
         return monthA - monthB;
       })
       .map(monthKey => {
@@ -288,9 +301,11 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
     setExportingChartsPdf(true);
 
     try {
+      const chartFileName = `Графики_${getExportName()}_${selectedAddress}_${new Date().toLocaleDateString('ru-RU')}`;
+
       await chartExportService.exportAllChartsToPdf(
         chartGroups,
-        `charts_${selectedAddress}`,
+        chartFileName,
         isMobile,
         (current, total) => {
           console.log(`Processing chart ${current} of ${total}`);
@@ -307,24 +322,36 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
   const handleExportPDF = async () => {
     if (productRows.length === 0) return;
 
-    const tableContainer = document.querySelector(`.${styles.tableContainer}`);
-    if (!tableContainer) return;
-
     setPdfExporting(true);
     setError(null);
 
     try {
-      await pdfExportService.exportReportToPdf(
-        tableContainer as HTMLElement,
-        selectedAddress,
-        getExportName(),
-      );
+      const rowsPerPage = isMobile ? 18 : 18;
 
-
+      if (reportType === 'desserts') {
+        await pdfExportDessertsService.exportDessertsToPdf(
+          productRows,
+          months,
+          selectedAddress,
+          {
+            rowsPerPage,
+            fileName: `Десерты_${selectedAddress}_${new Date().toLocaleDateString('ru-RU')}`,
+          }
+        );
+      } else if (reportType === 'drinks') {
+        await pdfExportDrinksService.exportDrinksToPdf(
+          productRows,
+          months,
+          selectedAddress,
+          {
+            rowsPerPage,
+            fileName: `Напитки_${selectedAddress}_${new Date().toLocaleDateString('ru-RU')}`,
+          }
+        );
+      }
     } catch (error) {
       console.error('Error exporting to PDF:', error);
-      setError('Ошибка при экспорте в PDF. Возможно, таблица слишком большая.');
-
+      setError('Ошибка при экспорте в PDF.');
     } finally {
       setPdfExporting(false);
     }
@@ -444,6 +471,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
       productRows={productRows}
       months={months}
       isMobile={isMobile}
+      reportType={reportType}
     />
   );
 
@@ -453,7 +481,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
       <div className={styles.fullscreenOverlay}>
         <div className={styles.fullscreenHeader}>
           <div className={styles.fullscreenTitle}>
-            <span>Таблица продаж</span>
+            <span>Таблица продаж - {getReportTitle()}</span>
             <span className={styles.fullscreenAddress}>{selectedAddress}</span>
           </div>
           <div className={styles.fullscreenControls}>
@@ -495,6 +523,14 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
   // Обычный режим
   return (
     <div className={styles.reportsView}>
+      <div className={styles.header}>
+        <button className={styles.backButton} onClick={onBack} title="Назад к выбору отчета">
+          <ArrowLeft size={20} />
+          <span>Назад</span>
+        </button>
+        <h2 className={styles.reportTitle}>Отчет по продажам: {getReportTitle()}</h2>
+      </div>
+
       <div className={styles.controls}>
         <div className={styles.leftControls}>
           <select
@@ -555,14 +591,14 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
             className={styles.exportPdfButton}
             onClick={handleExportPDF}
             disabled={productRows.length === 0 || pdfExporting}
-            title="Экспорт в PDF"
+            title="Экспорт таблицы в PDF"
           >
             {pdfExporting ? (
               <Loader size={18} className={styles.spinnerSmall} />
             ) : (
               <FileText size={18} />
             )}
-            <span>PDF</span>
+            <span>Таблица PDF</span>
           </button>
           <button
             className={styles.exportExcelButton}
