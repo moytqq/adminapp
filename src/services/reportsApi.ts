@@ -42,7 +42,7 @@ export const reportsApi = {
     }
   },
 
-  getProductSales: async (address: string): Promise<ProductSale[]> => {
+  getDrinksSales: async (address: string): Promise<ProductSale[]> => {
     try {
       const response = await api.get<ProductSalesResponse>(`/otchet/get_prodaji_napitki_mes?addr=${encodeURIComponent(address)}`);
       if (response.data.status === 'success') {
@@ -51,6 +51,18 @@ export const reportsApi = {
       return [];
     } catch (error) {
       console.error('Error fetching product sales:', error);
+      return [];
+    }
+  },
+  getDessertsSales: async (address: string): Promise<ProductSale[]> => {
+    try {
+      const response = await api.get<ProductSalesResponse>(`/otchet/get_prodaji_dec_mes_2?addr=${encodeURIComponent(address)}`);
+      if (response.data.status === 'success') {
+        return response.data.data;
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching desserts sales:', error);
       return [];
     }
   },

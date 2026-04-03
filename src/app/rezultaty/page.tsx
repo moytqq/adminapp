@@ -1,9 +1,12 @@
+// app/rezultaty/page.tsx
+
 'use client';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
 import SideMenu from '@/components/SideMenu/SideMenu';
+import ReportTypeSelector from '@/components/Reports/ReportTypeSelector';
 import ReportsView from '@/components/Reports/ReportsView';
 import styles from './rezultaty.module.scss';
 import { Menu, ArrowLeft } from 'lucide-react';
@@ -12,7 +15,7 @@ import stylesSideMenu from '@/app/main/main.module.scss';
 const RezultatyPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [reportType, setReportType] = useState<string>('drinks');
+  const [selectedReportType, setSelectedReportType] = useState<string | null>(null);
   const router = useRouter();
 
   React.useEffect(() => {
@@ -25,13 +28,12 @@ const RezultatyPage = () => {
   }, []);
 
   const handleBack = () => {
-    router.push('/main');
+    if (selectedReportType) {
+      setSelectedReportType(null);
+    } else {
+      router.push('/main');
+    }
   };
-
-  const reportTypes = [
-    { value: 'drinks', label: 'Напитки' },
-   // { value: 'culinary', label: 'Кулинария' },
-  ];
 
   return (
     <ProtectedRoute>
@@ -47,25 +49,19 @@ const RezultatyPage = () => {
             >
               <Menu size={24} />
             </button>
-            <h1 className={styles.title}>Результаты</h1>
-          </div>
-          <div className={styles.headerRight}>
-            <select
-              className={styles.reportTypeSelect}
-              value={reportType}
-              onChange={(e) => setReportType(e.target.value)}
-            >
-              {reportTypes.map(type => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
+            {!selectedReportType && <h1 className={styles.title}>Результаты</h1>}
           </div>
         </header>
 
         <main className={styles.content}>
-          <ReportsView reportType={reportType} />
+          {!selectedReportType ? (
+            <ReportTypeSelector onSelectType={setSelectedReportType} />
+          ) : (
+            <ReportsView
+              reportType={selectedReportType}
+              onBack={() => setSelectedReportType(null)}
+            />
+          )}
         </main>
       </div>
     </ProtectedRoute>
