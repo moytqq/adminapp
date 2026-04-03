@@ -145,7 +145,16 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType }) => {
     });
 
     return Array.from(monthSet)
-      .sort()
+      .sort((a, b) => {
+        // Сортируем как даты, а не как строки
+        const [yearA, monthA] = a.split('-').map(Number);
+        const [yearB, monthB] = b.split('-').map(Number);
+
+        if (yearA !== yearB) {
+          return yearA - yearB;
+        }
+        return monthA - monthB;
+      })
       .map(monthKey => {
         const [year, monthNum] = monthKey.split('-');
         const date = new Date(parseInt(year), parseInt(monthNum) - 1);
