@@ -13,7 +13,7 @@ import {
   Maximize2,
   Minimize2,
   FileText,
-  ArrowLeft,
+  ArrowLeft, ChartLine, Table,
 } from 'lucide-react';
 import DynamicCharts from './DynamicCharts';
 import { pdfExportDrinksService } from '@/services/pdfExportDrinksService';
@@ -583,9 +583,9 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
             {exportingChartsPdf ? (
               <Loader size={18} className={styles.spinnerSmall} />
             ) : (
-              <FileText size={18} />
+              <ChartLine size={18} />
             )}
-            <span>Графики PDF</span>
+            <span>Графики</span>
           </button>
           <button
             className={styles.exportPdfButton}
@@ -596,9 +596,9 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
             {pdfExporting ? (
               <Loader size={18} className={styles.spinnerSmall} />
             ) : (
-              <FileText size={18} />
+              <Table size={18} />
             )}
-            <span>Таблица PDF</span>
+            <span>Таблица</span>
           </button>
           <button
             className={styles.exportExcelButton}
