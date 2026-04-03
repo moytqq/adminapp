@@ -13,7 +13,7 @@ export interface ExportData {
   columnWidths?: { wch: number }[];
 }
 
-export const exportService = {
+export const exportExcelService = {
   exportToExcel: (data: ExportData, fileName: string) => {
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.aoa_to_sheet([data.headers, ...data.rows]);
@@ -94,7 +94,7 @@ export const exportService = {
       { wch: 15 }, // Итого
     ];
 
-    exportService.exportToExcel({
+    exportExcelService.exportToExcel({
       sheetName: `Отчет_${address}`,
       headers,
       rows,

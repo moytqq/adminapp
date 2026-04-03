@@ -2,17 +2,15 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { reportsApi, ProductSale } from '@/services/reportsApi';
-import { exportService } from '@/services/exportService';
+import { exportExcelService } from '@/services/exportExcelService';
 import styles from './ReportsView.module.scss';
 import {
   Loader,
-  Download,
   FileSpreadsheet,
   ZoomIn,
   ZoomOut,
   Maximize2,
   Minimize2,
-  FileText,
   ArrowLeft, ChartLine, Table,
 } from 'lucide-react';
 import DynamicCharts from './DynamicCharts';
@@ -66,6 +64,10 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [pdfExporting, setPdfExporting] = useState(false);
   const [exportingChartsPdf, setExportingChartsPdf] = useState(false);
+  const [pdfQuality, setPdfQuality] = useState<'low' | 'medium' | 'high'>('medium');
+  const [chartQuality, setChartQuality] = useState<'low' | 'medium' | 'high'>('medium');
+  const [chartFormat, setChartFormat] = useState<'png' | 'jpeg'>('jpeg');
+
 
   useEffect(() => {
     const checkMobile = () => {
@@ -269,7 +271,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
   const handleExportExcel = () => {
     if (productRows.length === 0) return;
 
-    exportService.exportSalesReport(
+    exportExcelService.exportSalesReport(
       `${selectedAddress}_${getExportName()}`,
       months,
       productRows,
@@ -307,9 +309,13 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
         chartGroups,
         chartFileName,
         isMobile,
-        (current, total) => {
-          console.log(`Processing chart ${current} of ${total}`);
-        },
+        {
+          quality: chartQuality,
+          format: chartFormat,
+          onProgress: (current, total) => {
+            console.log(`Processing chart ${current} of ${total}`);
+          },
+        }
       );
     } catch (error) {
       console.error('Error exporting charts to PDF:', error);
@@ -326,7 +332,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
     setError(null);
 
     try {
-      const rowsPerPage = isMobile ? 18 : 18;
+      const rowsPerPage = isMobile ? 20 : 20;
 
       if (reportType === 'desserts') {
         await pdfExportDessertsService.exportDessertsToPdf(
@@ -336,6 +342,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
           {
             rowsPerPage,
             fileName: `Десерты_${selectedAddress}_${new Date().toLocaleDateString('ru-RU')}`,
+            quality: pdfQuality,
           }
         );
       } else if (reportType === 'drinks') {
@@ -346,6 +353,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
           {
             rowsPerPage,
             fileName: `Напитки_${selectedAddress}_${new Date().toLocaleDateString('ru-RU')}`,
+            quality: pdfQuality,
           }
         );
       }

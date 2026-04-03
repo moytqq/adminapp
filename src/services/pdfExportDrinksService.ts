@@ -28,6 +28,7 @@ interface DrinksExportOptions {
   fileName?: string;
   address?: string;
   rowsPerPage?: number;
+  quality?: 'low' | 'medium' | 'high';
 }
 
 export const pdfExportDrinksService = {
@@ -56,18 +57,18 @@ export const pdfExportDrinksService = {
   ): HTMLElement => {
     const container = document.createElement('div');
     container.style.width = '100%';
-    container.style.padding = '20px';
+    container.style.padding = '10px';
     container.style.backgroundColor = 'white';
     container.style.fontFamily = 'Arial, sans-serif';
 
     // Заголовок
     const header = document.createElement('div');
     header.style.textAlign = 'center';
-    header.style.marginBottom = '20px';
+    header.style.marginBottom = '10px';
     header.innerHTML = `
-      <h2 style="margin: 0 0 8px 0; font-size: 16px; color: #333;">${title}</h2>
-      ${!isFirstPage ? `<p style="margin: 0; font-size: 12px; color: #666;">Продолжение таблицы</p>` : ''}
-      <p style="margin: 8px 0 0 0; font-size: 11px; color: #999;">Страница ${pageNumber} из ${totalPages}</p>
+      <h2 style="margin: 0 0 4px 0; font-size: 14px; color: #333;">${title}</h2>
+      ${!isFirstPage ? `<p style="margin: 0; font-size: 10px; color: #666;">Продолжение таблицы</p>` : ''}
+      <p style="margin: 4px 0 0 0; font-size: 9px; color: #999;">Страница ${pageNumber} из ${totalPages}</p>
     `;
     container.appendChild(header);
 
@@ -75,7 +76,7 @@ export const pdfExportDrinksService = {
     const table = document.createElement('table');
     table.style.width = '100%';
     table.style.borderCollapse = 'collapse';
-    table.style.fontSize = '11px';
+    table.style.fontSize = '9px';
     table.style.border = '1px solid #e0e0e0';
 
     // Заголовок таблицы
@@ -85,7 +86,7 @@ export const pdfExportDrinksService = {
 
     const thProduct = document.createElement('th');
     thProduct.textContent = 'Товар';
-    thProduct.style.padding = '10px 8px';
+    thProduct.style.padding = '6px 6px';
     thProduct.style.border = '1px solid #e0e0e0';
     thProduct.style.textAlign = 'left';
     thProduct.style.fontWeight = '600';
@@ -95,18 +96,18 @@ export const pdfExportDrinksService = {
     months.forEach(month => {
       const th = document.createElement('th');
       th.textContent = month.label;
-      th.style.padding = '10px 8px';
+      th.style.padding = '6px 6px';
       th.style.border = '1px solid #e0e0e0';
       th.style.textAlign = 'center';
       th.style.fontWeight = '600';
       th.style.backgroundColor = '#fafafa';
-      th.style.minWidth = '90px';
+      th.style.minWidth = '70px';
       headerRow.appendChild(th);
     });
 
     const thTotal = document.createElement('th');
     thTotal.textContent = 'Итого';
-    thTotal.style.padding = '10px 8px';
+    thTotal.style.padding = '6px 6px';
     thTotal.style.border = '1px solid #e0e0e0';
     thTotal.style.textAlign = 'center';
     thTotal.style.fontWeight = '600';
@@ -123,21 +124,19 @@ export const pdfExportDrinksService = {
       const tr = document.createElement('tr');
       tr.style.backgroundColor = rowIndex % 2 === 0 ? '#ffffff' : '#fafafa';
 
-      // Название товара
       const tdProduct = document.createElement('td');
       tdProduct.textContent = row.productName;
-      tdProduct.style.padding = '8px';
+      tdProduct.style.padding = '4px 6px';
       tdProduct.style.border = '1px solid #e0e0e0';
       tdProduct.style.textAlign = 'left';
       tdProduct.style.fontWeight = '500';
-      tdProduct.style.maxWidth = '180px';
+      tdProduct.style.maxWidth = '140px';
       tdProduct.style.wordBreak = 'break-word';
       tr.appendChild(tdProduct);
 
-      // Данные по месяцам
       row.months.forEach(monthData => {
         const td = document.createElement('td');
-        td.style.padding = '8px 6px';
+        td.style.padding = '4px 4px';
         td.style.border = '1px solid #e0e0e0';
         td.style.textAlign = 'center';
         td.style.verticalAlign = 'middle';
@@ -145,27 +144,26 @@ export const pdfExportDrinksService = {
         let changeHtml = '';
         if (monthData.changePercent !== null && monthData.changePercent !== 0) {
           const changeColor = monthData.changePercent >= 0 ? '#2e7d32' : '#c62828';
-          changeHtml = `<div style="font-size: 9px; margin-top: 4px; color: ${changeColor}; font-weight: 500;">${pdfExportDrinksService.formatChangePercent(monthData.changePercent)}</div>`;
+          changeHtml = `<div style="font-size: 7px; margin-top: 2px; color: ${changeColor}; font-weight: 500;">${pdfExportDrinksService.formatChangePercent(monthData.changePercent)}</div>`;
         }
 
         td.innerHTML = `
-          <div style="font-weight: 600; font-size: 12px;">${monthData.count.toLocaleString('ru-RU')}</div>
-          <div style="color: #666; font-size: 11px;">${monthData.sum.toLocaleString('ru-RU')} ₽</div>
+          <div style="font-weight: 600; font-size: 10px;">${monthData.count.toLocaleString('ru-RU')}</div>
+          <div style="color: #666; font-size: 9px;">${monthData.sum.toLocaleString('ru-RU')} ₽</div>
           ${changeHtml}
         `;
         tr.appendChild(td);
       });
 
-      // Итого по товару
       const tdTotal = document.createElement('td');
-      tdTotal.style.padding = '8px';
+      tdTotal.style.padding = '4px 6px';
       tdTotal.style.border = '1px solid #e0e0e0';
       tdTotal.style.textAlign = 'center';
       tdTotal.style.backgroundColor = '#e3f2fd';
       tdTotal.style.fontWeight = '600';
       tdTotal.innerHTML = `
-        <div style="font-size: 12px;">${row.totalCount.toLocaleString('ru-RU')}</div>
-        <div style="font-size: 11px;">${row.totalSum.toLocaleString('ru-RU')} ₽</div>
+        <div style="font-size: 10px;">${row.totalCount.toLocaleString('ru-RU')}</div>
+        <div style="font-size: 9px;">${row.totalSum.toLocaleString('ru-RU')} ₽</div>
       `;
       tr.appendChild(tdTotal);
 
@@ -178,20 +176,18 @@ export const pdfExportDrinksService = {
       totalTr.style.backgroundColor = '#f5f5f5';
       totalTr.style.fontWeight = '600';
 
-      // Ячейка "ИТОГО"
       const tdTotalLabel = document.createElement('td');
       tdTotalLabel.textContent = 'ИТОГО';
-      tdTotalLabel.style.padding = '10px 8px';
+      tdTotalLabel.style.padding = '6px 6px';
       tdTotalLabel.style.border = '1px solid #e0e0e0';
       tdTotalLabel.style.textAlign = 'left';
       tdTotalLabel.style.fontWeight = '700';
       tdTotalLabel.style.backgroundColor = '#e8f4fd';
       totalTr.appendChild(tdTotalLabel);
 
-      // Итоги по месяцам
       totalRow.monthsTotal.forEach(monthTotal => {
         const td = document.createElement('td');
-        td.style.padding = '8px 6px';
+        td.style.padding = '4px 4px';
         td.style.border = '1px solid #e0e0e0';
         td.style.textAlign = 'center';
         td.style.backgroundColor = '#e8f4fd';
@@ -200,27 +196,26 @@ export const pdfExportDrinksService = {
         let changeHtml = '';
         if (monthTotal.changePercent !== null && monthTotal.changePercent !== 0) {
           const changeColor = monthTotal.changePercent >= 0 ? '#2e7d32' : '#c62828';
-          changeHtml = `<div style="font-size: 9px; margin-top: 4px; color: ${changeColor};">${pdfExportDrinksService.formatChangePercent(monthTotal.changePercent)}</div>`;
+          changeHtml = `<div style="font-size: 7px; margin-top: 2px; color: ${changeColor};">${pdfExportDrinksService.formatChangePercent(monthTotal.changePercent)}</div>`;
         }
 
         td.innerHTML = `
-          <div style="font-size: 12px;">${monthTotal.count.toLocaleString('ru-RU')}</div>
-          <div style="font-size: 11px;">${monthTotal.sum.toLocaleString('ru-RU')} ₽</div>
+          <div style="font-size: 10px;">${monthTotal.count.toLocaleString('ru-RU')}</div>
+          <div style="font-size: 9px;">${monthTotal.sum.toLocaleString('ru-RU')} ₽</div>
           ${changeHtml}
         `;
         totalTr.appendChild(td);
       });
 
-      // Общий итог
       const tdGrandTotal = document.createElement('td');
-      tdGrandTotal.style.padding = '8px';
+      tdGrandTotal.style.padding = '4px 6px';
       tdGrandTotal.style.border = '1px solid #e0e0e0';
       tdGrandTotal.style.textAlign = 'center';
       tdGrandTotal.style.backgroundColor = '#e8f4fd';
       tdGrandTotal.style.fontWeight = '700';
       tdGrandTotal.innerHTML = `
-        <div style="font-size: 12px;">${totalRow.totalCount.toLocaleString('ru-RU')}</div>
-        <div style="font-size: 11px;">${totalRow.totalSum.toLocaleString('ru-RU')} ₽</div>
+        <div style="font-size: 10px;">${totalRow.totalCount.toLocaleString('ru-RU')}</div>
+        <div style="font-size: 9px;">${totalRow.totalSum.toLocaleString('ru-RU')} ₽</div>
       `;
       totalTr.appendChild(tdGrandTotal);
 
@@ -238,17 +233,30 @@ export const pdfExportDrinksService = {
     pdf: jsPDF,
     pdfWidth: number,
     pdfHeight: number,
-    margin: number
+    margin: number,
+    quality: 'low' | 'medium' | 'high' = 'medium'
   ): Promise<void> => {
+    const qualitySettings = {
+      low: { scale: 1, compression: 0.7 },
+      medium: { scale: 1.5, compression: 0.8 },
+      high: { scale: 2, compression: 0.9 }
+    };
+
+    const settings = qualitySettings[quality];
+
     const canvas = await html2canvas(element, {
-      scale: 2,
+      scale: settings.scale,
       logging: false,
       useCORS: true,
       backgroundColor: '#ffffff',
       windowWidth: element.scrollWidth,
+      allowTaint: false,
+      imageTimeout: 0,
+      removeContainer: true,
     });
 
-    const imgData = canvas.toDataURL('image/png');
+    const imgData = canvas.toDataURL('image/jpeg', settings.compression);
+
     let imgWidth = pdfWidth - (margin * 2);
     let imgHeight = (canvas.height * imgWidth) / canvas.width;
 
@@ -260,7 +268,7 @@ export const pdfExportDrinksService = {
     const xOffset = (pdfWidth - imgWidth) / 2;
     const yOffset = margin;
 
-    pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+    pdf.addImage(imgData, 'JPEG', xOffset, yOffset, imgWidth, imgHeight, undefined, 'FAST');
   },
 
   exportDrinksToPdf: async (
@@ -272,10 +280,11 @@ export const pdfExportDrinksService = {
     const {
       fileName = `Напитки_${address}_${new Date().toLocaleDateString('ru-RU')}`,
       address: reportAddress = address,
-      rowsPerPage = 15,
+      rowsPerPage = 18,
+      quality = 'medium',
     } = options;
 
-    console.log(`Exporting drinks PDF with ${rowsPerPage} rows per page`);
+    console.log(`Exporting drinks PDF with ${rowsPerPage} rows per page, quality: ${quality}`);
 
     const drinksData: DrinksTableRow[] = productRows.map(product => {
       const monthData = months.map((month, idx) => {
@@ -357,11 +366,12 @@ export const pdfExportDrinksService = {
       orientation: 'landscape',
       unit: 'mm',
       format: 'a4',
+      compress: true,
     });
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    const margin = 10;
+    const margin = 8;
 
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
@@ -387,13 +397,13 @@ export const pdfExportDrinksService = {
       tempDiv.appendChild(tableHTML);
       document.body.appendChild(tempDiv);
 
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       if (i > 0) {
         pdf.addPage();
       }
 
-      await pdfExportDrinksService.renderToPDFPage(tableHTML, pdf, pdfWidth, pdfHeight, margin);
+      await pdfExportDrinksService.renderToPDFPage(tableHTML, pdf, pdfWidth, pdfHeight, margin, quality);
 
       document.body.removeChild(tempDiv);
     }

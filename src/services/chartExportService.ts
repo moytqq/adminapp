@@ -1,10 +1,10 @@
-import { toPng } from 'html-to-image';
+import { toPng, toJpeg } from 'html-to-image';
 import jsPDF from 'jspdf';
 
 export interface ChartExportOptions {
-  quality?: number;
-  pixelRatio?: number;
-  backgroundColor?: string;
+  quality?: 'low' | 'medium' | 'high';
+  format?: 'png' | 'jpeg';
+  onProgress?: (current: number, total: number) => void;
 }
 
 interface StoredStyles {
@@ -26,6 +26,12 @@ interface StoredStyles {
   customLegendStyles: { display: string; flexWrap: string; justifyContent: string; gap: string }[];
   buttonsOriginalDisplay: string[];
 }
+
+const qualitySettings = {
+  low: { pixelRatio: 1, quality: 0.6, scale: 1 },
+  medium: { pixelRatio: 1.5, quality: 0.8, scale: 1.5 },
+  high: { pixelRatio: 2, quality: 0.95, scale: 2 }
+};
 
 export const chartExportService = {
   storedStyles: new Map<HTMLElement, StoredStyles>(),
@@ -208,20 +214,33 @@ export const chartExportService = {
     options: ChartExportOptions = {}
   ): Promise<string> => {
     const {
-      quality = 1,
-      pixelRatio = 2,
-      backgroundColor = '#ffffff',
+      quality = 'medium',
+      format = 'jpeg',
     } = options;
 
+    const settings = qualitySettings[quality];
+
     try {
-      const dataUrl = await toPng(chartElement, {
-        quality,
-        pixelRatio,
-        backgroundColor,
-      });
-      return dataUrl;
+      if (format === 'jpeg') {
+        const dataUrl = await toJpeg(chartElement, {
+          pixelRatio: settings.pixelRatio,
+          quality: settings.quality,
+          backgroundColor: '#ffffff',
+          skipAutoScale: false,
+          cacheBust: true,
+        });
+        return dataUrl;
+      } else {
+        const dataUrl = await toPng(chartElement, {
+          pixelRatio: settings.pixelRatio,
+          backgroundColor: '#ffffff',
+          skipAutoScale: false,
+          cacheBust: true,
+        });
+        return dataUrl;
+      }
     } catch (error) {
-      console.error('Error exporting chart to PNG:', error);
+      console.error('Error exporting chart to image:', error);
       throw error;
     }
   },
@@ -229,14 +248,15 @@ export const chartExportService = {
   mergeImagesToPdf: async (
     imagesData: { dataUrl: string; title: string }[],
     fileName: string,
-    options: { orientation?: 'portrait' | 'landscape'; margin?: number } = {}
+    options: { orientation?: 'portrait' | 'landscape'; margin?: number; quality?: 'low' | 'medium' | 'high' } = {}
   ): Promise<void> => {
-    const { orientation = 'landscape', margin = 5 } = options;
+    const { orientation = 'landscape', margin = 5, quality = 'medium' } = options;
 
     const pdf = new jsPDF({
       orientation,
       unit: 'mm',
       format: 'a4',
+      compress: true,
     });
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -268,13 +288,18 @@ export const chartExportService = {
       pdf.setFontSize(14);
       pdf.text(title, pdfWidth / 2, 15, { align: 'center' });
 
+      const isJPEG = dataUrl.startsWith('data:image/jpeg');
+      const imageFormat = isJPEG ? 'JPEG' : 'PNG';
+
       pdf.addImage(
         dataUrl,
-        'PNG',
+        imageFormat,
         (pdfWidth - imgWidth) / 2,
         yOffset,
         imgWidth,
-        imgHeight
+        imgHeight,
+        undefined,
+        'FAST'
       );
     }
 
@@ -285,8 +310,14 @@ export const chartExportService = {
     chartGroups: NodeListOf<Element> | HTMLElement[],
     baseFileName: string,
     isMobile: boolean,
-    onProgress?: (current: number, total: number) => void
+    options: ChartExportOptions = {}
   ): Promise<void> => {
+    const {
+      quality = 'medium',
+      format = 'jpeg',
+      onProgress,
+    } = options;
+
     const chartGroupsArray = Array.from(chartGroups) as HTMLElement[];
     const imagesData: { dataUrl: string; title: string }[] = [];
 
@@ -305,10 +336,10 @@ export const chartExportService = {
       const titleElement = chartGroup.querySelector('h4');
       const title = titleElement?.textContent || `График ${i + 1}`;
 
-      const dataUrl = await chartExportService.exportChartToDataUrl(chartGroup);
+      const dataUrl = await chartExportService.exportChartToDataUrl(chartGroup, { quality, format });
       imagesData.push({ dataUrl, title });
 
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise(resolve => setTimeout(resolve, 200));
     }
 
     if (isMobile) {
@@ -318,7 +349,7 @@ export const chartExportService = {
     await chartExportService.mergeImagesToPdf(
       imagesData,
       `${baseFileName}_charts`,
-      { orientation: 'landscape', margin: 5 }
+      { orientation: 'landscape', margin: 5, quality }
     );
   },
 
@@ -326,8 +357,14 @@ export const chartExportService = {
     chartGroups: NodeListOf<Element> | HTMLElement[],
     baseFileName: string,
     isMobile: boolean,
-    onProgress?: (current: number, total: number) => void
+    options: ChartExportOptions = {}
   ): Promise<void> => {
+    const {
+      quality = 'medium',
+      format = 'jpeg',
+      onProgress,
+    } = options;
+
     const chartGroupsArray = Array.from(chartGroups) as HTMLElement[];
 
     if (isMobile) {
@@ -342,14 +379,15 @@ export const chartExportService = {
         onProgress(i + 1, chartGroupsArray.length);
       }
 
-      const dataUrl = await chartExportService.exportChartToDataUrl(chartGroup);
+      const dataUrl = await chartExportService.exportChartToDataUrl(chartGroup, { quality, format });
 
       const link = document.createElement('a');
-      link.download = `${baseFileName}_chart_${i + 1}.png`;
+      const extension = format === 'jpeg' ? 'jpg' : 'png';
+      link.download = `${baseFileName}_chart_${i + 1}.${extension}`;
       link.href = dataUrl;
       link.click();
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 300));
     }
 
     if (isMobile) {
