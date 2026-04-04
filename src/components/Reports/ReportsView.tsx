@@ -64,7 +64,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [pdfExporting, setPdfExporting] = useState(false);
   const [exportingChartsPdf, setExportingChartsPdf] = useState(false);
-  const [pdfQuality, setPdfQuality] = useState<'low' | 'medium' | 'high'>('low');
+  const [pdfQuality, setPdfQuality] = useState<'low' | 'medium' | 'high'>('medium');
   const [chartQuality, setChartQuality] = useState<'low' | 'medium' | 'high'>('medium');
   const [chartFormat, setChartFormat] = useState<'png' | 'jpeg'>('jpeg');
 
