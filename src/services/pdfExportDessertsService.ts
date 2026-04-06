@@ -1,4 +1,3 @@
-// services/pdfExportDessertsService.ts
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -33,9 +32,6 @@ interface DessertsExportOptions {
 }
 
 export const pdfExportDessertsService = {
-  /**
-   * Разбивает массив строк на чанки по rowsPerPage
-   */
   chunkRows: <T>(rows: T[], rowsPerPage: number): T[][] => {
     const chunks: T[][] = [];
     for (let i = 0; i < rows.length; i += rowsPerPage) {
@@ -44,18 +40,12 @@ export const pdfExportDessertsService = {
     return chunks;
   },
 
-  /**
-   * Форматирует процент изменения
-   */
   formatChangePercent: (percent: number | null): string => {
     if (percent === null) return '';
     const sign = percent > 0 ? '+' : '';
     return `${sign}${percent.toFixed(1)}%`;
   },
 
-  /**
-   * Подготавливает данные для таблицы
-   */
   prepareTableData: (products: any[], months: Array<{ key: string; label: string; fullLabel: string }>): DessertsTableRow[] => {
     return products.map((product: any) => {
       const monthData = months.map((month, idx) => {
@@ -86,9 +76,6 @@ export const pdfExportDessertsService = {
     });
   },
 
-  /**
-   * Вычисляет итоги для набора продуктов
-   */
   calculateTotals: (products: any[], months: Array<{ key: string; label: string; fullLabel: string }>): DessertsTotalRow => {
     const monthlyTotals = months.map((month, idx) => {
       let totalCount = 0;
@@ -132,9 +119,6 @@ export const pdfExportDessertsService = {
     };
   },
 
-  /**
-   * Создаёт HTML таблицу для указанных строк с заголовками
-   */
   createTableHTML: (
     rows: DessertsTableRow[],
     months: Array<{ label: string; fullLabel: string }>,
@@ -177,7 +161,7 @@ export const pdfExportDessertsService = {
     table.style.width = '100%';
     table.style.borderCollapse = 'collapse';
     table.style.fontSize = '9px';
-    table.style.border = '1px solid #e0e0e0';
+    table.style.border = '1px solid #d5d5d5';
 
     // Заголовок таблицы
     const thead = document.createElement('thead');
@@ -187,20 +171,22 @@ export const pdfExportDessertsService = {
     const thProduct = document.createElement('th');
     thProduct.textContent = 'Товар';
     thProduct.style.padding = '6px 6px';
-    thProduct.style.border = '1px solid #e0e0e0';
+    thProduct.style.border = '1px solid #d5d5d5';
     thProduct.style.textAlign = 'left';
     thProduct.style.fontWeight = '600';
-    thProduct.style.backgroundColor = '#f5f5f5';
+    thProduct.style.backgroundColor = '#4472c4';
+    thProduct.style.color = '#ffffff';
     headerRow.appendChild(thProduct);
 
     months.forEach(month => {
       const th = document.createElement('th');
       th.textContent = month.label;
       th.style.padding = '6px 6px';
-      th.style.border = '1px solid #e0e0e0';
+      th.style.border = '1px solid #d5d5d5';
       th.style.textAlign = 'center';
       th.style.fontWeight = '600';
-      th.style.backgroundColor = '#fafafa';
+      th.style.backgroundColor = '#4472c4';
+      th.style.color = '#ffffff';
       th.style.minWidth = '70px';
       headerRow.appendChild(th);
     });
@@ -208,10 +194,11 @@ export const pdfExportDessertsService = {
     const thTotal = document.createElement('th');
     thTotal.textContent = 'Итого';
     thTotal.style.padding = '6px 6px';
-    thTotal.style.border = '1px solid #e0e0e0';
+    thTotal.style.border = '1px solid #d5d5d5';
     thTotal.style.textAlign = 'center';
     thTotal.style.fontWeight = '600';
-    thTotal.style.backgroundColor = '#fff3e0';
+    thTotal.style.backgroundColor = '#4472c4';
+    thTotal.style.color = '#ffffff';
     headerRow.appendChild(thTotal);
 
     thead.appendChild(headerRow);
@@ -222,13 +209,13 @@ export const pdfExportDessertsService = {
 
     rows.forEach((row, rowIndex) => {
       const tr = document.createElement('tr');
-      tr.style.backgroundColor = rowIndex % 2 === 0 ? '#ffffff' : '#fafafa';
+      tr.style.backgroundColor = rowIndex % 2 === 0 ? '#ffffff' : '#d9e1f2';
 
       // Название товара
       const tdProduct = document.createElement('td');
       tdProduct.textContent = row.productName;
       tdProduct.style.padding = '4px 6px';
-      tdProduct.style.border = '1px solid #e0e0e0';
+      tdProduct.style.border = '1px solid #d5d5d5';
       tdProduct.style.textAlign = 'left';
       tdProduct.style.fontWeight = '500';
       tdProduct.style.maxWidth = '140px';
@@ -239,7 +226,7 @@ export const pdfExportDessertsService = {
       row.months.forEach(monthData => {
         const td = document.createElement('td');
         td.style.padding = '4px 4px';
-        td.style.border = '1px solid #e0e0e0';
+        td.style.border = '1px solid #d5d5d5';
         td.style.textAlign = 'center';
         td.style.verticalAlign = 'middle';
 
@@ -250,7 +237,7 @@ export const pdfExportDessertsService = {
         }
 
         td.innerHTML = `
-          <div style="font-weight: 600; font-size: 10px;">${monthData.count.toLocaleString('ru-RU')}</div>
+          <div style="font-weight: 500; font-size: 10px;">${monthData.count.toLocaleString('ru-RU')}</div>
           <div style="color: #666; font-size: 9px;">${monthData.sum.toLocaleString('ru-RU')} ₽</div>
           ${changeHtml}
         `;
@@ -260,10 +247,11 @@ export const pdfExportDessertsService = {
       // Итого по товару
       const tdTotal = document.createElement('td');
       tdTotal.style.padding = '4px 6px';
-      tdTotal.style.border = '1px solid #e0e0e0';
+      tdTotal.style.border = '1px solid #d5d5d5';
       tdTotal.style.textAlign = 'center';
-      tdTotal.style.backgroundColor = '#fff3e0';
-      tdTotal.style.fontWeight = '600';
+      tdTotal.style.backgroundColor = '#8aabe4';
+      tdTotal.style.color = '#000000';
+      tdTotal.style.fontWeight = '500';
       tdTotal.innerHTML = `
         <div style="font-size: 10px;">${row.totalCount.toLocaleString('ru-RU')}</div>
         <div style="font-size: 9px;">${row.totalSum.toLocaleString('ru-RU')} ₽</div>
@@ -276,26 +264,29 @@ export const pdfExportDessertsService = {
     // Итоговая строка
     if (totalRow) {
       const totalTr = document.createElement('tr');
-      totalTr.style.backgroundColor = '#f5f5f5';
-      totalTr.style.fontWeight = '600';
+      totalTr.style.backgroundColor = '#8aabe4';
+      totalTr.style.color = '#ffffff';
+      totalTr.style.fontWeight = '500';
 
       // Ячейка "ИТОГО"
       const tdTotalLabel = document.createElement('td');
       tdTotalLabel.textContent = 'ИТОГО';
       tdTotalLabel.style.padding = '6px 6px';
-      tdTotalLabel.style.border = '1px solid #e0e0e0';
+      tdTotalLabel.style.border = '1px solid #d5d5d5';
       tdTotalLabel.style.textAlign = 'left';
-      tdTotalLabel.style.fontWeight = '700';
-      tdTotalLabel.style.backgroundColor = '#fff8e1';
+      tdTotalLabel.style.fontWeight = '600';
+      tdTotalLabel.style.backgroundColor = '#8aabe4';
+      tdTotalLabel.style.color = '#000000';
       totalTr.appendChild(tdTotalLabel);
 
       // Итоги по месяцам
       totalRow.monthsTotal.forEach(monthTotal => {
         const td = document.createElement('td');
         td.style.padding = '4px 4px';
-        td.style.border = '1px solid #e0e0e0';
+        td.style.border = '1px solid #d5d5d5';
         td.style.textAlign = 'center';
-        td.style.backgroundColor = '#fff8e1';
+        td.style.backgroundColor = '#8aabe4';
+        td.style.color = '#000000';
         td.style.fontWeight = '600';
 
         let changeHtml = '';
@@ -315,10 +306,11 @@ export const pdfExportDessertsService = {
       // Общий итог
       const tdGrandTotal = document.createElement('td');
       tdGrandTotal.style.padding = '4px 6px';
-      tdGrandTotal.style.border = '1px solid #e0e0e0';
+      tdGrandTotal.style.border = '1px solid #d5d5d5';
       tdGrandTotal.style.textAlign = 'center';
-      tdGrandTotal.style.backgroundColor = '#fff8e1';
-      tdGrandTotal.style.fontWeight = '700';
+      tdGrandTotal.style.backgroundColor = '#8aabe4';
+      tdGrandTotal.style.color = '#000000';
+      tdGrandTotal.style.fontWeight = '600';
       tdGrandTotal.innerHTML = `
         <div style="font-size: 10px;">${totalRow.totalCount.toLocaleString('ru-RU')}</div>
         <div style="font-size: 9px;">${totalRow.totalSum.toLocaleString('ru-RU')} ₽</div>
@@ -334,9 +326,6 @@ export const pdfExportDessertsService = {
     return container;
   },
 
-  /**
-   * Рендерит HTML элемент в PDF страницу
-   */
   renderToPDFPage: async (
     element: HTMLElement,
     pdf: jsPDF,
@@ -380,9 +369,6 @@ export const pdfExportDessertsService = {
     pdf.addImage(imgData, 'JPEG', xOffset, yOffset, imgWidth, imgHeight, undefined, 'FAST');
   },
 
-  /**
-   * Добавляет страницу в PDF
-   */
   addPageToPdf: async (
     tableHTML: HTMLElement,
     pdf: jsPDF,
@@ -412,9 +398,6 @@ export const pdfExportDessertsService = {
     document.body.removeChild(tempDiv);
   },
 
-  /**
-   * Основной метод экспорта таблицы десертов с разделением на основную матрицу и дополнительный ассортимент
-   */
   exportDessertsToPdf: async (
     topProducts: any[],
     additionalProducts: any[],
@@ -447,14 +430,12 @@ export const pdfExportDessertsService = {
     let pageCounter = 1;
     let totalPages = 0;
 
-    // Подсчитываем общее количество страниц
     const topData = pdfExportDessertsService.prepareTableData(topProducts, months);
     const additionalData = pdfExportDessertsService.prepareTableData(additionalProducts, months);
     const topChunks = pdfExportDessertsService.chunkRows(topData, rowsPerPage);
     const additionalChunks = pdfExportDessertsService.chunkRows(additionalData, rowsPerPage);
     totalPages = topChunks.length + additionalChunks.length;
 
-    // 1. Экспортируем основную матрицу (топ 30)
     if (topProducts.length > 0) {
       const topTotals = pdfExportDessertsService.calculateTotals(topProducts, months);
 
@@ -471,7 +452,7 @@ export const pdfExportDessertsService = {
           totalPages,
           isFirstPage && i === 0,
           isLastPageOfTop ? topTotals : null,
-          'Основная матрица (Топ-30 товаров по количеству продаж)'
+          'Основная матрица (Топ-30)'
         );
 
         await pdfExportDessertsService.addPageToPdf(
@@ -489,7 +470,6 @@ export const pdfExportDessertsService = {
       }
     }
 
-    // 2. Экспортируем дополнительный ассортимент
     if (additionalProducts.length > 0) {
       const additionalTotals = pdfExportDessertsService.calculateTotals(additionalProducts, months);
 

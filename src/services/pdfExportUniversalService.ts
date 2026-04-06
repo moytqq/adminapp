@@ -51,7 +51,7 @@ export const pdfExportUniversalService = {
     table.style.width = '100%';
     table.style.borderCollapse = 'collapse';
     table.style.fontSize = '9px';
-    table.style.border = '1px solid #e0e0e0';
+    table.style.border = '1px solid #d5d5d5';
 
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
@@ -60,20 +60,22 @@ export const pdfExportUniversalService = {
     const thProduct = document.createElement('th');
     thProduct.textContent = 'Товар';
     thProduct.style.padding = '6px 6px';
-    thProduct.style.border = '1px solid #e0e0e0';
+    thProduct.style.border = '1px solid #d5d5d5';
     thProduct.style.textAlign = 'left';
     thProduct.style.fontWeight = '600';
-    thProduct.style.backgroundColor = '#f5f5f5';
+    thProduct.style.backgroundColor = '#4472c4';
+    thProduct.style.color = '#ffffff';
     headerRow.appendChild(thProduct);
 
     months.forEach(month => {
       const th = document.createElement('th');
       th.textContent = month.label;
       th.style.padding = '6px 6px';
-      th.style.border = '1px solid #e0e0e0';
+      th.style.border = '1px solid #d5d5d5';
       th.style.textAlign = 'center';
       th.style.fontWeight = '600';
-      th.style.backgroundColor = '#fafafa';
+      th.style.backgroundColor = '#4472c4';
+      th.style.color = '#ffffff';
       th.style.minWidth = '70px';
       headerRow.appendChild(th);
     });
@@ -81,10 +83,11 @@ export const pdfExportUniversalService = {
     const thTotal = document.createElement('th');
     thTotal.textContent = 'Итого';
     thTotal.style.padding = '6px 6px';
-    thTotal.style.border = '1px solid #e0e0e0';
+    thTotal.style.border = '1px solid #d5d5d5';
     thTotal.style.textAlign = 'center';
     thTotal.style.fontWeight = '600';
-    thTotal.style.backgroundColor = '#e8f4fd';
+    thTotal.style.backgroundColor = '#4472c4';
+    thTotal.style.color = '#ffffff';
     headerRow.appendChild(thTotal);
 
     thead.appendChild(headerRow);
@@ -94,12 +97,12 @@ export const pdfExportUniversalService = {
 
     rows.forEach((row, rowIndex) => {
       const tr = document.createElement('tr');
-      tr.style.backgroundColor = rowIndex % 2 === 0 ? '#ffffff' : '#fafafa';
+      tr.style.backgroundColor = rowIndex % 2 === 0 ? '#ffffff' : '#d9e1f2';
 
       const tdProduct = document.createElement('td');
       tdProduct.textContent = row.productName;
       tdProduct.style.padding = '4px 6px';
-      tdProduct.style.border = '1px solid #e0e0e0';
+      tdProduct.style.border = '1px solid #d5d5d5';
       tdProduct.style.textAlign = 'left';
       tdProduct.style.fontWeight = '500';
       tdProduct.style.maxWidth = '140px';
@@ -109,7 +112,7 @@ export const pdfExportUniversalService = {
       row.months.forEach((monthData: any) => {
         const td = document.createElement('td');
         td.style.padding = '4px 4px';
-        td.style.border = '1px solid #e0e0e0';
+        td.style.border = '1px solid #d5d5d5';
         td.style.textAlign = 'center';
         td.style.verticalAlign = 'middle';
 
@@ -120,7 +123,7 @@ export const pdfExportUniversalService = {
         }
 
         td.innerHTML = `
-          <div style="font-weight: 600; font-size: 10px;">${monthData.count.toLocaleString('ru-RU')}</div>
+          <div style="font-weight: 500; font-size: 10px;">${monthData.count.toLocaleString('ru-RU')}</div>
           <div style="color: #666; font-size: 9px;">${monthData.sum.toLocaleString('ru-RU')} ₽</div>
           ${changeHtml}
         `;
@@ -131,8 +134,8 @@ export const pdfExportUniversalService = {
       tdTotal.style.padding = '4px 6px';
       tdTotal.style.border = '1px solid #e0e0e0';
       tdTotal.style.textAlign = 'center';
-      tdTotal.style.backgroundColor = '#e8f4fd';
-      tdTotal.style.fontWeight = '600';
+      tdTotal.style.backgroundColor = '#8aabe4';
+      tdTotal.style.fontWeight = '500';
       tdTotal.innerHTML = `
         <div style="font-size: 10px;">${row.totalCount.toLocaleString('ru-RU')}</div>
         <div style="font-size: 9px;">${row.totalSum.toLocaleString('ru-RU')} ₽</div>
@@ -144,24 +147,27 @@ export const pdfExportUniversalService = {
 
     if (totalRow) {
       const totalTr = document.createElement('tr');
-      totalTr.style.backgroundColor = '#f5f5f5';
-      totalTr.style.fontWeight = '600';
+      totalTr.style.backgroundColor = '#8aabe4';
+      totalTr.style.color = '#000000';
+      totalTr.style.fontWeight = '500';
 
       const tdTotalLabel = document.createElement('td');
       tdTotalLabel.textContent = 'ИТОГО';
       tdTotalLabel.style.padding = '6px 6px';
-      tdTotalLabel.style.border = '1px solid #e0e0e0';
+      tdTotalLabel.style.border = '1px solid #d5d5d5';
       tdTotalLabel.style.textAlign = 'left';
-      tdTotalLabel.style.fontWeight = '700';
-      tdTotalLabel.style.backgroundColor = '#e8f4fd';
+      tdTotalLabel.style.fontWeight = '550';
+      tdTotalLabel.style.backgroundColor = '#8aabe4';
+      tdTotalLabel.style.color = '#000000';
       totalTr.appendChild(tdTotalLabel);
 
       totalRow.monthsTotal.forEach((monthTotal: any) => {
         const td = document.createElement('td');
         td.style.padding = '4px 4px';
-        td.style.border = '1px solid #e0e0e0';
+        td.style.border = '1px solid #d5d5d5';
         td.style.textAlign = 'center';
-        td.style.backgroundColor = '#e8f4fd';
+        td.style.backgroundColor = '#8aabe4';
+        td.style.color = '#000000';
         td.style.fontWeight = '600';
 
         let changeHtml = '';
@@ -182,8 +188,8 @@ export const pdfExportUniversalService = {
       tdGrandTotal.style.padding = '4px 6px';
       tdGrandTotal.style.border = '1px solid #e0e0e0';
       tdGrandTotal.style.textAlign = 'center';
-      tdGrandTotal.style.backgroundColor = '#e8f4fd';
-      tdGrandTotal.style.fontWeight = '700';
+      tdGrandTotal.style.backgroundColor = '#8aabe4';
+      tdGrandTotal.style.fontWeight = '600';
       tdGrandTotal.innerHTML = `
         <div style="font-size: 10px;">${totalRow.totalCount.toLocaleString('ru-RU')}</div>
         <div style="font-size: 9px;">${totalRow.totalSum.toLocaleString('ru-RU')} ₽</div>

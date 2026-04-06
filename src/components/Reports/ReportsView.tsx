@@ -14,7 +14,6 @@ import {
   ArrowLeft, ChartLine, Table,
 } from 'lucide-react';
 import DynamicCharts from './DynamicCharts';
-import { pdfExportDrinksService } from '@/services/pdfExportDrinksService';
 import { chartExportService } from '@/services/chartExportService';
 import { pdfExportDessertsService } from '@/services/pdfExportDessertsService';
 import { pdfExportUniversalService } from '@/services/pdfExportUniversalService';
@@ -68,7 +67,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
   const [pdfQuality, setPdfQuality] = useState<'low' | 'medium' | 'high'>('medium');
   const [chartQuality, setChartQuality] = useState<'low' | 'medium' | 'high'>('medium');
   const [chartFormat, setChartFormat] = useState<'png' | 'jpeg'>('jpeg');
-  const [showAdditionalAssortment, setShowAdditionalAssortment] = useState(true);
+  const [showAdditionalAssortment, setShowAdditionalAssortment] = useState(false);
 
 
   useEffect(() => {
@@ -511,7 +510,6 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
               <tr className={styles.totalRow}>
                 <td className={styles.productCell}>ИТОГО</td>
                 {months.map((month, idx) => {
-                  // Вычисляем итоги только для текущего набора строк
                   const currentTotal = rows.reduce((acc, product) => {
                     const data = product.months[month.key] || { count: 0, sum: 0 };
                     return {
@@ -565,7 +563,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
     if (reportType === 'desserts') {
       return (
         <>
-          {renderTable(topProducts, 'Основная матрица (Топ-30 товаров по количеству продаж)', true)}
+          {renderTable(topProducts, 'Основная матрица (Топ-30)', true)}
 
           {hasAdditionalProducts && (
             <>
@@ -577,7 +575,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
                   {showAdditionalAssortment ? '▼' : '▶'} Дополнительный ассортимент ({additionalProducts.length} товаров)
                 </button>
               </div>
-              {showAdditionalAssortment && renderTable(additionalProducts, '', false)}
+              {showAdditionalAssortment && renderTable(additionalProducts, '', true)}
             </>
           )}
         </>

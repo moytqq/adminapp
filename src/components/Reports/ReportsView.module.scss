@@ -1,3 +1,10 @@
+$table-header-bg: #4472c4; // Заголовок фон
+$table-header-text: #ffffff; // Заголовок текст
+$table-total-bg: #8aabe4; // Итоги фон
+$table-total-text: #000000; // Итоги текст
+$table-row-even-bg: #ffffff; // Чётных строки
+$table-row-odd-bg: #d9e1f2; // Нечётные строки
+$table-border: #d5d5d5; // Границы
 
 .reportsView {
   width: 100%;
@@ -185,28 +192,26 @@
   th, td {
     padding: 2px 4px;
     text-align: center;
-    //white-space: nowrap;
-    border-bottom: 1px solid #e0e0e0;
-    border-right: 1px solid #e0e0e0;
+    border-bottom: 1px solid $table-border;
+    border-right: 1px solid $table-border;
   }
 
   th:first-child,
   td:first-child {
-    border-left: 1px solid #e0e0e0;
+    border-left: 1px solid $table-border;
   }
 
   tr:first-child th {
-    //border-top: 1px solid #e0e0e0;
   }
 
   tr:last-child td {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid $table-border;
   }
 
   th {
-    background: #f5f5f5;
+    background: $table-header-bg;
+    color: $table-header-text;
     font-weight: 600;
-    color: #666;
     position: sticky;
   }
 
@@ -235,10 +240,21 @@
   }
 }
 
+.reportTable tbody tr {
+  &:nth-child(even) {
+    background-color: $table-row-even-bg;
+  }
+
+  &:nth-child(odd) {
+    background-color: $table-row-odd-bg;
+  }
+}
+
 .productColumn {
   position: sticky;
   left: 0;
-  background: #f5f5f5;
+  background: $table-header-bg !important;
+  color: $table-header-text !important;
   z-index: 15;
   text-align: left;
   min-width: 50px;
@@ -253,16 +269,30 @@
   overflow-wrap: break-word;
   position: sticky;
   left: 0;
-  background: white;
   z-index: 5;
   text-align: left;
   font-weight: 500;
+
+  tr:nth-child(even) & {
+    background-color: $table-row-even-bg;
+  }
+
+  tr:nth-child(odd) & {
+    background-color: $table-row-odd-bg;
+  }
+
+  // Для итоговой строки
+  .totalRow & {
+    background: $table-total-bg !important;
+    color: $table-total-text !important;
+  }
 }
 
 .monthHeader {
   overflow-wrap: break-word;
   text-align: center;
-  background: #fafafa;
+  background: $table-header-bg !important;
+  color: $table-header-text !important;
   min-width: 75px;
 
   @media (max-width: 768px) {
@@ -273,7 +303,8 @@
 
 .totalHeader {
   text-align: center;
-  background: #fff3e0;
+  background: $table-header-bg !important;
+  color: $table-header-text !important;
   min-width: 0;
 
   @media (max-width: 768px) {
@@ -306,16 +337,14 @@
 }
 
 .totalRow {
-  background: #fafafa;
-  font-weight: 600;
-
   td {
-    background: #f5f5f5;
+    background: $table-total-bg !important;
+    color: $table-total-text !important;
     font-weight: 600;
   }
 
   .productCell {
-    background: #f5f5f5;
+    background: $table-total-bg !important;
   }
 }
 
@@ -810,6 +839,18 @@
   padding: 2px 4px;
   font-size: var(--reports-table-font-size);
 
+  tr:nth-child(even) & {
+    background-color: $table-row-even-bg;
+  }
+
+  tr:nth-child(odd) & {
+    background-color: $table-row-odd-bg;
+  }
+
+  .totalRow & {
+    background: $table-total-bg !important;
+  }
+
   @media (max-width: 768px) {
     padding: 2px 4px;
   }
@@ -838,7 +879,6 @@
 }
 
 .changeRow {
-  font-size: 0.85em;
   font-weight: 500;
   white-space: nowrap;
   padding: 2px 6px;
@@ -862,8 +902,20 @@
 .totalCell {
   vertical-align: middle;
   padding: 6px 8px;
-  background: #fff3e0 !important;
   font-size: var(--reports-table-font-size);
+  tr:nth-child(even) & {
+    background-color: $table-total-bg;
+  }
+
+  tr:nth-child(odd) & {
+    background-color: $table-total-bg;
+  }
+
+  .totalRow & {
+    background: $table-total-bg !important;
+    color: $table-total-text !important;
+  }
+
   @media (max-width: 768px) {
     padding: 4px 6px;
   }
@@ -879,14 +931,12 @@
 
 .totalCountRow {
   font-weight: 600;
-  //color: #ff9800;
   font-size: inherit;
   white-space: nowrap;
 }
 
 .totalSumRow {
   font-weight: 600;
-  //color: #ff9800;
   font-size: inherit;
   white-space: nowrap;
 }
@@ -954,7 +1004,7 @@
  }
 
 .tableTitle {
-  margin: 0 0 12px 0;
+  margin: 6px 0 12px 0;
   font-size: 16px;
   font-weight: 600;
   color: #333;
@@ -962,7 +1012,7 @@
 
   @media (max-width: 768px) {
     font-size: 14px;
-    margin: 0 0 8px 0;
+    margin: 2px 0 8px 0;
     padding: 0 8px;
   }
 }
@@ -970,13 +1020,9 @@
 .additionalToggle {
   padding: 12px;
   border-top: 1px solid #e0e0e0;
-  border-bottom: 1px solid #e0e0e0;
-  margin: 16px 0;
-  background: #fafafa;
 
   @media (max-width: 768px) {
     padding: 8px;
-    margin: 12px 0;
   }
 }
 
@@ -987,7 +1033,7 @@
   width: 100%;
   padding: 10px;
   background: white;
-  border: 1px solid #e0e0e0;
+  border: none;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
@@ -995,9 +1041,17 @@
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover {
-    background: #f5f5f5;
-    border-color: #ccc;
+  @media (hover: hover) {
+    &:hover {
+      background: #f5f5f5;
+      border-color: #ccc;
+    }
+  }
+  @media (hover: none) {
+    &:active {
+      background: #f5f5f5;
+      border-color: #ccc;
+    }
   }
 
   @media (max-width: 768px) {
