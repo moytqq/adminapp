@@ -1,3 +1,4 @@
+// services/pdfExportDessertsService.ts
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -32,6 +33,9 @@ interface DessertsExportOptions {
 }
 
 export const pdfExportDessertsService = {
+  /**
+   * Разбивает массив строк на чанки по rowsPerPage
+   */
   chunkRows: <T>(rows: T[], rowsPerPage: number): T[][] => {
     const chunks: T[][] = [];
     for (let i = 0; i < rows.length; i += rowsPerPage) {
@@ -40,12 +44,97 @@ export const pdfExportDessertsService = {
     return chunks;
   },
 
+  /**
+   * Форматирует процент изменения
+   */
   formatChangePercent: (percent: number | null): string => {
     if (percent === null) return '';
     const sign = percent > 0 ? '+' : '';
     return `${sign}${percent.toFixed(1)}%`;
   },
 
+  /**
+   * Подготавливает данные для таблицы
+   */
+  prepareTableData: (products: any[], months: Array<{ key: string; label: string; fullLabel: string }>): DessertsTableRow[] => {
+    return products.map((product: any) => {
+      const monthData = months.map((month, idx) => {
+        const currentData = product.months[month.key] || { count: 0, sum: 0 };
+        const previousData = idx > 0
+          ? product.months[months[idx - 1].key] || { count: 0, sum: 0 }
+          : null;
+
+        let changePercent: number | null = null;
+        if (idx > 0 && previousData && previousData.sum > 0) {
+          changePercent = ((currentData.sum - previousData.sum) / previousData.sum) * 100;
+        }
+
+        return {
+          label: month.label,
+          count: currentData.count,
+          sum: currentData.sum,
+          changePercent,
+        };
+      });
+
+      return {
+        productName: product.productName,
+        totalCount: product.totalCount,
+        totalSum: product.totalSum,
+        months: monthData,
+      };
+    });
+  },
+
+  /**
+   * Вычисляет итоги для набора продуктов
+   */
+  calculateTotals: (products: any[], months: Array<{ key: string; label: string; fullLabel: string }>): DessertsTotalRow => {
+    const monthlyTotals = months.map((month, idx) => {
+      let totalCount = 0;
+      let totalSum = 0;
+
+      products.forEach(product => {
+        const monthData = product.months[month.key] || { count: 0, sum: 0 };
+        totalCount += monthData.count;
+        totalSum += monthData.sum;
+      });
+
+      let changePercent: number | null = null;
+      if (idx > 0) {
+        let previousTotalSum = 0;
+        products.forEach(product => {
+          const previousMonthData = product.months[months[idx - 1].key] || { count: 0, sum: 0 };
+          previousTotalSum += previousMonthData.sum;
+        });
+        if (previousTotalSum > 0) {
+          changePercent = ((totalSum - previousTotalSum) / previousTotalSum) * 100;
+        }
+      }
+
+      return {
+        count: totalCount,
+        sum: totalSum,
+        changePercent,
+      };
+    });
+
+    const grandTotal = {
+      count: products.reduce((sum, p) => sum + p.totalCount, 0),
+      sum: products.reduce((sum, p) => sum + p.totalSum, 0),
+    };
+
+    return {
+      isTotal: true,
+      totalCount: grandTotal.count,
+      totalSum: grandTotal.sum,
+      monthsTotal: monthlyTotals,
+    };
+  },
+
+  /**
+   * Создаёт HTML таблицу для указанных строк с заголовками
+   */
   createTableHTML: (
     rows: DessertsTableRow[],
     months: Array<{ label: string; fullLabel: string }>,
@@ -53,7 +142,8 @@ export const pdfExportDessertsService = {
     pageNumber: number,
     totalPages: number,
     isFirstPage: boolean,
-    totalRow: DessertsTotalRow | null = null
+    totalRow: DessertsTotalRow | null = null,
+    subTitle: string | null = null
   ): HTMLElement => {
     const container = document.createElement('div');
     container.style.width = '100%';
@@ -65,11 +155,21 @@ export const pdfExportDessertsService = {
     const header = document.createElement('div');
     header.style.textAlign = 'center';
     header.style.marginBottom = '10px';
-    header.innerHTML = `
+
+    let headerHtml = `
       <h2 style="margin: 0 0 4px 0; font-size: 14px; color: #333;">${title}</h2>
+    `;
+
+    if (subTitle) {
+      headerHtml += `<h3 style="margin: 0 0 4px 0; font-size: 12px; color: #666; font-weight: 500;">${subTitle}</h3>`;
+    }
+
+    headerHtml += `
       ${!isFirstPage ? `<p style="margin: 0; font-size: 10px; color: #666;">Продолжение таблицы</p>` : ''}
       <p style="margin: 4px 0 0 0; font-size: 9px; color: #999;">Страница ${pageNumber} из ${totalPages}</p>
     `;
+
+    header.innerHTML = headerHtml;
     container.appendChild(header);
 
     // Таблица
@@ -111,7 +211,7 @@ export const pdfExportDessertsService = {
     thTotal.style.border = '1px solid #e0e0e0';
     thTotal.style.textAlign = 'center';
     thTotal.style.fontWeight = '600';
-    thTotal.style.backgroundColor = '#e8f4fd';
+    thTotal.style.backgroundColor = '#fff3e0';
     headerRow.appendChild(thTotal);
 
     thead.appendChild(headerRow);
@@ -124,19 +224,21 @@ export const pdfExportDessertsService = {
       const tr = document.createElement('tr');
       tr.style.backgroundColor = rowIndex % 2 === 0 ? '#ffffff' : '#fafafa';
 
+      // Название товара
       const tdProduct = document.createElement('td');
       tdProduct.textContent = row.productName;
-      tdProduct.style.padding = '4px 6px'; // Уменьшил с 8px до 4px
+      tdProduct.style.padding = '4px 6px';
       tdProduct.style.border = '1px solid #e0e0e0';
       tdProduct.style.textAlign = 'left';
       tdProduct.style.fontWeight = '500';
-      tdProduct.style.maxWidth = '120px'; // Уменьшил с 150px до 120px
+      tdProduct.style.maxWidth = '140px';
       tdProduct.style.wordBreak = 'break-word';
       tr.appendChild(tdProduct);
 
+      // Данные по месяцам
       row.months.forEach(monthData => {
         const td = document.createElement('td');
-        td.style.padding = '4px 4px'; // Уменьшил с 8px 6px до 4px 4px
+        td.style.padding = '4px 4px';
         td.style.border = '1px solid #e0e0e0';
         td.style.textAlign = 'center';
         td.style.verticalAlign = 'middle';
@@ -155,11 +257,12 @@ export const pdfExportDessertsService = {
         tr.appendChild(td);
       });
 
+      // Итого по товару
       const tdTotal = document.createElement('td');
       tdTotal.style.padding = '4px 6px';
       tdTotal.style.border = '1px solid #e0e0e0';
       tdTotal.style.textAlign = 'center';
-      tdTotal.style.backgroundColor = '#e8f4fd';
+      tdTotal.style.backgroundColor = '#fff3e0';
       tdTotal.style.fontWeight = '600';
       tdTotal.innerHTML = `
         <div style="font-size: 10px;">${row.totalCount.toLocaleString('ru-RU')}</div>
@@ -176,21 +279,23 @@ export const pdfExportDessertsService = {
       totalTr.style.backgroundColor = '#f5f5f5';
       totalTr.style.fontWeight = '600';
 
+      // Ячейка "ИТОГО"
       const tdTotalLabel = document.createElement('td');
       tdTotalLabel.textContent = 'ИТОГО';
       tdTotalLabel.style.padding = '6px 6px';
       tdTotalLabel.style.border = '1px solid #e0e0e0';
       tdTotalLabel.style.textAlign = 'left';
       tdTotalLabel.style.fontWeight = '700';
-      tdTotalLabel.style.backgroundColor = '#e8f4fd';
+      tdTotalLabel.style.backgroundColor = '#fff8e1';
       totalTr.appendChild(tdTotalLabel);
 
+      // Итоги по месяцам
       totalRow.monthsTotal.forEach(monthTotal => {
         const td = document.createElement('td');
         td.style.padding = '4px 4px';
         td.style.border = '1px solid #e0e0e0';
         td.style.textAlign = 'center';
-        td.style.backgroundColor = '#e8f4fd';
+        td.style.backgroundColor = '#fff8e1';
         td.style.fontWeight = '600';
 
         let changeHtml = '';
@@ -207,11 +312,12 @@ export const pdfExportDessertsService = {
         totalTr.appendChild(td);
       });
 
+      // Общий итог
       const tdGrandTotal = document.createElement('td');
       tdGrandTotal.style.padding = '4px 6px';
       tdGrandTotal.style.border = '1px solid #e0e0e0';
       tdGrandTotal.style.textAlign = 'center';
-      tdGrandTotal.style.backgroundColor = '#e8f4fd';
+      tdGrandTotal.style.backgroundColor = '#fff8e1';
       tdGrandTotal.style.fontWeight = '700';
       tdGrandTotal.innerHTML = `
         <div style="font-size: 10px;">${totalRow.totalCount.toLocaleString('ru-RU')}</div>
@@ -228,6 +334,9 @@ export const pdfExportDessertsService = {
     return container;
   },
 
+  /**
+   * Рендерит HTML элемент в PDF страницу
+   */
   renderToPDFPage: async (
     element: HTMLElement,
     pdf: jsPDF,
@@ -255,7 +364,7 @@ export const pdfExportDessertsService = {
       removeContainer: true,
     });
 
-    const imgData = canvas.toDataURL('image/jpeg', settings.compression); // Используем JPEG вместо PNG
+    const imgData = canvas.toDataURL('image/jpeg', settings.compression);
 
     let imgWidth = pdfWidth - (margin * 2);
     let imgHeight = (canvas.height * imgWidth) / canvas.width;
@@ -271,8 +380,44 @@ export const pdfExportDessertsService = {
     pdf.addImage(imgData, 'JPEG', xOffset, yOffset, imgWidth, imgHeight, undefined, 'FAST');
   },
 
+  /**
+   * Добавляет страницу в PDF
+   */
+  addPageToPdf: async (
+    tableHTML: HTMLElement,
+    pdf: jsPDF,
+    pdfWidth: number,
+    pdfHeight: number,
+    margin: number,
+    quality: 'low' | 'medium' | 'high',
+    addNewPage: boolean
+  ): Promise<void> => {
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    tempDiv.style.top = '-9999px';
+    tempDiv.style.width = 'auto';
+    tempDiv.style.height = 'auto';
+    tempDiv.appendChild(tableHTML);
+    document.body.appendChild(tempDiv);
+
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    if (addNewPage) {
+      pdf.addPage();
+    }
+
+    await pdfExportDessertsService.renderToPDFPage(tableHTML, pdf, pdfWidth, pdfHeight, margin, quality);
+
+    document.body.removeChild(tempDiv);
+  },
+
+  /**
+   * Основной метод экспорта таблицы десертов с разделением на основную матрицу и дополнительный ассортимент
+   */
   exportDessertsToPdf: async (
-    productRows: any[],
+    topProducts: any[],
+    additionalProducts: any[],
     months: Array<{ key: string; label: string; fullLabel: string }>,
     address: string,
     options: DessertsExportOptions = {}
@@ -285,82 +430,7 @@ export const pdfExportDessertsService = {
     } = options;
 
     console.log(`Exporting desserts PDF with ${rowsPerPage} rows per page, quality: ${quality}`);
-
-    const dessertsData: DessertsTableRow[] = productRows.map(product => {
-      const monthData = months.map((month, idx) => {
-        const currentData = product.months[month.key] || { count: 0, sum: 0 };
-        const previousData = idx > 0
-          ? product.months[months[idx - 1].key] || { count: 0, sum: 0 }
-          : null;
-
-        let changePercent: number | null = null;
-        if (idx > 0 && previousData && previousData.sum > 0) {
-          changePercent = ((currentData.sum - previousData.sum) / previousData.sum) * 100;
-        }
-
-        return {
-          label: month.label,
-          count: currentData.count,
-          sum: currentData.sum,
-          changePercent,
-        };
-      });
-
-      return {
-        productName: product.productName,
-        totalCount: product.totalCount,
-        totalSum: product.totalSum,
-        months: monthData,
-      };
-    });
-
-    const sortedData = [...dessertsData].sort((a, b) => b.totalSum - a.totalSum);
-
-    const monthlyTotals = months.map((_, idx) => {
-      let totalCount = 0;
-      let totalSum = 0;
-
-      dessertsData.forEach(product => {
-        const monthData = product.months[idx];
-        totalCount += monthData.count;
-        totalSum += monthData.sum;
-      });
-
-      let changePercent: number | null = null;
-      if (idx > 0) {
-        let previousTotalSum = 0;
-        dessertsData.forEach(product => {
-          const previousMonthData = product.months[idx - 1];
-          previousTotalSum += previousMonthData.sum;
-        });
-        if (previousTotalSum > 0) {
-          changePercent = ((totalSum - previousTotalSum) / previousTotalSum) * 100;
-        }
-      }
-
-      return {
-        count: totalCount,
-        sum: totalSum,
-        changePercent,
-      };
-    });
-
-    const grandTotal = {
-      count: dessertsData.reduce((sum, p) => sum + p.totalCount, 0),
-      sum: dessertsData.reduce((sum, p) => sum + p.totalSum, 0),
-    };
-
-    const totalRow: DessertsTotalRow = {
-      isTotal: true,
-      totalCount: grandTotal.count,
-      totalSum: grandTotal.sum,
-      monthsTotal: monthlyTotals,
-    };
-
-    const chunks = pdfExportDessertsService.chunkRows(sortedData, rowsPerPage);
-    const totalPages = chunks.length;
-
-    const title = `Отчет по продажам: Десерты\n${reportAddress}\n${new Date().toLocaleDateString('ru-RU')}`;
+    console.log(`Top products: ${topProducts.length}, Additional products: ${additionalProducts.length}`);
 
     const pdf = new jsPDF({
       orientation: 'landscape',
@@ -373,39 +443,84 @@ export const pdfExportDessertsService = {
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const margin = 8;
 
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-      const isFirstPage = i === 0;
-      const isLastPage = i === chunks.length - 1;
+    let isFirstPage = true;
+    let pageCounter = 1;
+    let totalPages = 0;
 
-      const tableHTML = pdfExportDessertsService.createTableHTML(
-        chunk,
-        months,
-        title,
-        i + 1,
-        totalPages,
-        isFirstPage,
-        isLastPage ? totalRow : null
-      );
+    // Подсчитываем общее количество страниц
+    const topData = pdfExportDessertsService.prepareTableData(topProducts, months);
+    const additionalData = pdfExportDessertsService.prepareTableData(additionalProducts, months);
+    const topChunks = pdfExportDessertsService.chunkRows(topData, rowsPerPage);
+    const additionalChunks = pdfExportDessertsService.chunkRows(additionalData, rowsPerPage);
+    totalPages = topChunks.length + additionalChunks.length;
 
-      const tempDiv = document.createElement('div');
-      tempDiv.style.position = 'absolute';
-      tempDiv.style.left = '-9999px';
-      tempDiv.style.top = '-9999px';
-      tempDiv.style.width = 'auto';
-      tempDiv.style.height = 'auto';
-      tempDiv.appendChild(tableHTML);
-      document.body.appendChild(tempDiv);
+    // 1. Экспортируем основную матрицу (топ 30)
+    if (topProducts.length > 0) {
+      const topTotals = pdfExportDessertsService.calculateTotals(topProducts, months);
 
-      await new Promise(resolve => setTimeout(resolve, 50));
+      for (let i = 0; i < topChunks.length; i++) {
+        const chunk = topChunks[i];
+        const isLastChunk = i === topChunks.length - 1;
+        const isLastPageOfTop = isLastChunk && additionalProducts.length === 0;
 
-      if (i > 0) {
-        pdf.addPage();
+        const tableHTML = pdfExportDessertsService.createTableHTML(
+          chunk,
+          months.map(m => ({ label: m.label, fullLabel: m.fullLabel })),
+          `Отчет по продажам: Десерты\n${reportAddress}\n${new Date().toLocaleDateString('ru-RU')}`,
+          pageCounter,
+          totalPages,
+          isFirstPage && i === 0,
+          isLastPageOfTop ? topTotals : null,
+          'Основная матрица (Топ-30 товаров по количеству продаж)'
+        );
+
+        await pdfExportDessertsService.addPageToPdf(
+          tableHTML,
+          pdf,
+          pdfWidth,
+          pdfHeight,
+          margin,
+          quality,
+          !isFirstPage
+        );
+
+        isFirstPage = false;
+        pageCounter++;
       }
+    }
 
-      await pdfExportDessertsService.renderToPDFPage(tableHTML, pdf, pdfWidth, pdfHeight, margin, quality);
+    // 2. Экспортируем дополнительный ассортимент
+    if (additionalProducts.length > 0) {
+      const additionalTotals = pdfExportDessertsService.calculateTotals(additionalProducts, months);
 
-      document.body.removeChild(tempDiv);
+      for (let i = 0; i < additionalChunks.length; i++) {
+        const chunk = additionalChunks[i];
+        const isLastChunk = i === additionalChunks.length - 1;
+
+        const tableHTML = pdfExportDessertsService.createTableHTML(
+          chunk,
+          months.map(m => ({ label: m.label, fullLabel: m.fullLabel })),
+          `Отчет по продажам: Десерты\n${reportAddress}\n${new Date().toLocaleDateString('ru-RU')}`,
+          pageCounter,
+          totalPages,
+          pageCounter === 1,
+          isLastChunk ? additionalTotals : null,
+          'Дополнительный ассортимент'
+        );
+
+        await pdfExportDessertsService.addPageToPdf(
+          tableHTML,
+          pdf,
+          pdfWidth,
+          pdfHeight,
+          margin,
+          quality,
+          !isFirstPage
+        );
+
+        isFirstPage = false;
+        pageCounter++;
+      }
     }
 
     pdf.save(`${fileName}.pdf`);

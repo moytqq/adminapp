@@ -68,6 +68,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
   const [pdfQuality, setPdfQuality] = useState<'low' | 'medium' | 'high'>('medium');
   const [chartQuality, setChartQuality] = useState<'low' | 'medium' | 'high'>('medium');
   const [chartFormat, setChartFormat] = useState<'png' | 'jpeg'>('jpeg');
+  const [showAdditionalAssortment, setShowAdditionalAssortment] = useState(true);
 
 
   useEffect(() => {
@@ -361,19 +362,33 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
     setError(null);
 
     try {
-      const rowsPerPage = isMobile ? 20 : 20;
+      const rowsPerPage = isMobile ? 15 : 20;
 
-      await pdfExportUniversalService.exportToPdf(
-        productRows,
-        months,
-        selectedAddress,
-        getReportTitle(),
-        {
-          rowsPerPage,
-          fileName: `${getReportTitle()}_${selectedAddress}_${new Date().toLocaleDateString('ru-RU')}`,
-          quality: pdfQuality,
-        }
-      );
+      if (reportType === 'desserts') {
+        await pdfExportDessertsService.exportDessertsToPdf(
+          topProducts,
+          additionalProducts,
+          months,
+          selectedAddress,
+          {
+            rowsPerPage,
+            fileName: `Десерты_${selectedAddress}_${new Date().toLocaleDateString('ru-RU')}`,
+            quality: pdfQuality,
+          }
+        );
+      } else {
+        await pdfExportUniversalService.exportToPdf(
+          productRows,
+          months,
+          selectedAddress,
+          getReportTitle(),
+          {
+            rowsPerPage,
+            fileName: `${getReportTitle()}_${selectedAddress}_${new Date().toLocaleDateString('ru-RU')}`,
+            quality: pdfQuality,
+          }
+        );
+      }
     } catch (error) {
       console.error('Error exporting to PDF:', error);
       setError('Ошибка при экспорте в PDF.');
@@ -381,6 +396,24 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
       setPdfExporting(false);
     }
   };
+
+  const { topProducts, additionalProducts, hasAdditionalProducts } = useMemo(() => {
+    if (reportType !== 'desserts') {
+      return { topProducts: productRows, additionalProducts: [], hasAdditionalProducts: false };
+    }
+
+    const sorted = [...productRows].sort((a, b) => b.totalCount - a.totalCount);
+
+    const top = sorted.slice(0, 30);
+
+    const additional = sorted.slice(30);
+
+    return {
+      topProducts: top,
+      additionalProducts: additional,
+      hasAdditionalProducts: additional.length > 0
+    };
+  }, [productRows, reportType]);
 
   if (loading) {
     return (
@@ -427,6 +460,133 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
       </td>
     );
   };
+
+  const renderTable = (rows: any[], title?: string, showTotalRow: boolean = true) => {
+    if (rows.length === 0) return null;
+
+    return (
+      <div className={styles.tableSection}>
+        {title && <h3 className={styles.tableTitle}>{title}</h3>}
+        <div className={styles.tableContainer}>
+          <table className={styles.reportTable}>
+            <thead>
+            <tr>
+              <th className={styles.productColumn}>Товар</th>
+              {months.map(month => (
+                <th key={month.key} className={styles.monthHeader}>
+                  {month.label}
+                </th>
+              ))}
+              <th className={styles.totalHeader}>Итого</th>
+            </tr>
+            </thead>
+            <tbody>
+            {rows.map(product => {
+              const monthEntries = months.map((month, index) => ({
+                month,
+                data: product.months[month.key] || { count: 0, sum: 0 },
+                previousData: index > 0 ? product.months[months[index - 1].key] || { count: 0, sum: 0 } : null,
+              }));
+
+              return (
+                <tr key={product.productName}>
+                  <td className={styles.productCell}>
+                    {product.productName}
+                  </td>
+                  {monthEntries.map((entry, idx) => (
+                    <React.Fragment key={entry.month.key}>
+                      {renderCombinedCell(entry.data, entry.previousData, idx)}
+                    </React.Fragment>
+                  ))}
+                  <td className={styles.totalCell}>
+                    <div className={styles.totalCellContent}>
+                      <div className={styles.totalCountRow}>{formatNumber(product.totalCount)}</div>
+                      <div className={styles.totalSumRow}>{formatCurrency(product.totalSum)}</div>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+            {showTotalRow && (
+              <tr className={styles.totalRow}>
+                <td className={styles.productCell}>ИТОГО</td>
+                {months.map((month, idx) => {
+                  // Вычисляем итоги только для текущего набора строк
+                  const currentTotal = rows.reduce((acc, product) => {
+                    const data = product.months[month.key] || { count: 0, sum: 0 };
+                    return {
+                      count: acc.count + data.count,
+                      sum: acc.sum + data.sum
+                    };
+                  }, { count: 0, sum: 0 });
+
+                  const previousTotal = idx > 0 ? rows.reduce((acc, product) => {
+                    const data = product.months[months[idx - 1].key] || { count: 0, sum: 0 };
+                    return {
+                      count: acc.count + data.count,
+                      sum: acc.sum + data.sum
+                    };
+                  }, { count: 0, sum: 0 }) : null;
+
+                  return (
+                    <React.Fragment key={month.key}>
+                      {renderCombinedCell(currentTotal, previousTotal, idx)}
+                    </React.Fragment>
+                  );
+                })}
+                <td className={styles.totalCell}>
+                  <div className={styles.totalCellContent}>
+                    <div className={styles.totalCountRow}>
+                      {formatNumber(rows.reduce((sum, p) => sum + p.totalCount, 0))}
+                    </div>
+                    <div className={styles.totalSumRow}>
+                      {formatCurrency(rows.reduce((sum, p) => sum + p.totalSum, 0))}
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  const renderContent = () => {
+    if (productRows.length === 0) {
+      return (
+        <div className={styles.noData}>
+          <p>Нет данных для отображения</p>
+        </div>
+      );
+    }
+
+    if (reportType === 'desserts') {
+      return (
+        <>
+          {renderTable(topProducts, 'Основная матрица (Топ-30 товаров по количеству продаж)', true)}
+
+          {hasAdditionalProducts && (
+            <>
+              <div className={styles.additionalToggle}>
+                <button
+                  className={styles.toggleButton}
+                  onClick={() => setShowAdditionalAssortment(!showAdditionalAssortment)}
+                >
+                  {showAdditionalAssortment ? '▼' : '▶'} Дополнительный ассортимент ({additionalProducts.length} товаров)
+                </button>
+              </div>
+              {showAdditionalAssortment && renderTable(additionalProducts, '', false)}
+            </>
+          )}
+        </>
+      );
+    }
+
+    return renderTable(productRows, '', true);
+  };
+
 
   const tableContent = (
     <div className={styles.tableContainer}>
@@ -539,7 +699,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
           </div>
         </div>
         <div className={styles.fullscreenContent}>
-          {tableContent}
+          {renderContent()}
         </div>
       </div>
     );
@@ -643,7 +803,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
         </div>
       ) : (
         <div className={styles.scrollableContent}>
-          {tableContent}
+          {renderContent()}
           {chartsContent}
         </div>
       )}
