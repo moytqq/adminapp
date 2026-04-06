@@ -17,6 +17,7 @@ import DynamicCharts from './DynamicCharts';
 import { pdfExportDrinksService } from '@/services/pdfExportDrinksService';
 import { chartExportService } from '@/services/chartExportService';
 import { pdfExportDessertsService } from '@/services/pdfExportDessertsService';
+import { pdfExportUniversalService } from '@/services/pdfExportUniversalService';
 
 interface ReportsViewProps {
   reportType: string;
@@ -121,6 +122,18 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
         case 'desserts':
           result = await reportsApi.getDessertsSales(selectedAddress);
           break;
+        case 'bread':
+          result = await reportsApi.getBreadSales(selectedAddress);
+          break;
+        case 'salads':
+          result = await reportsApi.getSaladsSales(selectedAddress);
+          break;
+        case 'soups':
+          result = await reportsApi.getSoupsSales(selectedAddress);
+          break;
+        case 'hot':
+          result = await reportsApi.getHotSales(selectedAddress);
+          break;
         default:
           result = [];
       }
@@ -139,6 +152,14 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
         return 'Напитки';
       case 'desserts':
         return 'Десерты';
+      case 'bread':
+        return 'Хлеб-Выпечка';
+      case 'salads':
+        return 'Салаты';
+      case 'soups':
+        return 'Супы';
+      case 'hot':
+        return 'Горячее';
       default:
         return 'Отчет';
     }
@@ -150,6 +171,14 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
         return 'напитков';
       case 'desserts':
         return 'десертов';
+      case 'bread':
+        return 'хлеб_выпечка';
+      case 'salads':
+        return 'салатов';
+      case 'soups':
+        return 'супов';
+      case 'hot':
+        return 'горячее';
       default:
         return 'отчет';
     }
@@ -334,29 +363,17 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
     try {
       const rowsPerPage = isMobile ? 20 : 20;
 
-      if (reportType === 'desserts') {
-        await pdfExportDessertsService.exportDessertsToPdf(
-          productRows,
-          months,
-          selectedAddress,
-          {
-            rowsPerPage,
-            fileName: `Десерты_${selectedAddress}_${new Date().toLocaleDateString('ru-RU')}`,
-            quality: pdfQuality,
-          }
-        );
-      } else if (reportType === 'drinks') {
-        await pdfExportDrinksService.exportDrinksToPdf(
-          productRows,
-          months,
-          selectedAddress,
-          {
-            rowsPerPage,
-            fileName: `Напитки_${selectedAddress}_${new Date().toLocaleDateString('ru-RU')}`,
-            quality: pdfQuality,
-          }
-        );
-      }
+      await pdfExportUniversalService.exportToPdf(
+        productRows,
+        months,
+        selectedAddress,
+        getReportTitle(),
+        {
+          rowsPerPage,
+          fileName: `${getReportTitle()}_${selectedAddress}_${new Date().toLocaleDateString('ru-RU')}`,
+          quality: pdfQuality,
+        }
+      );
     } catch (error) {
       console.error('Error exporting to PDF:', error);
       setError('Ошибка при экспорте в PDF.');

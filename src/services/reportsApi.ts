@@ -66,4 +66,56 @@ export const reportsApi = {
       return [];
     }
   },
+  getBreadSales: async (address: string): Promise<ProductSale[]> => {
+    try {
+      const response = await api.get<ProductSalesResponse>(`/otchet/get_prodaji_bread_mes?addr=${encodeURIComponent(address)}`);
+      if (response.data.status === 'success') {
+        return response.data.data;
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching bread sales:', error);
+      return [];
+    }
+  },
+
+  getSaladsSales: async (address: string): Promise<ProductSale[]> => {
+    try {
+      const response = await api.get<ProductSalesResponse>(`/otchet/get_prodaji_salads_mes?addr=${encodeURIComponent(address)}`);
+      if (response.data.status === 'success') {
+        return response.data.data;
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching salads sales:', error);
+      return [];
+    }
+  },
+
+  getSoupsSales: async (address: string): Promise<ProductSale[]> => {
+    try {
+      const response = await api.get<ProductSalesResponse>(`/otchet/get_prodaji_soups_mes?addr=${encodeURIComponent(address)}`);
+      if (response.data.status === 'success') {
+        return response.data.data;
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching soups sales:', error);
+      return [];
+    }
+  },
+
+  getHotSales: async (address: string): Promise<ProductSale[]> => {
+    try {
+      const response = await api.get<ProductSalesResponse>(`/otchet/get_prodaji_hot_mes?addr=${encodeURIComponent(address)}`);
+      if (response.data.status === 'success') {
+        return response.data.data;
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching hot sales:', error);
+      return [];
+    }
+  },
+
 };

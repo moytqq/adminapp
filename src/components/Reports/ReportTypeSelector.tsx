@@ -2,7 +2,8 @@
 
 import React from 'react';
 import styles from './ReportTypeSelector.module.scss';
-import { Coffee, Cake, TrendingUp, DollarSign, BarChart3 } from 'lucide-react';
+import { Coffee, Cake, TrendingUp, DollarSign, BarChart3,
+  Croissant, Salad, Soup, UtensilsCrossed } from 'lucide-react';
 
 export interface ReportType {
   id: string;
@@ -34,14 +35,38 @@ const reportTypes: ReportType[] = [
     color: '#9c27b0',
     bgColor: '#f3e5f5',
   },
-  // {
-  //   id: 'sales',
-  //   title: 'Общие продажи',
-  //   description: 'Анализ общих продаж по всем категориям',
-  //   icon: <TrendingUp size={32} />,
-  //   color: '#4caf50',
-  //   bgColor: '#e8f5e9',
-  // },
+  {
+    id: 'bread',
+    title: 'Хлеб-Выпечка',
+    description: 'Анализ продаж хлеба, булочек и выпечки',
+    icon: <Croissant  size={32} />,
+    color: '#ff9800',
+    bgColor: '#fff3e0',
+  },
+  {
+    id: 'salads',
+    title: 'Салаты',
+    description: 'Анализ продаж салатов и закусок',
+    icon: <Salad size={32} />,
+    color: '#4caf50',
+    bgColor: '#e8f5e9',
+  },
+  {
+    id: 'soups',
+    title: 'Супы',
+    description: 'Анализ продаж супов и бульонов',
+    icon: <Soup size={32} />,
+    color: '#ff5722',
+    bgColor: '#fbe9e7',
+  },
+  {
+    id: 'hot',
+    title: 'Горячее',
+    description: 'Анализ продаж горячих блюд',
+    icon: <UtensilsCrossed size={32} />,
+    color: '#795548',
+    bgColor: '#efebe9',
+  },
 ];
 
 const ReportTypeSelector: React.FC<ReportTypeSelectorProps> = ({ onSelectType }) => {
