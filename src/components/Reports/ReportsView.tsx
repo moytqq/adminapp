@@ -11,7 +11,7 @@ import {
   ZoomOut,
   Maximize2,
   Minimize2,
-  ArrowLeft, ChartLine, Table,
+  ArrowLeft, ChartLine, Table, ArrowRight, ArrowDown,
 } from 'lucide-react';
 import DynamicCharts from './DynamicCharts';
 import { chartExportService } from '@/services/chartExportService';
@@ -572,7 +572,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
                   className={styles.toggleButton}
                   onClick={() => setShowAdditionalAssortment(!showAdditionalAssortment)}
                 >
-                  {showAdditionalAssortment ? '▼' : '▶'} Дополнительный ассортимент ({additionalProducts.length} товаров)
+                  {showAdditionalAssortment ?  <ArrowDown /> : <ArrowRight />} Дополнительный ассортимент ({additionalProducts.length} товаров)
                 </button>
               </div>
               {showAdditionalAssortment && renderTable(additionalProducts, '', true)}
