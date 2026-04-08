@@ -14,6 +14,7 @@ const RezultatyPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedReportType, setSelectedReportType] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const router = useRouter();
 
   React.useEffect(() => {
@@ -25,12 +26,43 @@ const RezultatyPage = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  const handleSelectType = (typeId: string) => {
+    setSelectedReportType(typeId);
+    setSelectedCategory(null);
+  };
+
+  const handleSelectCategory = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+  };
+
+  const handleBackToCategories = () => {
+    setSelectedCategory(null);
+  };
+
   const handleBack = () => {
     if (selectedReportType) {
       setSelectedReportType(null);
+      setSelectedCategory('culinary');
+    } else if (selectedCategory) {
+      setSelectedCategory(null);
     } else {
       router.push('/main');
     }
+  };
+
+  const showBackButton = selectedReportType || selectedCategory;
+  const getHeaderTitle = () => {
+    if (selectedReportType) return null;
+    if (selectedCategory) {
+      const categoryTitles: Record<string, string> = {
+        meat: 'Мясо',
+        dairy: 'Молочка',
+        sausage: 'Колбаса',
+        culinary: 'Кулинария',
+      };
+      return categoryTitles[selectedCategory] || 'Результаты';
+    }
+    return 'Результаты';
   };
 
   return (
@@ -47,17 +79,22 @@ const RezultatyPage = () => {
             >
               <Menu size={24} />
             </button>
-            {!selectedReportType && <h1 className={styles.title}>Результаты</h1>}
+            {!selectedReportType && <h1 className={styles.title}>{getHeaderTitle()}</h1>}
           </div>
         </header>
 
         <main className={styles.content}>
           {!selectedReportType ? (
-            <ReportTypeSelector onSelectType={setSelectedReportType} />
+            <ReportTypeSelector
+              onSelectType={handleSelectType}
+              selectedCategory={selectedCategory}
+              onSelectCategory={handleSelectCategory}
+              onBackToCategories={handleBackToCategories}
+            />
           ) : (
             <ReportsView
               reportType={selectedReportType}
-              onBack={() => setSelectedReportType(null)}
+              onBack={handleBack}
             />
           )}
         </main>

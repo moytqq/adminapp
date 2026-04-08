@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@lucide/lab": "^0.1.2",
     "@reduxjs/toolkit": "^2.11.2",
     "@types/react-virtualized-auto-sizer": "^1.0.4",
     "axios": "^1.13.2",
