@@ -572,7 +572,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
                   className={styles.toggleButton}
                   onClick={() => setShowAdditionalAssortment(!showAdditionalAssortment)}
                 >
-                  {showAdditionalAssortment ?  <ArrowDown /> : <ArrowRight />} Дополнительный ассортимент ({additionalProducts.length} товаров)
+                  {showAdditionalAssortment ? <ArrowDown /> : <ArrowRight />} Дополнительный ассортимент ({additionalProducts.length} товаров)
                 </button>
               </div>
               {showAdditionalAssortment && renderTable(additionalProducts, '', true)}
