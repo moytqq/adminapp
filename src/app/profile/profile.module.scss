@@ -30,6 +30,17 @@
   gap: 12px;
 }
 
+.title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
+}
+
 .menuButton {
   width: 40px;
   height: 40px;

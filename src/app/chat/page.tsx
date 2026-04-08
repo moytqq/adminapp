@@ -31,6 +31,7 @@ const ChatPage = () => {
             >
               <Menu size={24} />
             </button>
+            <h1 className={styles.title}>Чат</h1>
           </div>
         </header>
 

@@ -107,6 +107,7 @@ const ProfilePage = () => {
             >
               <Menu size={24} />
             </button>
+            <h1 className={styles.title}>Личный кабинет</h1>
           </div>
 
           <div className={styles.profileInfo}>

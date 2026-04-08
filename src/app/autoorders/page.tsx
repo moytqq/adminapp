@@ -33,7 +33,6 @@ const AutoOrdersPage = () => {
     }
   };
 
-  // Определяем, показывать ли кнопку "Назад" в хедере
   const showBackButton = selectedAutoOrderType !== null;
   const getHeaderTitle = () => {
     if (selectedAutoOrderType) {
