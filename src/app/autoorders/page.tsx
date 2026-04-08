@@ -33,6 +33,22 @@ const AutoOrdersPage = () => {
     }
   };
 
+  // Определяем, показывать ли кнопку "Назад" в хедере
+  const showBackButton = selectedAutoOrderType !== null;
+  const getHeaderTitle = () => {
+    if (selectedAutoOrderType) {
+      const typeTitles: Record<string, string> = {
+        itemsMatrix: 'Товарная матрица',
+        nonProfitablePurchases: 'Некоммерческие закупки',
+        workInProgress: 'В работе',
+        completed: 'Выполнены',
+        urgentOrder: 'Срочный заказ',
+      };
+      return typeTitles[selectedAutoOrderType] || 'Автозаказы';
+    }
+    return 'Автозаказы';
+  };
+
   return (
     <ProtectedRoute>
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
@@ -47,8 +63,14 @@ const AutoOrdersPage = () => {
             >
               <Menu size={24} />
             </button>
-            {!selectedAutoOrderType && <h1 className={styles.title}>Результаты</h1>}
+            {!selectedAutoOrderType && <h1 className={styles.title}>{getHeaderTitle()}</h1>}
           </div>
+          {showBackButton && (
+            <button className={styles.backButton} onClick={handleBack} title="Назад">
+              <ArrowLeft size={20} />
+              <span>Назад</span>
+            </button>
+          )}
         </header>
 
         <main className={styles.content}>

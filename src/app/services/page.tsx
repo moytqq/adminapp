@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -34,6 +33,25 @@ const ServicesPage = () => {
     }
   };
 
+  // Определяем, показывать ли кнопку "Назад" в хедере
+  const showBackButton = selectedServiceType !== null;
+  const getHeaderTitle = () => {
+    if (selectedServiceType) {
+      const typeTitles: Record<string, string> = {
+        repairs: 'Ремонт',
+        coffeeMakers: 'Кофемашины',
+        fridges: 'Холодильники',
+        shopWindows: 'Витрины',
+        kitchen: 'Кухня',
+        stove: 'Печи',
+        climate: 'Климат',
+        cashRegisters: 'Кассы-Орг',
+      };
+      return typeTitles[selectedServiceType] || 'Сервис';
+    }
+    return 'Сервис';
+  };
+
   return (
     <ProtectedRoute>
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
@@ -48,8 +66,14 @@ const ServicesPage = () => {
             >
               <Menu size={24} />
             </button>
-            {!selectedServiceType && <h1 className={styles.title}>Результаты</h1>}
+            {!selectedServiceType && <h1 className={styles.title}>{getHeaderTitle()}</h1>}
           </div>
+          {showBackButton && (
+            <button className={styles.backButton} onClick={handleBack} title="Назад">
+              <ArrowLeft size={20} />
+              <span>Назад</span>
+            </button>
+          )}
         </header>
 
         <main className={styles.content}>
