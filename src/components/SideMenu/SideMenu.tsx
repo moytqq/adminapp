@@ -11,7 +11,7 @@ import {
   FileText,
   ClipboardCheck,
   MessageCircle,
-  MessageCircleMore, Lightbulb, Star, ListOrdered, User,
+  MessageCircleMore, Lightbulb, Star, ListOrdered, User, Wrench,
 } from 'lucide-react';
 import styles from './SideMenu.module.scss';
 import Link from 'next/link';
@@ -84,8 +84,8 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
             <span>Личный кабинет</span>
           </Link>
           <Link
-            href="/autozakazy"
-            className={`${styles.navItem} ${pathname === '/autozakazy' ? styles.active : ''}`}
+            href="/autoorders"
+            className={`${styles.navItem} ${pathname === '/autoorders' ? styles.active : ''}`}
             onClick={handleLinkClick}
           >
             <ListOrdered  size={20} />
@@ -130,6 +130,14 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
           >
             <Lightbulb size={20} />
             <span>Предложения</span>
+          </Link>
+          <Link
+            href="/services"
+            className={`${styles.navItem} ${pathname === '/services' ? styles.active : ''}`}
+            onClick={handleLinkClick}
+          >
+            <Wrench size={20} />
+            <span>Услуги</span>
           </Link>
         </nav>
         <footer className={styles.footer}>
