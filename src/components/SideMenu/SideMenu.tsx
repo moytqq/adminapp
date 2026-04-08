@@ -137,7 +137,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
             onClick={handleLinkClick}
           >
             <Wrench size={20} />
-            <span>Услуги</span>
+            <span>Сервис</span>
           </Link>
         </nav>
         <footer className={styles.footer}>

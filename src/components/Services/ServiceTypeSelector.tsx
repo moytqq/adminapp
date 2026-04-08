@@ -4,7 +4,7 @@ import React from 'react';
 import styles from './ServiceTypeSelector.module.scss';
 import {
   Coffee, Cake, TrendingUp, DollarSign, BarChart3,
-  Croissant, Salad, Soup, UtensilsCrossed, Wrench, Snowflake, Heater, Thermometer, Coins,
+  Croissant, Salad, Soup, UtensilsCrossed, Wrench, Snowflake, Heater, Thermometer, Coins, Grid2X2, ChefHat,
 } from 'lucide-react';
 
 export interface ServiceType {
@@ -34,24 +34,40 @@ const serviceTypes: ServiceType[] = [
     title: 'Кофемашины',
     description: 'Кофемашины',
     icon: <Coffee size={32} />,
-    color: '#9c27b0',
-    bgColor: '#f3e5f5',
+    color: '#795548',
+    bgColor: '#efebe9',
   },
   {
     id: 'fridges',
-    title: 'Холодильники-Витрины',
-    description: 'Холодильники и Витрины',
+    title: 'Холодильники',
+    description: 'Холодильники',
     icon: <Snowflake  size={32} />,
+    color: '#216af3',
+    bgColor: '#e3eafd',
+  },
+  {
+    id: 'shopWindows',
+    title: 'Витрины',
+    description: 'Витрины',
+    icon: <Grid2X2  size={32} />,
     color: '#ff9800',
     bgColor: '#fff3e0',
   },
   {
     id: 'kitchen',
-    title: 'Печи-Кухня',
-    description: 'Печи и Кухня',
-    icon: <Heater size={32} />,
+    title: 'Кухня',
+    description: 'Кухня',
+    icon: <ChefHat size={32} />,
     color: '#4caf50',
     bgColor: '#e8f5e9',
+  },
+  {
+    id: 'stove',
+    title: 'Печи',
+    description: 'Печи',
+    icon: <Heater size={32} />,
+    color: '#d1bc02',
+    bgColor: '#f8f5dc',
   },
   {
     id: 'climate',
@@ -63,11 +79,11 @@ const serviceTypes: ServiceType[] = [
   },
   {
     id: 'cashRegisters',
-    title: 'Кассы',
+    title: 'Кассы-Орг',
     description: 'Кассы',
     icon: <Coins size={32} />,
-    color: '#795548',
-    bgColor: '#efebe9',
+    color: '#9c27b0',
+    bgColor: '#f3e5f5',
   },
 ];
 
@@ -75,7 +91,7 @@ const ServiceTypeSelector: React.FC<ServiceTypeSelectorProps> = ({ onSelectType 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>Услуги</h1>
+        <h1>Сервис</h1>
         <p>Выберите тип ремонтных работ</p>
       </div>
       <div className={styles.grid}>
