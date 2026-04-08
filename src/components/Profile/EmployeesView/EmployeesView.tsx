@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks';
 import {
   loadAllStaff,
@@ -11,12 +11,22 @@ import PositionCard from '@/components/StaffPage/PositionCard';
 import AddPositionModal from '@/components/StaffPage/AddPositionModal';
 import AddStaffModal from '@/components/StaffPage/AddStaffModal';
 import Pagination from '@/components/Pagination/Pagination';
+import EmployeeCategorySelector from './EmployeeCategorySelector';
 import styles from './EmployeesView.module.scss';
-import { Users, Briefcase, RefreshCw, ArrowUpDown, Filter, Search } from 'lucide-react';
+import { Users, Briefcase, RefreshCw, ArrowUpDown, Filter, Search, ArrowLeft } from 'lucide-react';
 
 type SortOrder = 'asc' | 'desc';
 
 const ITEMS_PER_PAGE = 20;
+
+const categoryTitles: Record<string, string> = {
+  hotline: 'Горячая линия',
+  office: 'Офис',
+  managers: 'Управляющие',
+  managers_line: 'Менеджеры',
+  linear: 'Линейный',
+  engineers: 'Инженеры',
+};
 
 const EmployeesView: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -31,6 +41,8 @@ const EmployeesView: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterVacant, setFilterVacant] = useState<boolean | null>(null);
+
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -61,16 +73,12 @@ const EmployeesView: React.FC = () => {
     }
   }, [stores]);
 
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    try {
-      await loadData();
-      setCurrentPage(1);
-    } catch (err) {
-      console.error('Failed to refresh data:', err);
-    } finally {
-      setIsRefreshing(false);
-    }
+  const handleSelectCategory = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+  };
+
+  const handleBackToCategories = () => {
+    setSelectedCategory(null);
   };
 
   const toggleSortOrder = () => {
@@ -132,156 +140,170 @@ const EmployeesView: React.FC = () => {
     }
   }, [currentPage, totalPages]);
 
-  return (
-    <div className={styles.employeesView}>
-      <div className={styles.header}>
-        <h2>Сотрудники и вакансии ({filteredAndSortedPositions.length})</h2>
-        <div className={styles.headerActions}>
-          <button
-            onClick={handleRefresh}
-            className={`${styles.refreshButton} ${isRefreshing ? styles.refreshing : ''}`}
-            disabled={isRefreshing}
-          >
-            <RefreshCw size={16} className={isRefreshing ? styles.spin : ''} />
-            <span>Обновить</span>
-          </button>
-          <button
-            className={`${styles.sortButton} ${sortOrder === 'desc' ? styles.desc : ''}`}
-            onClick={toggleSortOrder}
-            title={sortOrder === 'asc' ? 'Сортировка по возрастанию' : 'Сортировка по убыванию'}
-          >
-            <ArrowUpDown size={16} />
-            <span>Сортировка</span>
-          </button>
-          <button
-            className={`${styles.filterButton} ${getFilterButtonClass()}`}
-            onClick={toggleFilterVacant}
-            title={
-              filterVacant === null ? 'Все вакансии' :
-                filterVacant ? 'Только свободные' : 'Только занятые'
-            }
-          >
-            <Filter size={16} />
-            <span>{
-              filterVacant === null ? 'Все' :
-                filterVacant ? 'Свободные' : 'Занятые'
-            }</span>
-          </button>
-          <button
-            className={styles.addButton}
-            onClick={() => setShowAddPositionModal(true)}
-          >
-            <Briefcase size={16} />
-            <span>Добавить вакансию</span>
-          </button>
-          <button
-            className={styles.addButton}
-            onClick={() => setShowAddStaffModal(true)}
-          >
-            <Users size={16} />
-            <span>Добавить сотрудника</span>
-          </button>
-        </div>
-      </div>
+  const getSelectedCategoryTitle = () => {
+    return selectedCategory ? categoryTitles[selectedCategory] || 'Сотрудники' : 'Сотрудники';
+  };
 
-      <div className={styles.stats}>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>{positions.length}</div>
-          <div className={styles.statLabel}>Всего вакансий</div>
+  if (selectedCategory) {
+    return (
+      <div className={styles.employeesView}>
+        <div className={styles.header}>
+          <h2>{getSelectedCategoryTitle()} ({filteredAndSortedPositions.length})</h2>
+          <div className={styles.headerActions}>
+            <button
+              className={styles.backButton}
+              onClick={handleBackToCategories}
+              title="Назад к категориям"
+            >
+              <ArrowLeft size={16} />
+              <span>Назад</span>
+            </button>
+            <button
+              className={`${styles.sortButton} ${sortOrder === 'desc' ? styles.desc : ''}`}
+              onClick={toggleSortOrder}
+              title={sortOrder === 'asc' ? 'Сортировка по возрастанию' : 'Сортировка по убыванию'}
+            >
+              <ArrowUpDown size={16} />
+              <span>Сортировка</span>
+            </button>
+            <button
+              className={`${styles.filterButton} ${getFilterButtonClass()}`}
+              onClick={toggleFilterVacant}
+              title={
+                filterVacant === null ? 'Все вакансии' :
+                  filterVacant ? 'Только свободные' : 'Только занятые'
+              }
+            >
+              <Filter size={16} />
+              <span>{
+                filterVacant === null ? 'Все' :
+                  filterVacant ? 'Свободные' : 'Занятые'
+              }</span>
+            </button>
+            <button
+              className={styles.addButton}
+              onClick={() => setShowAddPositionModal(true)}
+            >
+              <Briefcase size={16} />
+              <span>Добавить вакансию</span>
+            </button>
+            <button
+              className={styles.addButton}
+              onClick={() => setShowAddStaffModal(true)}
+            >
+              <Users size={16} />
+              <span>Добавить сотрудника</span>
+            </button>
+          </div>
         </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>{vacantPositions.length}</div>
-          <div className={styles.statLabel}>Свободных</div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>{occupiedPositions.length}</div>
-          <div className={styles.statLabel}>Занятых</div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.statValue}>{staff.length}</div>
-          <div className={styles.statLabel}>Сотрудников</div>
-        </div>
-      </div>
 
-      <div className={styles.searchContainer}>
-        <Search size={18} className={styles.searchIcon} />
-        <input
-          type="text"
-          className={styles.searchInput}
-          placeholder="Поиск по названию вакансии..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1);
-          }}
+        <div className={styles.stats}>
+          <div className={styles.statCard}>
+            <div className={styles.statValue}>{positions.length}</div>
+            <div className={styles.statLabel}>Всего вакансий</div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statValue}>{vacantPositions.length}</div>
+            <div className={styles.statLabel}>Свободных</div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statValue}>{occupiedPositions.length}</div>
+            <div className={styles.statLabel}>Занятых</div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statValue}>{staff.length}</div>
+            <div className={styles.statLabel}>Сотрудников</div>
+          </div>
+        </div>
+
+        <div className={styles.searchContainer}>
+          <Search size={18} className={styles.searchIcon} />
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="Поиск по названию вакансии..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
+
+        {isLoading ? (
+          <div className={styles.loading}>
+            <div className={styles.spinner} />
+            <p>Загрузка данных...</p>
+          </div>
+        ) : (
+          <>
+            <div className={styles.positionsGrid}>
+              {paginatedPositions.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>Ничего не найдено</p>
+                  {(searchTerm || filterVacant !== null) && (
+                    <button
+                      className={styles.resetButton}
+                      onClick={() => {
+                        setSearchTerm('');
+                        setFilterVacant(null);
+                      }}
+                    >
+                      Сбросить фильтры
+                    </button>
+                  )}
+                </div>
+              ) : (
+                paginatedPositions.map((position) => {
+                  const assignedStaff = staff.find(s => s.lsid === position.lsid);
+                  const storeDisplayName = storeNamesMap[position.hid] || 'Магазин';
+
+                  return (
+                    <PositionCard
+                      key={position.id}
+                      position={position}
+                      staff={assignedStaff}
+                      allStaff={staff}
+                      storeName={storeDisplayName}
+                    />
+                  );
+                })
+              )}
+            </div>
+
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            )}
+
+            <div className={styles.statsFooter}>
+              Показано {paginatedPositions.length} из {filteredAndSortedPositions.length} вакансий
+            </div>
+          </>
+        )}
+
+        <AddPositionModal
+          isOpen={showAddPositionModal}
+          onClose={() => setShowAddPositionModal(false)}
+        />
+
+        <AddStaffModal
+          isOpen={showAddStaffModal}
+          onClose={() => setShowAddStaffModal(false)}
         />
       </div>
+    );
+  }
 
-      {isLoading ? (
-        <div className={styles.loading}>
-          <div className={styles.spinner} />
-          <p>Загрузка данных...</p>
-        </div>
-      ) : (
-        <>
-          <div className={styles.positionsGrid}>
-            {paginatedPositions.length === 0 ? (
-              <div className={styles.emptyState}>
-                <p>Ничего не найдено</p>
-                {(searchTerm || filterVacant !== null) && (
-                  <button
-                    className={styles.resetButton}
-                    onClick={() => {
-                      setSearchTerm('');
-                      setFilterVacant(null);
-                    }}
-                  >
-                    Сбросить фильтры
-                  </button>
-                )}
-              </div>
-            ) : (
-              paginatedPositions.map((position) => {
-                const assignedStaff = staff.find(s => s.lsid === position.lsid);
-                const storeDisplayName = storeNamesMap[position.hid] || 'Магазин';
-
-                return (
-                  <PositionCard
-                    key={position.id}
-                    position={position}
-                    staff={assignedStaff}
-                    allStaff={staff}
-                    storeName={storeDisplayName}
-                  />
-                );
-              })
-            )}
-          </div>
-
-          {totalPages > 1 && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          )}
-
-          <div className={styles.statsFooter}>
-            Показано {paginatedPositions.length} из {filteredAndSortedPositions.length} вакансий
-          </div>
-        </>
-      )}
-
-      <AddPositionModal
-        isOpen={showAddPositionModal}
-        onClose={() => setShowAddPositionModal(false)}
-      />
-
-      <AddStaffModal
-        isOpen={showAddStaffModal}
-        onClose={() => setShowAddStaffModal(false)}
-      />
-    </div>
+  return (
+    <EmployeeCategorySelector
+      onSelectCategory={handleSelectCategory}
+      selectedCategory={null}
+      onBackToCategories={handleBackToCategories}
+    />
   );
 };
 
