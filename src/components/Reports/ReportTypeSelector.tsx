@@ -76,7 +76,7 @@ const categories: CategoryType[] = [
         description: 'Анализ продаж кофе, чая и других напитков',
         icon: <Coffee size={32} />,
         color: '#2196f3',
-        bgColor: '#e3f2fd',
+        bgColor: '#f3e5f5',
       },
       {
         id: 'desserts',
@@ -92,7 +92,7 @@ const categories: CategoryType[] = [
         description: 'Анализ продаж выпечки',
         icon: <Croissant size={32} />,
         color: '#ff9800',
-        bgColor: '#fff3e0',
+        bgColor: '#f3e5f5',
       },
       {
         id: 'bread',
@@ -100,7 +100,7 @@ const categories: CategoryType[] = [
         description: 'Анализ продаж хлеба',
         icon: <Icon iconNode={toast} size={32} />,
         color: '#d1bc02',
-        bgColor: '#f8f5dc',
+        bgColor: '#f3e5f5',
       },
       {
         id: 'salads',
@@ -108,7 +108,7 @@ const categories: CategoryType[] = [
         description: 'Анализ продаж салатов и закусок',
         icon: <Salad size={32} />,
         color: '#4caf50',
-        bgColor: '#e8f5e9',
+        bgColor: '#f3e5f5',
       },
       {
         id: 'soups',
@@ -116,7 +116,7 @@ const categories: CategoryType[] = [
         description: 'Анализ продаж супов и бульонов',
         icon: <Soup size={32} />,
         color: '#ff5722',
-        bgColor: '#fbe9e7',
+        bgColor: '#f3e5f5',
       },
       {
         id: 'hot',
@@ -124,7 +124,7 @@ const categories: CategoryType[] = [
         description: 'Анализ продаж горячих блюд',
         icon: <UtensilsCrossed size={32} />,
         color: '#795548',
-        bgColor: '#efebe9',
+        bgColor: '#f3e5f5',
       },
     ],
   },
