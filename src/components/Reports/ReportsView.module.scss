@@ -281,7 +281,6 @@ $table-border: #d5d5d5; // Границы
     background-color: $table-row-odd-bg;
   }
 
-  // Для итоговой строки
   .totalRow & {
     background: $table-total-bg !important;
     color: $table-total-text !important;
@@ -289,7 +288,7 @@ $table-border: #d5d5d5; // Границы
 }
 
 .monthHeader {
-  overflow-wrap: break-word;
+  overflow-wrap: normal;
   text-align: center;
   background: $table-header-bg !important;
   color: $table-header-text !important;
