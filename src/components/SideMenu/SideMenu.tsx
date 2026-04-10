@@ -116,6 +116,14 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
             <span>Результаты</span>
           </Link>
           <Link
+            href="/services"
+            className={`${styles.navItem} ${pathname === '/services' ? styles.active : ''}`}
+            onClick={handleLinkClick}
+          >
+            <Wrench size={20} />
+            <span>Сервис</span>
+          </Link>
+          <Link
             href="/chat"
             className={`${styles.navItem} ${pathname === '/chat' ? styles.active : ''}`}
             onClick={handleLinkClick}
@@ -130,14 +138,6 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
           >
             <Lightbulb size={20} />
             <span>Предложения</span>
-          </Link>
-          <Link
-            href="/services"
-            className={`${styles.navItem} ${pathname === '/services' ? styles.active : ''}`}
-            onClick={handleLinkClick}
-          >
-            <Wrench size={20} />
-            <span>Сервис</span>
           </Link>
         </nav>
         <footer className={styles.footer}>
