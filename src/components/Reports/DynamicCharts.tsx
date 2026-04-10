@@ -1,5 +1,3 @@
-// components/Reports/DynamicCharts.tsx
-
 'use client';
 
 import React, { useMemo } from 'react';
@@ -25,7 +23,7 @@ interface DynamicChartsProps {
   productRows: ProductData[];
   months: MonthData[];
   isMobile: boolean;
-  reportType?: string; // Добавляем тип отчета
+  reportType?: string;
 }
 
 interface ChartDataPoint {
@@ -64,17 +62,14 @@ const CustomDot = (props: any) => {
 };
 
 const DynamicCharts: React.FC<DynamicChartsProps> = ({ productRows, months, isMobile, reportType = 'drinks' }) => {
-  // Фильтруем товары, исключая те, у которых в названии есть "сотрудники"
   let filteredProducts = useMemo(() => {
     return productRows.filter(product =>
       !product.productName.toLowerCase().includes('сотрудник')
     );
   }, [productRows]);
 
-  // Для десертов оставляем только 12 лучших товаров по выручке
   filteredProducts = useMemo(() => {
     if (reportType === 'desserts') {
-      // Сортируем по общей выручке и берем топ 12
       const sorted = [...filteredProducts].sort((a, b) => b.totalSum - a.totalSum);
       const top12 = sorted.slice(0, 12);
       console.log(`Desserts mode: showing top ${top12.length} products out of ${filteredProducts.length}`);
@@ -371,7 +366,6 @@ const DynamicCharts: React.FC<DynamicChartsProps> = ({ productRows, months, isMo
   const topSumCount = topSumProducts.length;
   const bottomSumCount = bottomSumProducts.length;
 
-  // Для десертов показываем только лучшие 50% (так как у нас уже топ 12)
   const showOnlyTop = reportType === 'desserts';
 
   return (
