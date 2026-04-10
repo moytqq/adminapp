@@ -12,7 +12,7 @@ import {
   CheckCircle2,
   CalendarClock,
   CalendarCheck,
-  CalendarX,
+  CalendarX, ClipboardList, RussianRuble,
 } from 'lucide-react';
 
 export interface PlannerType {
@@ -49,7 +49,7 @@ const plannerTypes: PlannerType[] = [
     id: 'reports',
     title: 'Отчёты',
     description: 'Отчёты',
-    icon: <CalendarRange size={32} />,
+    icon: <ClipboardList size={32} />,
     color: '#ff9800',
     bgColor: '#fff3e0',
   },
@@ -57,7 +57,7 @@ const plannerTypes: PlannerType[] = [
     id: 'kpiWeek',
     title: 'KPI неделя',
     description: 'KPI неделя',
-    icon: <Clock size={32} />,
+    icon: <RussianRuble size={32} />,
     color: '#f44336',
     bgColor: '#ffebee',
   },
@@ -65,7 +65,7 @@ const plannerTypes: PlannerType[] = [
     id: 'kpiToday',
     title: 'KPI сегодня',
     description: 'KPI сегодня',
-    icon: <AlertCircle size={32} />,
+    icon: <RussianRuble size={32} />,
     color: '#9c27b0',
     bgColor: '#f3e5f5',
   },

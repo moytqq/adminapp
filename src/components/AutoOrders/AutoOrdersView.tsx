@@ -1,7 +1,6 @@
 import React from 'react';
 import styles from './AutoOrderView.module.scss';
 import {
-  Calendar,
   CalendarClock,
   Table, ShoppingCart, CalendarSync, CalendarCheck2, ListOrdered,
 } from 'lucide-react';
