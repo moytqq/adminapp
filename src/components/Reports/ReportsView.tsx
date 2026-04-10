@@ -24,14 +24,15 @@ interface ReportsViewProps {
 }
 
 const ADDRESSES = [
-  { value: 'Бугры', label: 'Бугры' },
-  { value: 'Свердлово', label: 'Свердлово' },
-  { value: 'Ропша', label: 'Ропша' },
-  { value: 'Мурино', label: 'Мурино' },
-  { value: 'Ветеранов', label: 'Ветеранов' },
-  { value: 'Тихорецкий', label: 'Тихорецкий' },
   { value: 'Абрамова', label: 'Абрамова' },
+  { value: 'Бугры', label: 'Бугры' },
+  { value: 'Ветеранов', label: 'Ветеранов' },
   { value: 'Гагарина', label: 'Гагарина' },
+  { value: 'Ленсовета', label: 'Ленсовета' },
+  { value: 'Мурино', label: 'Мурино' },
+  { value: 'Ропша', label: 'Ропша' },
+  { value: 'Свердлово', label: 'Свердлово' },
+  { value: 'Тихорецкий', label: 'Тихорецкий' },
 ];
 
 interface MonthData {
