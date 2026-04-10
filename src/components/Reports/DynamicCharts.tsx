@@ -32,32 +32,20 @@ interface ChartDataPoint {
   [key: string]: string | number;
 }
 
-const shapes = [
-  { name: 'circle', symbol: 'circle', path: 'M0,0 m -3,0 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0' },
-  { name: 'square', symbol: 'square', path: 'M-3,-3 L3,-3 L3,3 L-3,3 Z' },
-  { name: 'diamond', symbol: 'diamond', path: 'M0,-4 L4,0 L0,4 L-4,0 Z' },
-  { name: 'triangle', symbol: 'triangle', path: 'M0,-4 L4,4 L-4,4 Z' },
-  { name: 'cross', symbol: 'cross', path: 'M-3,0 L3,0 M0,-3 L0,3' },
-  { name: 'star', symbol: 'star', path: 'M0,-4 L1,-1 L4,-1 L2,1 L3,4 L0,2 L-3,4 L-2,1 L-4,-1 L-1,-1 Z' },
-];
-
 const CustomDot = (props: any) => {
-  const { cx, cy, payload, shape, color } = props;
+  const { cx, cy, color } = props;
   if (!cx || !cy) return null;
 
-  const shapeConfig = shapes.find(s => s.name === shape);
-  if (!shapeConfig) return null;
-
   return (
-    <g transform={`translate(${cx},${cy})`}>
-      <path
-        d={shapeConfig.path}
-        fill={color}
-        stroke={color}
-        strokeWidth={1}
-        style={{ pointerEvents: 'none' }}
-      />
-    </g>
+    <circle
+      cx={cx}
+      cy={cy}
+      r={2}
+      fill={color}
+      stroke={color}
+      strokeWidth={1}
+      style={{ pointerEvents: 'none' }}
+    />
   );
 };
 
@@ -79,7 +67,7 @@ const DynamicCharts: React.FC<DynamicChartsProps> = ({ productRows, months, isMo
   }, [filteredProducts, reportType]);
 
   const productStyleMap = useMemo(() => {
-    const map = new Map<string, { color: string; shape: string }>();
+    const map = new Map<string, { color: string }>();
 
     const colors = [
       '#2196f3', '#4caf50', '#ff9800', '#f44336', '#9c27b0',
@@ -89,8 +77,7 @@ const DynamicCharts: React.FC<DynamicChartsProps> = ({ productRows, months, isMo
 
     filteredProducts.forEach((product, index) => {
       map.set(product.productName, {
-        color: colors[index % colors.length],
-        shape: shapes[index % shapes.length].name
+        color: colors[index % colors.length]
       });
     });
 
@@ -171,16 +158,16 @@ const DynamicCharts: React.FC<DynamicChartsProps> = ({ productRows, months, isMo
         <div className={styles.tooltipItems}>
           {sortedPayload.map((entry: any, index: number) => {
             const style = productStyleMap.get(entry.name);
-            const shapeConfig = shapes.find(s => s.name === style?.shape);
             return (
               <div key={index} className={styles.tooltipItem}>
                 <svg width="16" height="16" viewBox="0 0 10 10" style={{ marginRight: '4px' }}>
-                  <path
-                    d={shapeConfig?.path || shapes[0].path}
+                  <circle
+                    cx="5"
+                    cy="5"
+                    r="3"
                     fill={style?.color}
                     stroke={style?.color}
                     strokeWidth="1"
-                    transform="translate(5,5)"
                   />
                 </svg>
                 <span className={styles.tooltipName} title={entry.name}>
@@ -222,16 +209,16 @@ const DynamicCharts: React.FC<DynamicChartsProps> = ({ productRows, months, isMo
       <ul className={styles.customLegend}>
         {payload.map((entry: any, index: number) => {
           const style = productStyleMap.get(entry.value);
-          const shapeConfig = shapes.find(s => s.name === style?.shape);
           return (
             <li key={`item-${index}`} className={styles.legendItem}>
-              <svg width="14" height="14" viewBox="0 0 10 10" className={styles.legendIcon}>
-                <path
-                  d={shapeConfig?.path || shapes[0].path}
+              <svg width="12" height="12" viewBox="0 0 10 10" className={styles.legendIcon}>
+                <circle
+                  cx="5"
+                  cy="5"
+                  r="3"
                   fill={style?.color}
                   stroke={style?.color}
                   strokeWidth="1"
-                  transform="translate(5,5)"
                 />
               </svg>
               <span style={{ color: style?.color }} className={styles.legendText}>
@@ -326,7 +313,6 @@ const DynamicCharts: React.FC<DynamicChartsProps> = ({ productRows, months, isMo
                         <CustomDot
                           cx={cx}
                           cy={cy}
-                          shape={style?.shape}
                           color={style?.color}
                         />
                       );
@@ -338,7 +324,6 @@ const DynamicCharts: React.FC<DynamicChartsProps> = ({ productRows, months, isMo
                         <CustomDot
                           cx={cx}
                           cy={cy}
-                          shape={style?.shape}
                           color={style?.color}
                         />
                       );
