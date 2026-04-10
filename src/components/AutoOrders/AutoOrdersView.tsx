@@ -3,7 +3,7 @@ import styles from './AutoOrderView.module.scss';
 import {
   Calendar,
   CalendarClock,
-  Table, ShoppingCart, CalendarSync, CalendarCheck2,
+  Table, ShoppingCart, CalendarSync, CalendarCheck2, ListOrdered,
 } from 'lucide-react';
 
 interface AutoOrderViewProps {
@@ -19,7 +19,7 @@ const getAutoOrderTitle = (type: string): string => {
     completed: 'Выполнены',
     urgentOrder: 'Срочный заказ',
   };
-  return titles[type] || 'Планировщик';
+  return titles[type] || 'Автозаказы';
 };
 
 const getAutoOrderIcon = (type: string) => {
@@ -30,7 +30,7 @@ const getAutoOrderIcon = (type: string) => {
     completed: <CalendarCheck2 size={48} />,
     urgentOrder: <CalendarClock size={48} />,
   };
-  return icons[type] || <Calendar size={48} />;
+  return icons[type] || <ListOrdered size={48} />;
 };
 
 const AutoOrderView: React.FC<AutoOrderViewProps> = ({ autoOrderType, onBack }) => {

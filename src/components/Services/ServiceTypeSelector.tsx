@@ -3,8 +3,7 @@
 import React from 'react';
 import styles from './ServiceTypeSelector.module.scss';
 import {
-  Coffee, Cake, TrendingUp, DollarSign, BarChart3,
-  Croissant, Salad, Soup, UtensilsCrossed, Wrench, Snowflake, Heater, Thermometer, Coins, Grid2X2, ChefHat,
+  Coffee, Wrench, Snowflake, Heater, Thermometer, Coins, Grid2X2, ChefHat,
 } from 'lucide-react';
 
 export interface ServiceType {
