@@ -4,7 +4,7 @@ import React from 'react';
 import PlaceholderPage from '@/components/PlaceholderPage/PlaceholderPage';
 import { Calendar } from 'lucide-react';
 
-const PlanirovschikPage = () => {
+const PlannerPage = () => {
   return (
     <PlaceholderPage
       title="Планировщик"
@@ -15,4 +15,4 @@ const PlanirovschikPage = () => {
   );
 };
 
-export default PlanirovschikPage;
+export default PlannerPage;

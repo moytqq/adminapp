@@ -6,7 +6,7 @@ import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
 import SideMenu from '@/components/SideMenu/SideMenu';
 import ReportTypeSelector from '@/components/Reports/ReportTypeSelector';
 import ReportsView from '@/components/Reports/ReportsView';
-import styles from './rezultaty.module.scss';
+import styles from './results.module.scss';
 import { Menu, ArrowLeft } from 'lucide-react';
 import stylesSideMenu from '@/app/main/main.module.scss';
 

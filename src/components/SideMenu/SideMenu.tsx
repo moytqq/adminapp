@@ -84,8 +84,8 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
             <span>Личный кабинет</span>
           </Link>
           <Link
-            href="/autoorders"
-            className={`${styles.navItem} ${pathname === '/autoorders' ? styles.active : ''}`}
+            href="/autoOrders"
+            className={`${styles.navItem} ${pathname === '/autoOrders' ? styles.active : ''}`}
             onClick={handleLinkClick}
           >
             <ListOrdered  size={20} />
@@ -100,16 +100,16 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
             <span>Сотрудники</span>
           </Link>
           <Link
-            href="/planirovschik"
-            className={`${styles.navItem} ${pathname === '/planirovschik' ? styles.active : ''}`}
+            href="/planner"
+            className={`${styles.navItem} ${pathname === '/planner' ? styles.active : ''}`}
             onClick={handleLinkClick}
           >
             <ClipboardCheck size={20} />
             <span>Планировщик</span>
           </Link>
           <Link
-            href="/rezultaty"
-            className={`${styles.navItem} ${pathname === '/rezultaty' ? styles.active : ''}`}
+            href="/results"
+            className={`${styles.navItem} ${pathname === '/results' ? styles.active : ''}`}
             onClick={handleLinkClick}
           >
             <FileText size={20} />
@@ -124,8 +124,8 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
             <span>Чат</span>
           </Link>
           <Link
-            href="/predlozheniya"
-            className={`${styles.navItem} ${pathname === '/predlozheniya' ? styles.active : ''}`}
+            href="/proposes"
+            className={`${styles.navItem} ${pathname === '/proposes' ? styles.active : ''}`}
             onClick={handleLinkClick}
           >
             <Lightbulb size={20} />

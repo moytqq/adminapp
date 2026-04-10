@@ -4,7 +4,7 @@ import React from 'react';
 import PlaceholderPage from '@/components/PlaceholderPage/PlaceholderPage';
 import { Lightbulb } from 'lucide-react';
 
-const PredlozheniyaPage = () => {
+const ProposesPage = () => {
   return (
     <PlaceholderPage
       title="Предложения"
@@ -15,4 +15,4 @@ const PredlozheniyaPage = () => {
   );
 };
 
-export default PredlozheniyaPage;
+export default ProposesPage;
