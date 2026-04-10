@@ -54,10 +54,13 @@
 .backButton {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  min-height: 36px;
+  min-width: 36px;
   background: white;
-  border: none;
-  padding: 8px 16px;
+  border: 1px solid #e0e0e0;
+  padding: 0 4px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
@@ -76,7 +79,6 @@
   }
 
   @media (max-width: 768px) {
-    padding: 6px 12px;
     font-size: 12px;
 
     span {

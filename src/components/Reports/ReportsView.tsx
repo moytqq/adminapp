@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { reportsApi, ProductSale } from '@/services/reportsApi';
 import { exportExcelService } from '@/services/exportExcelService';
 import styles from './ReportsView.module.scss';
@@ -60,7 +60,6 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fontSize, setFontSize] = useState<number>(14);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [pdfExporting, setPdfExporting] = useState(false);
   const [exportingChartsPdf, setExportingChartsPdf] = useState(false);
@@ -69,6 +68,9 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
   const [chartFormat, setChartFormat] = useState<'png' | 'jpeg'>('jpeg');
   const [showAdditionalAssortment, setShowAdditionalAssortment] = useState(false);
 
+  const [fullscreenTable, setFullscreenTable] = useState<string | null>(null);
+  const [fullscreenFontSize, setFullscreenFontSize] = useState<number>(14);
+  const tableRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   useEffect(() => {
     const checkMobile = () => {
@@ -84,7 +86,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
   }, [fontSize]);
 
   useEffect(() => {
-    if (isFullscreen) {
+    if (fullscreenTable) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -92,18 +94,22 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
     return () => {
       document.body.style.overflow = '';
     };
-  }, [isFullscreen]);
+  }, [fullscreenTable]);
 
   const increaseFontSize = () => {
-    setFontSize(prev => Math.min(prev + 2, 18));
+    if (fullscreenTable) {
+      setFullscreenFontSize(prev => Math.min(prev + 2, 18));
+    } else {
+      setFontSize(prev => Math.min(prev + 2, 18));
+    }
   };
 
   const decreaseFontSize = () => {
-    setFontSize(prev => Math.max(prev - 2, 8));
-  };
-
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
+    if (fullscreenTable) {
+      setFullscreenFontSize(prev => Math.max(prev - 2, 8));
+    } else {
+      setFontSize(prev => Math.max(prev - 2, 8));
+    }
   };
 
   useEffect(() => {
@@ -402,9 +408,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
     }
 
     const sorted = [...productRows].sort((a, b) => b.totalCount - a.totalCount);
-
     const top = sorted.slice(0, 30);
-
     const additional = sorted.slice(30);
 
     return {
@@ -413,24 +417,6 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
       hasAdditionalProducts: additional.length > 0
     };
   }, [productRows, reportType]);
-
-  if (loading) {
-    return (
-      <div className={styles.loading}>
-        <Loader size={48} className={styles.spinner} />
-        <p>Загрузка данных...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.error}>
-        <p>{error}</p>
-        <button onClick={loadData}>Повторить</button>
-      </div>
-    );
-  }
 
   const renderCombinedCell = (
     currentData: { count: number; sum: number },
@@ -460,14 +446,31 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
     );
   };
 
-  const renderTable = (rows: any[], title?: string, showTotalRow: boolean = true) => {
+  const renderTable = (rows: any[], title?: string, showTotalRow: boolean = true, tableId?: string) => {
     if (rows.length === 0) return null;
 
+    const currentFontSize = fullscreenTable === tableId ? fullscreenFontSize : fontSize;
+
     return (
-      <div className={styles.tableSection}>
-        {title && <h3 className={styles.tableTitle}>{title}</h3>}
+      <div className={styles.tableSection} ref={(el) => {
+        if (el && tableId) {
+          tableRefs.current.set(tableId, el);
+        }
+      }}>
+        <div className={styles.tableHeader}>
+          {title && <h3 className={styles.tableTitle}>{title}</h3>}
+          {fullscreenTable !== tableId && (
+            <button
+              className={styles.fullscreenTableButton}
+              onClick={() => setFullscreenTable(tableId!)}
+              title="Открыть в полноэкранном режиме"
+            >
+              <Maximize2 size={18} />
+            </button>
+          )}
+        </div>
         <div className={styles.tableContainer}>
-          <table className={styles.reportTable}>
+          <table className={styles.reportTable} style={{ '--reports-table-font-size': `${currentFontSize}px` } as React.CSSProperties}>
             <thead>
             <tr>
               <th className={styles.productColumn}>Товар</th>
@@ -563,8 +566,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
     if (reportType === 'desserts') {
       return (
         <>
-          {renderTable(topProducts, 'Основная матрица (Топ-30)', true)}
-
+          {renderTable(topProducts, 'Основная матрица (Топ-30)', true, 'main-matrix')}
           {hasAdditionalProducts && (
             <>
               <div className={styles.additionalToggle}>
@@ -572,94 +574,24 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
                   className={styles.toggleButton}
                   onClick={() => setShowAdditionalAssortment(!showAdditionalAssortment)}
                 >
-                  {showAdditionalAssortment ? <ArrowDown /> : <ArrowRight />} Дополнительный ассортимент ({additionalProducts.length} товаров)
+                  {showAdditionalAssortment ? <ArrowDown size={18} /> : <ArrowRight size={18} />}
+                  Дополнительный ассортимент ({additionalProducts.length} товаров)
                 </button>
               </div>
-              {showAdditionalAssortment && renderTable(additionalProducts, '', true)}
+              {showAdditionalAssortment && renderTable(additionalProducts, '', true, 'additional-assortment')}
             </>
           )}
         </>
       );
     }
 
-    return renderTable(productRows, '', true);
+    return renderTable(productRows, `Таблица продаж: ${getReportTitle()}`, true, 'main-table');
   };
 
-
-  const tableContent = (
-    <div className={styles.tableContainer}>
-      <table className={styles.reportTable}>
-        <thead>
-        <tr>
-          <th className={styles.productColumn}>Товар</th>
-          {months.map(month => (
-            <th key={month.key} className={styles.monthHeader}>
-              {month.label}
-            </th>
-          ))}
-          <th className={styles.totalHeader}>Итого</th>
-        </tr>
-        </thead>
-        <tbody>
-        {productRows.map(product => {
-          const monthEntries = months.map((month, index) => ({
-            month,
-            data: product.months[month.key] || { count: 0, sum: 0 },
-            previousData: index > 0 ? product.months[months[index - 1].key] || { count: 0, sum: 0 } : null,
-          }));
-
-          return (
-            <tr key={product.productName}>
-              <td className={styles.productCell}>
-                {product.productName}</td>
-              {monthEntries.map((entry, idx) => (
-                <React.Fragment key={entry.month.key}>
-                  {renderCombinedCell(entry.data, entry.previousData, idx)}
-                </React.Fragment>
-              ))}
-              <td className={styles.totalCell}>
-                <div className={styles.totalCellContent}>
-                  <div className={styles.totalCountRow}>{formatNumber(product.totalCount)}</div>
-                  <div className={styles.totalSumRow}>{formatCurrency(product.totalSum)}</div>
-                </div>
-              </td>
-            </tr>
-          );
-        })}
-        <tr className={styles.totalRow}>
-          <td className={styles.productCell}>ИТОГО</td>
-          {months.map((month, idx) => {
-            const currentTotal = monthlyTotals[month.key] || { count: 0, sum: 0 };
-            const previousTotal = idx > 0 ? monthlyTotals[months[idx - 1].key] || { count: 0, sum: 0 } : null;
-            return (
-              <React.Fragment key={month.key}>
-                {renderCombinedCell(currentTotal, previousTotal, idx)}
-              </React.Fragment>
-            );
-          })}
-          <td className={styles.totalCell}>
-            <div className={styles.totalCellContent}>
-              <div className={styles.totalCountRow}>{formatNumber(grandTotal.count)}</div>
-              <div className={styles.totalSumRow}>{formatCurrency(grandTotal.sum)}</div>
-            </div>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
-  );
-
-  const chartsContent = !isFullscreen && productRows.length > 0 && (
-    <DynamicCharts
-      productRows={productRows}
-      months={months}
-      isMobile={isMobile}
-      reportType={reportType}
-    />
-  );
-
   // Полноэкранный режим
-  if (isFullscreen && isMobile) {
+  if (fullscreenTable) {
+    const currentFontSize = fullscreenFontSize;
+
     return (
       <div className={styles.fullscreenOverlay}>
         <div className={styles.fullscreenHeader}>
@@ -672,16 +604,16 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
               <button
                 className={styles.fontSizeButton}
                 onClick={decreaseFontSize}
-                disabled={fontSize <= 8}
+                disabled={fullscreenFontSize <= 8}
                 title="Уменьшить шрифт"
               >
                 <ZoomOut size={18} />
               </button>
-              <span className={styles.fontSizeValue}>{fontSize}px</span>
+              <span className={styles.fontSizeValue}>{fullscreenFontSize}px</span>
               <button
                 className={styles.fontSizeButton}
                 onClick={increaseFontSize}
-                disabled={fontSize >= 18}
+                disabled={fullscreenFontSize >= 18}
                 title="Увеличить шрифт"
               >
                 <ZoomIn size={18} />
@@ -689,7 +621,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
             </div>
             <button
               className={styles.fullscreenCloseButton}
-              onClick={toggleFullscreen}
+              onClick={() => setFullscreenTable(null)}
               title="Закрыть полноэкранный режим"
             >
               <Minimize2 size={20} />
@@ -697,11 +629,121 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
           </div>
         </div>
         <div className={styles.fullscreenContent}>
-          {renderContent()}
+          <div className={styles.tableContainer}>
+            <table className={styles.reportTable} style={{ '--reports-table-font-size': `${currentFontSize}px` } as React.CSSProperties}>
+              <thead>
+              <tr>
+                <th className={styles.productColumn}>Товар</th>
+                {months.map(month => (
+                  <th key={month.key} className={styles.monthHeader}>
+                    {month.label}
+                  </th>
+                ))}
+                <th className={styles.totalHeader}>Итого</th>
+              </tr>
+              </thead>
+              <tbody>
+              {(fullscreenTable === 'main-matrix' ? topProducts :
+                fullscreenTable === 'additional-assortment' ? additionalProducts : productRows).map(product => {
+                const monthEntries = months.map((month, index) => ({
+                  month,
+                  data: product.months[month.key] || { count: 0, sum: 0 },
+                  previousData: index > 0 ? product.months[months[index - 1].key] || { count: 0, sum: 0 } : null,
+                }));
+
+                return (
+                  <tr key={product.productName}>
+                    <td className={styles.productCell}>
+                      {product.productName}
+                    </td>
+                    {monthEntries.map((entry, idx) => (
+                      <React.Fragment key={entry.month.key}>
+                        {renderCombinedCell(entry.data, entry.previousData, idx)}
+                      </React.Fragment>
+                    ))}
+                    <td className={styles.totalCell}>
+                      <div className={styles.totalCellContent}>
+                        <div className={styles.totalCountRow}>{formatNumber(product.totalCount)}</div>
+                        <div className={styles.totalSumRow}>{formatCurrency(product.totalSum)}</div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+              <tr className={styles.totalRow}>
+                <td className={styles.productCell}>ИТОГО</td>
+                {months.map((month, idx) => {
+                  const rows = fullscreenTable === 'main-matrix' ? topProducts :
+                    fullscreenTable === 'additional-assortment' ? additionalProducts : productRows;
+                  const currentTotal = rows.reduce((acc, product) => {
+                    const data = product.months[month.key] || { count: 0, sum: 0 };
+                    return {
+                      count: acc.count + data.count,
+                      sum: acc.sum + data.sum
+                    };
+                  }, { count: 0, sum: 0 });
+
+                  const previousTotal = idx > 0 ? rows.reduce((acc, product) => {
+                    const data = product.months[months[idx - 1].key] || { count: 0, sum: 0 };
+                    return {
+                      count: acc.count + data.count,
+                      sum: acc.sum + data.sum
+                    };
+                  }, { count: 0, sum: 0 }) : null;
+
+                  return (
+                    <React.Fragment key={month.key}>
+                      {renderCombinedCell(currentTotal, previousTotal, idx)}
+                    </React.Fragment>
+                  );
+                })}
+                <td className={styles.totalCell}>
+                  <div className={styles.totalCellContent}>
+                    <div className={styles.totalCountRow}>
+                      {formatNumber((fullscreenTable === 'main-matrix' ? topProducts :
+                        fullscreenTable === 'additional-assortment' ? additionalProducts : productRows).reduce((sum, p) => sum + p.totalCount, 0))}
+                    </div>
+                    <div className={styles.totalSumRow}>
+                      {formatCurrency((fullscreenTable === 'main-matrix' ? topProducts :
+                        fullscreenTable === 'additional-assortment' ? additionalProducts : productRows).reduce((sum, p) => sum + p.totalSum, 0))}
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
   }
+
+  if (loading) {
+    return (
+      <div className={styles.loading}>
+        <Loader size={48} className={styles.spinner} />
+        <p>Загрузка данных...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.error}>
+        <p>{error}</p>
+        <button onClick={loadData}>Повторить</button>
+      </div>
+    );
+  }
+
+  const chartsContent = !fullscreenTable && productRows.length > 0 && (
+    <DynamicCharts
+      productRows={productRows}
+      months={months}
+      isMobile={isMobile}
+      reportType={reportType}
+    />
+  );
 
   // Обычный режим
   return (
@@ -746,15 +788,6 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
               <ZoomIn size={18} />
             </button>
           </div>
-          {isMobile && (
-            <button
-              className={styles.fullscreenButton}
-              onClick={toggleFullscreen}
-              title="Полноэкранный режим"
-            >
-              <Maximize2 size={18} />
-            </button>
-          )}
         </div>
         <div className={styles.exportButtons}>
           <button

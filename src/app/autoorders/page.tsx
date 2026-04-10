@@ -65,7 +65,7 @@ const AutoOrdersPage = () => {
             {!selectedAutoOrderType && <h1 className={styles.title}>{getHeaderTitle()}</h1>}
           </div>
           {showBackButton && (
-            <button className={styles.backButton} onClick={handleBack} title="Назад">
+            <button className={"typeSelectorBackButton"} onClick={handleBack} title="Назад">
               <ArrowLeft size={20} />
               <span>Назад</span>
             </button>

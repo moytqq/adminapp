@@ -79,7 +79,7 @@ const RezultatyPage = () => {
             >
               <Menu size={24} />
             </button>
-            {!selectedReportType && <h1 className={styles.title}>{getHeaderTitle()}</h1>}
+            {<h1 className={styles.title}>Результаты</h1>}
           </div>
         </header>
 
