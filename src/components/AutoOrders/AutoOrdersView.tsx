@@ -1,13 +1,50 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { autoOrdersApi, OrderAccess, OrderItem, AddressItem, SupplierItem } from '@/services/autoOrdersApi';
 import styles from './AutoOrderView.module.scss';
 import {
-  CalendarClock,
-  Table, ShoppingCart, CalendarSync, CalendarCheck2, ListOrdered,
+  Loader,
+  FileSpreadsheet,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  Minimize2,
+  ArrowLeft,
+  Table,
+  Calendar,
 } from 'lucide-react';
 
 interface AutoOrderViewProps {
   autoOrderType: string;
   onBack?: () => void;
+}
+
+interface OrderMonth {
+  id: number;
+  name: string;
+  orderId: string;
+  startDay: string;
+  endDay: string;
+}
+
+interface Week {
+  label: string;
+  startDate: string;
+  endDate: string;
+}
+
+interface SelectOption {
+  value: string;
+  label: string;
+  type: 'address' | 'supplier';
+}
+
+interface GroupedItem {
+  groupKey: string;
+  groupName: string;
+  items: OrderItem[];
+  totalCount: number;
 }
 
 const getAutoOrderTitle = (type: string): string => {
@@ -21,30 +58,541 @@ const getAutoOrderTitle = (type: string): string => {
   return titles[type] || 'Автозаказы';
 };
 
-const getAutoOrderIcon = (type: string) => {
-  const icons: Record<string, React.ReactNode> = {
-    itemsMatrix: <Table size={48} />,
-    nonProfitablePurchases: <ShoppingCart size={48} />,
-    workInProgress: <CalendarSync size={48} />,
-    completed: <CalendarCheck2 size={48} />,
-    urgentOrder: <CalendarClock size={48} />,
-  };
-  return icons[type] || <ListOrdered size={48} />;
-};
-
 const AutoOrderView: React.FC<AutoOrderViewProps> = ({ autoOrderType, onBack }) => {
   const title = getAutoOrderTitle(autoOrderType);
-  const icon = getAutoOrderIcon(autoOrderType);
+
+  const [months, setMonths] = useState<OrderMonth[]>([]);
+  const [selectedMonth, setSelectedMonth] = useState<OrderMonth | null>(null);
+  const [addresses, setAddresses] = useState<AddressItem[]>([]);
+  const [suppliers, setSuppliers] = useState<SupplierItem[]>([]);
+  const [selectOptions, setSelectOptions] = useState<SelectOption[]>([]);
+  const [selectedValue, setSelectedValue] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<'address' | 'supplier' | null>(null);
+  const [data, setData] = useState<OrderItem[]>([]);
+  const [weeks, setWeeks] = useState<Week[]>([]);
+  const [selectedWeek, setSelectedWeek] = useState<Week | null>(null);
+  const [loadingMonths, setLoadingMonths] = useState(true);
+  const [loadingData, setLoadingData] = useState(false);
+  const [loadingOptions, setLoadingOptions] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fontSize, setFontSize] = useState<number>(14);
+  const [isMobile, setIsMobile] = useState(false);
+  const [pdfExporting, setPdfExporting] = useState(false);
+  const [fullscreenTable, setFullscreenTable] = useState<string | null>(null);
+  const [fullscreenFontSize, setFullscreenFontSize] = useState<number>(14);
+  const tableRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    loadMonths();
+  }, []);
+
+  useEffect(() => {
+    if (selectedMonth) {
+      loadAddressesAndSuppliers();
+    }
+  }, [selectedMonth]);
+
+  useEffect(() => {
+    if (selectedMonth && selectedValue && selectedType && selectedWeek) {
+      loadData();
+    }
+  }, [selectedMonth, selectedValue, selectedType, selectedWeek]);
+
+  const loadMonths = async () => {
+    setLoadingMonths(true);
+    try {
+      const data = await autoOrdersApi.getOrderAccess();
+      const monthsData: OrderMonth[] = data.map(item => ({
+        id: item.id,
+        name: item.name,
+        orderId: item.order_id,
+        startDay: item.start_day,
+        endDay: item.end_day,
+      }));
+      setMonths(monthsData);
+    } catch (err) {
+      console.error('Error loading months:', err);
+      setError('Ошибка при загрузке месяцев');
+    } finally {
+      setLoadingMonths(false);
+    }
+  };
+
+  const loadAddressesAndSuppliers = async () => {
+    if (!selectedMonth) return;
+
+    setLoadingOptions(true);
+    try {
+      const [addressesData, suppliersData] = await Promise.all([
+        autoOrdersApi.getAddressList(selectedMonth.orderId),
+        autoOrdersApi.getSupplierList(selectedMonth.orderId),
+      ]);
+
+      setAddresses(addressesData);
+      setSuppliers(suppliersData);
+
+      const options: SelectOption[] = [
+        ...addressesData.map(addr => ({
+          value: addr.address_id,
+          label: addr.address_name,
+          type: 'address' as const,
+        })),
+        ...suppliersData.map(sup => ({
+          value: sup.supplier_id,
+          label: sup.supplier_name,
+          type: 'supplier' as const,
+        })),
+      ];
+      setSelectOptions(options);
+    } catch (err) {
+      console.error('Error loading addresses/suppliers:', err);
+      setError('Ошибка при загрузке адресов и поставщиков');
+    } finally {
+      setLoadingOptions(false);
+    }
+  };
+
+  const generateWeeks = (startDate: string, endDate: string): Week[] => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const weeks: Week[] = [];
+
+    let currentStart = new Date(start);
+
+    while (currentStart <= end) {
+      const weekEnd = new Date(currentStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+
+      const actualEnd = weekEnd > end ? end : weekEnd;
+
+      weeks.push({
+        label: `${currentStart.toLocaleDateString('ru-RU')} - ${actualEnd.toLocaleDateString('ru-RU')}`,
+        startDate: currentStart.toISOString().split('T')[0],
+        endDate: actualEnd.toISOString().split('T')[0],
+      });
+
+      currentStart.setDate(currentStart.getDate() + 7);
+    }
+
+    return weeks;
+  };
+
+  const loadData = async () => {
+    if (!selectedMonth || !selectedValue || !selectedType || !selectedWeek) return;
+
+    setLoadingData(true);
+    setError(null);
+    try {
+      let result: OrderItem[];
+      if (selectedType === 'address') {
+        result = await autoOrdersApi.getOrdersByAddress(
+          selectedMonth.orderId,
+          selectedValue,
+          selectedWeek.startDate,
+          selectedWeek.endDate
+        );
+      } else {
+        result = await autoOrdersApi.getOrdersBySupplier(
+          selectedMonth.orderId,
+          selectedValue,
+          selectedWeek.startDate,
+          selectedWeek.endDate
+        );
+      }
+      setData(result);
+    } catch (err) {
+      console.error('Error loading data:', err);
+      setError('Ошибка при загрузке данных');
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
+  const handleSelectMonth = (month: OrderMonth) => {
+    setSelectedMonth(month);
+    setSelectedValue(null);
+    setSelectedType(null);
+    setSelectedWeek(null);
+    setData([]);
+
+    const weeksData = generateWeeks(month.startDay, month.endDay);
+    setWeeks(weeksData);
+  };
+
+  const handleSelectOption = (value: string) => {
+    const option = selectOptions.find(opt => opt.value === value);
+    if (option) {
+      setSelectedValue(option.value);
+      setSelectedType(option.type);
+      if (weeks.length > 0 && !selectedWeek) {
+        setSelectedWeek(weeks[0]);
+      }
+    }
+  };
+
+  const increaseFontSize = () => {
+    if (fullscreenTable) {
+      setFullscreenFontSize(prev => Math.min(prev + 2, 18));
+    } else {
+      setFontSize(prev => Math.min(prev + 2, 18));
+    }
+  };
+
+  const decreaseFontSize = () => {
+    if (fullscreenTable) {
+      setFullscreenFontSize(prev => Math.max(prev - 2, 8));
+    } else {
+      setFontSize(prev => Math.max(prev - 2, 8));
+    }
+  };
+
+  const handleExportExcel = () => {
+    if (data.length === 0) return;
+    console.log('Export to Excel');
+  };
+
+  const handleExportPDF = async () => {
+    if (data.length === 0) return;
+    setPdfExporting(true);
+    try {
+      console.log('Export to PDF');
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+    } finally {
+      setPdfExporting(false);
+    }
+  };
+
+  const groupedData = useMemo((): GroupedItem[] => {
+    if (data.length === 0 || !selectedType) return [];
+
+    const groupsMap = new Map<string, OrderItem[]>();
+
+    if (selectedType === 'address') {
+      data.forEach(item => {
+        const key = item.supplier;
+        const groupName = item.supplier_name;
+        if (!groupsMap.has(key)) {
+          groupsMap.set(key, []);
+        }
+        groupsMap.get(key)!.push(item);
+      });
+    } else {
+      data.forEach(item => {
+        const key = item.address;
+        const groupName = item.address;
+        if (!groupsMap.has(key)) {
+          groupsMap.set(key, []);
+        }
+        groupsMap.get(key)!.push(item);
+      });
+    }
+
+    const result: GroupedItem[] = [];
+    for (const [key, items] of groupsMap) {
+      const totalCount = items.reduce((sum, item) => sum + item.count, 0);
+      const groupName = selectedType === 'address'
+        ? items[0]?.supplier_name || key
+        : key;
+
+      result.push({
+        groupKey: key,
+        groupName: groupName,
+        items: items,
+        totalCount: totalCount,
+      });
+    }
+
+    return result.sort((a, b) => a.groupName.localeCompare(b.groupName));
+  }, [data, selectedType]);
+
+  const renderTable = (group: GroupedItem, index: number) => {
+    const currentFontSize = fullscreenTable === `table-${index}` ? fullscreenFontSize : fontSize;
+
+    return (
+      <div key={group.groupKey} className={styles.tableSection} ref={(el) => {
+        if (el) tableRefs.current.set(`table-${index}`, el);
+      }}>
+        <div className={styles.tableHeader}>
+          <h3 className={styles.tableTitle}>
+            {selectedType === 'address' ? 'Поставщик' : 'Адрес'}: {group.groupName}
+            <span className={styles.totalCount}> (Всего: {group.totalCount} шт.)</span>
+          </h3>
+          {/*{fullscreenTable !== `table-${index}` && (
+            <button
+              className={styles.fullscreenTableButton}
+              onClick={() => setFullscreenTable(`table-${index}`)}
+              title="Открыть в полноэкранном режиме"
+            >
+              <Maximize2 size={18} />
+            </button>
+          )}*/}
+        </div>
+        <div className={styles.tableContainer}>
+          <table className={styles.reportTable} style={{ '--reports-table-font-size': `${currentFontSize}px` } as React.CSSProperties}>
+            <thead>
+            <tr>
+              <th className={styles.productColumn}>Наименование</th>
+              <th>Кол-во</th>
+              <th>Фасовка</th>
+              <th>Дата</th>
+            </tr>
+            </thead>
+            <tbody>
+            {group.items.map(item => (
+              <tr key={item.id}>
+                <td className={styles.productCell}>{item.product_name}</td>
+                <td className={styles.countCell}>{item.count}</td>
+                <td>{item.packaging_supplier}</td>
+                <td>{new Date(item.date).toLocaleDateString('ru-RU')}</td>
+              </tr>
+            ))}
+            <tr className={styles.totalRow}>
+              <td className={styles.productCell}>ИТОГО</td>
+              <td className={styles.countCell}>{group.totalCount}</td>
+              <td></td>
+              <td></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  if (!selectedMonth) {
+    if (loadingMonths) {
+      return (
+        <div className={styles.container}>
+          <div className={styles.loading}>
+            <Loader size={48} className={styles.spinner} />
+            <p>Загрузка месяцев...</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.monthSelectorContainer}>
+        <div className={styles.monthSelectorHeader}>
+          <h1>{title}</h1>
+          <p>Выберите месяц для просмотра заказов</p>
+          <div className={styles.backButtonWrapper}>
+            <button className={"typeSelectorBackButton"} onClick={onBack}>
+              <ArrowLeft size={20} />
+              <span>Назад</span>
+            </button>
+          </div>
+        </div>
+        <div className={styles.monthGrid}>
+          {months.map(month => (
+            <button
+              key={month.id}
+              className={styles.monthCard}
+              onClick={() => handleSelectMonth(month)}
+            >
+              <div className={styles.monthIconWrapper}>
+                <Calendar size={28} />
+              </div>
+              <h3 className={styles.monthTitle}>{month.name}</h3>
+              <p className={styles.monthDescription}>
+                {new Date(month.startDay).toLocaleDateString('ru-RU')} - {new Date(month.endDay).toLocaleDateString('ru-RU')}
+              </p>
+              <div className={styles.monthArrow}>→</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Полноэкранный режим
+  if (fullscreenTable) {
+    const tableIndex = parseInt(fullscreenTable.split('-')[1]);
+    const group = groupedData[tableIndex];
+    const currentFontSize = fullscreenFontSize;
+
+    if (!group) {
+      setFullscreenTable(null);
+      return null;
+    }
+
+    return (
+      <div className={styles.fullscreenOverlay}>
+        <div className={styles.fullscreenHeader}>
+          <div className={styles.fullscreenTitle}>
+            <span>{selectedMonth.name} - {selectedType === 'address' ? 'Поставщик' : 'Адрес'}: {group.groupName}</span>
+          </div>
+          <div className={styles.fullscreenControls}>
+            <div className={styles.fontSizeControls}>
+              <button className={styles.fontSizeButton} onClick={decreaseFontSize} disabled={fullscreenFontSize <= 8}>
+                <ZoomOut size={18} />
+              </button>
+              <span className={styles.fontSizeValue}>{fullscreenFontSize}px</span>
+              <button className={styles.fontSizeButton} onClick={increaseFontSize} disabled={fullscreenFontSize >= 18}>
+                <ZoomIn size={18} />
+              </button>
+            </div>
+            <button className={styles.fullscreenCloseButton} onClick={() => setFullscreenTable(null)}>
+              <Minimize2 size={20} />
+            </button>
+          </div>
+        </div>
+        <div className={styles.fullscreenContent}>
+          <div className={styles.tableContainer}>
+            <table className={styles.reportTable} style={{ '--reports-table-font-size': `${currentFontSize}px` } as React.CSSProperties}>
+              <thead>
+              <tr>
+                <th className={styles.productColumn}>Наименование</th>
+                <th>Кол-во</th>
+                <th>Фасовка</th>
+                <th>Дата</th>
+              </tr>
+              </thead>
+              <tbody>
+              {group.items.map(item => (
+                <tr key={item.id}>
+                  <td className={styles.productCell}>{item.product_name}</td>
+                  <td>{item.count}</td>
+                  <td>{item.packaging_supplier}</td>
+                  <td>{new Date(item.date).toLocaleDateString('ru-RU')}</td>
+                </tr>
+              ))}
+              <tr className={styles.totalRow}>
+                <td className={styles.productCell}>ИТОГО</td>
+                <td>{group.totalCount}</td>
+                <td></td>
+                <td></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const selectedOptionLabel = selectOptions.find(opt => opt.value === selectedValue)?.label || '';
 
   return (
     <div className={styles.container}>
-      <div className={styles.content}>
-        <div className={styles.placeholder}>
-          {icon}
-          <h3>{title}</h3>
-          <p>Функционал Автозаказов для "{title}" будет доступен позже</p>
+      <div className={styles.header}>
+        <button className={styles.backButton} onClick={() => setSelectedMonth(null)} title="Назад к месяцам">
+          <ArrowLeft size={20} />
+          <span>Назад</span>
+        </button>
+        <h2 className={styles.title}>{selectedMonth.name}</h2>
+      </div>
+
+      <div className={styles.filters}>
+        <div className={styles.filterGroup}>
+          <label>Адрес/Поставщик:</label>
+          <select
+            className={styles.select}
+            value={selectedValue || ''}
+            onChange={(e) => handleSelectOption(e.target.value)}
+            disabled={loadingOptions}
+          >
+            <option value="">Выберите адрес или поставщика</option>
+            {selectOptions.length > 0 && (
+              <>
+                <optgroup label="Адреса">
+                  {selectOptions.filter(opt => opt.type === 'address').map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="Поставщики">
+                  {selectOptions.filter(opt => opt.type === 'supplier').map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </optgroup>
+              </>
+            )}
+          </select>
+        </div>
+
+        {selectedValue && weeks.length > 0 && (
+          <div className={styles.filterGroup}>
+            <label>Неделя:</label>
+            <select
+              className={styles.select}
+              value={selectedWeek ? `${selectedWeek.startDate}|${selectedWeek.endDate}` : ''}
+              onChange={(e) => {
+                const [startDate, endDate] = e.target.value.split('|');
+                const week = weeks.find(w => w.startDate === startDate && w.endDate === endDate);
+                if (week) setSelectedWeek(week);
+              }}
+            >
+              {weeks.map(week => (
+                <option key={`${week.startDate}|${week.endDate}`} value={`${week.startDate}|${week.endDate}`}>
+                  {week.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div className={styles.filterGroup}>
+          <label>Размер шрифта:</label>
+          <div className={styles.fontSizeControls}>
+            <button className={styles.fontSizeButton} onClick={decreaseFontSize} disabled={fontSize <= 8}>
+              <ZoomOut size={16} />
+            </button>
+            <span className={styles.fontSizeValue}>{fontSize}px</span>
+            <button className={styles.fontSizeButton} onClick={increaseFontSize} disabled={fontSize >= 18}>
+              <ZoomIn size={16} />
+            </button>
+          </div>
+        </div>
+
+        <div className={styles.exportButtons}>
+          <button
+            className={styles.exportPdfButton}
+            onClick={handleExportPDF}
+            disabled={data.length === 0 || pdfExporting}
+          >
+            {pdfExporting ? <Loader size={18} className={styles.spinnerSmall} /> : <Table size={18} />}
+            <span>PDF</span>
+          </button>
+          <button
+            className={styles.exportExcelButton}
+            onClick={handleExportExcel}
+            disabled={data.length === 0}
+          >
+            <FileSpreadsheet size={18} />
+            <span>Excel</span>
+          </button>
         </div>
       </div>
+
+      {loadingData ? (
+        <div className={styles.loading}>
+          <Loader size={48} className={styles.spinner} />
+          <p>Загрузка данных...</p>
+        </div>
+      ) : error ? (
+        <div className={styles.error}>
+          <p>{error}</p>
+          <button onClick={() => loadData()}>Повторить</button>
+        </div>
+      ) : data.length === 0 && selectedValue ? (
+        <div className={styles.noData}>
+          <p>Нет данных для отображения</p>
+        </div>
+      ) : groupedData.length > 0 ? (
+        <div className={styles.tablesWrapper}>
+          {groupedData.map((group, index) => renderTable(group, index))}
+        </div>
+      ) : null}
     </div>
   );
 };
