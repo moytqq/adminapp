@@ -280,7 +280,7 @@ export const pdfExportAutoOrdersService = {
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const margin = 8;
 
-    const title = `Автозаказы\n${selectedMonthName}\n${selectedType === 'address' ? 'Поставщик' : 'Адрес'}: ${selectedOptionLabel}\nПериод: ${selectedWeekLabel}`;
+    const title = `Автозаказы\n${selectedMonthName}\n${selectedType === 'address' ? 'Адрес' : 'Поставщик'}: ${selectedOptionLabel}\nПериод: ${selectedWeekLabel}`;
 
     let isFirstPage = true;
     let pageCounter = 1;

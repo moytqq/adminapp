@@ -461,9 +461,17 @@ $table-border: #d5d5d5;
 
 .exportPdfButton {
   background: #f44336;
-  &:hover:not(:disabled) {
-    background: #d32f2f;
+  @media (hover: hover) {
+    &:hover {
+      background: #d32f2f;
+    }
   }
+  @media (hover: none) {
+    &:active {
+      background: #d32f2f;
+    }
+  }
+
 }
 
 .exportExcelButton {
