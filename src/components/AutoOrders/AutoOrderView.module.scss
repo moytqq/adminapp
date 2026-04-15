@@ -436,7 +436,8 @@ $table-border: #d5d5d5;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  justify-content: center;
+  padding: 6px 12px;
   border: none;
   border-radius: 8px;
   font-size: 14px;
@@ -452,7 +453,7 @@ $table-border: #d5d5d5;
 
   @media (max-width: 768px) {
     padding: 6px 12px;
-    font-size: 12px;
+    font-size: 14px;
     span {
     }
   }
@@ -476,17 +477,14 @@ $table-border: #d5d5d5;
 .tablesWrapper {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
 
   @media (max-width: 768px) {
-    padding: 12px;
   }
 }
 
 .tableSection {
-  margin-bottom: 32px;
+  margin-bottom: 16px;
   background: white;
-  border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 

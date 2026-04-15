@@ -368,7 +368,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ reportType, onBack }) => {
     setError(null);
 
     try {
-      const rowsPerPage = isMobile ? 15 : 20;
+      const rowsPerPage = isMobile ? 20 : 20;
 
       if (reportType === 'desserts') {
         await pdfExportDessertsService.exportDessertsToPdf(

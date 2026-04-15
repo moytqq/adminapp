@@ -14,6 +14,7 @@ import {
   Table,
   Calendar,
 } from 'lucide-react';
+import { pdfExportAutoOrdersService } from '@/services/pdfExportAutoOrdersService';
 
 interface AutoOrderViewProps {
   autoOrderType: string;
@@ -261,16 +262,35 @@ const AutoOrderView: React.FC<AutoOrderViewProps> = ({ autoOrderType, onBack }) 
   };
 
   const handleExportPDF = async () => {
-    if (data.length === 0) return;
+    if (groupedData.length === 0) return;
+    if (!selectedMonth) return;
+
     setPdfExporting(true);
+    setError(null);
+
     try {
-      console.log('Export to PDF');
+      const rowsPerPage = isMobile ? 20 : 20;
+      const selectedOptionLabel = selectOptions.find(opt => opt.value === selectedValue)?.label || '';
+
+      await pdfExportAutoOrdersService.exportAutoOrdersToPdf(
+        groupedData,
+        selectedMonth.name,
+        selectedType!,
+        selectedOptionLabel,
+        selectedWeek?.label || '',
+        {
+          rowsPerPage,
+          fileName: `Автозаказы_${selectedMonth.name}_${selectedOptionLabel}_${new Date().toLocaleDateString('ru-RU')}`,
+          quality: 'medium',
+        }
+      );
     } catch (error) {
       console.error('Error exporting to PDF:', error);
+      setError('Ошибка при экспорте в PDF');
     } finally {
       setPdfExporting(false);
     }
-  };
+  }
 
   const groupedData = useMemo((): GroupedItem[] => {
     if (data.length === 0 || !selectedType) return [];
@@ -563,14 +583,14 @@ const AutoOrderView: React.FC<AutoOrderViewProps> = ({ autoOrderType, onBack }) 
             {pdfExporting ? <Loader size={18} className={styles.spinnerSmall} /> : <Table size={18} />}
             <span>PDF</span>
           </button>
-          <button
+          {/*<button
             className={styles.exportExcelButton}
             onClick={handleExportExcel}
             disabled={data.length === 0}
           >
             <FileSpreadsheet size={18} />
             <span>Excel</span>
-          </button>
+          </button>*/}
         </div>
       </div>
 
