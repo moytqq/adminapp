@@ -1,4 +1,3 @@
-// services/pdfExportAutoOrdersService.ts
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -287,13 +286,11 @@ export const pdfExportAutoOrdersService = {
     let pageCounter = 1;
     let totalPages = 0;
 
-    // Подсчитываем общее количество страниц
     for (const group of groupedData) {
       const chunks = pdfExportAutoOrdersService.chunkRows(group.items, rowsPerPage);
       totalPages += chunks.length;
     }
 
-    // Экспортируем каждую группу
     for (const group of groupedData) {
       const chunks = pdfExportAutoOrdersService.chunkRows(group.items, rowsPerPage);
       const groupName = group.groupName;
