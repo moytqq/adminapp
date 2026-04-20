@@ -27,7 +27,7 @@ interface AutoOrdersExportOptions {
 
 const registerFont = async (doc: jsPDF) => {
   try {
-    const response = await fetch('/fonts/inter.ttf');
+    const response = await fetch('../fonts/inter.ttf');
     const fontData = await response.arrayBuffer();
 
     let binary = '';
