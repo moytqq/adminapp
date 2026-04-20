@@ -101,8 +101,9 @@ export const pdfExportAutoOrdersService = {
         currentY = margin;
       }
 
-      //addText(group.groupName, margin, currentY, 11, true);
-      //currentY += 5;
+      if(selectedType === 'address') {
+      addText(group.groupName, margin, currentY, 12, true);
+      currentY += 5;}
 
       if (selectedType === 'supplier' && (group.address || group.addressFull || group.addressIp)) {
         if (group.address) {
