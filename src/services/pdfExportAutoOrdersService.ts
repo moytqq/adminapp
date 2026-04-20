@@ -27,10 +27,8 @@ interface AutoOrdersExportOptions {
 
 const registerFont = async (doc: jsPDF) => {
   try {
-    // Пробуем разные пути для загрузки шрифта
     let fontUrl = '/fonts/inter.ttf';
 
-    // Проверяем, не в продакшене ли мы
     if (typeof window !== 'undefined' && window.location.pathname.includes('/client')) {
       fontUrl = '/client/fonts/inter.ttf';
     }
@@ -58,8 +56,7 @@ const registerFont = async (doc: jsPDF) => {
     console.log('Inter font registered successfully');
   } catch (error) {
     console.error('Error loading Inter font:', error);
-    // Если шрифт не загрузился, используем стандартный
-    doc.setFont('helvetica');
+    doc.setFont('Arial');
   }
 };
 
