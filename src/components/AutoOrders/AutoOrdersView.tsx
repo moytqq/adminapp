@@ -162,10 +162,22 @@ const AutoOrderView: React.FC<AutoOrderViewProps> = ({ autoOrderType, onBack }) 
     }
   };
 
+  const ALL_MONTH_OPTION: Week = {
+    label: 'За весь месяц',
+    startDate: '',
+    endDate: '',
+  };
+
   const generateWeeks = (startDate: string, endDate: string): Week[] => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const weeks: Week[] = [];
+
+    weeks.push({
+      label: 'За весь месяц',
+      startDate: startDate,
+      endDate: endDate,
+    });
 
     let currentStart = new Date(start);
 
@@ -194,20 +206,39 @@ const AutoOrderView: React.FC<AutoOrderViewProps> = ({ autoOrderType, onBack }) 
     setError(null);
     try {
       let result: OrderItem[];
-      if (selectedType === 'address') {
-        result = await autoOrdersApi.getOrdersByAddress(
-          selectedMonth.orderId,
-          selectedValue,
-          selectedWeek.startDate,
-          selectedWeek.endDate
-        );
+
+      if (selectedWeek.label === 'За весь месяц') {
+        if (selectedType === 'address') {
+          result = await autoOrdersApi.getOrdersByAddress(
+            selectedMonth.orderId,
+            selectedValue,
+            selectedMonth.startDay.split('T')[0],
+            selectedMonth.endDay.split('T')[0]
+          );
+        } else {
+          result = await autoOrdersApi.getOrdersBySupplier(
+            selectedMonth.orderId,
+            selectedValue,
+            selectedMonth.startDay.split('T')[0],
+            selectedMonth.endDay.split('T')[0]
+          );
+        }
       } else {
-        result = await autoOrdersApi.getOrdersBySupplier(
-          selectedMonth.orderId,
-          selectedValue,
-          selectedWeek.startDate,
-          selectedWeek.endDate
-        );
+        if (selectedType === 'address') {
+          result = await autoOrdersApi.getOrdersByAddress(
+            selectedMonth.orderId,
+            selectedValue,
+            selectedWeek.startDate,
+            selectedWeek.endDate
+          );
+        } else {
+          result = await autoOrdersApi.getOrdersBySupplier(
+            selectedMonth.orderId,
+            selectedValue,
+            selectedWeek.startDate,
+            selectedWeek.endDate
+          );
+        }
       }
       setData(result);
     } catch (err) {
@@ -222,12 +253,13 @@ const AutoOrderView: React.FC<AutoOrderViewProps> = ({ autoOrderType, onBack }) 
     setSelectedMonth(month);
     setSelectedValue(null);
     setSelectedType(null);
-    setSelectedWeek(null);
     setData([]);
 
     const weeksData = generateWeeks(month.startDay, month.endDay);
     setWeeks(weeksData);
+    setSelectedWeek(weeksData[0]);
   };
+
 
   const handleSelectOption = (value: string) => {
     const option = selectOptions.find(opt => opt.value === value);
