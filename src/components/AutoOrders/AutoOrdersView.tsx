@@ -347,7 +347,7 @@ const AutoOrderView: React.FC<AutoOrderViewProps> = ({ autoOrderType, onBack }) 
             {selectedType === 'address' ? 'Поставщик' : 'Адрес'}: {group.groupName}
             <span className={styles.totalCount}> (Всего: {group.totalCount} шт.)</span>
           </h3>
-          {/*{fullscreenTable !== `table-${index}` && (
+          {fullscreenTable !== `table-${index}` && (
             <button
               className={styles.fullscreenTableButton}
               onClick={() => setFullscreenTable(`table-${index}`)}
@@ -355,16 +355,16 @@ const AutoOrderView: React.FC<AutoOrderViewProps> = ({ autoOrderType, onBack }) 
             >
               <Maximize2 size={18} />
             </button>
-          )}*/}
+          )}
         </div>
         <div className={styles.tableContainer}>
           <table className={styles.reportTable} style={{ '--reports-table-font-size': `${currentFontSize}px` } as React.CSSProperties}>
             <thead>
             <tr>
               <th className={styles.productColumn}>Наименование</th>
-              <th>Кол-во</th>
-              <th>Фасовка</th>
-              <th>Дата</th>
+              <th className={styles.countColumn}>Кол-во</th>
+              <th className={styles.packagingColumn}>Фасовка</th>
+              <th className={styles.dateColumn}>Дата</th>
             </tr>
             </thead>
             <tbody>
@@ -372,16 +372,16 @@ const AutoOrderView: React.FC<AutoOrderViewProps> = ({ autoOrderType, onBack }) 
               <tr key={item.id}>
                 <td className={styles.productCell}>{item.product_name}</td>
                 <td className={styles.countCell}>{item.count}</td>
-                <td>{item.packaging_supplier}</td>
-                <td>{new Date(item.date).toLocaleDateString('ru-RU')}</td>
+                <td className={styles.packagingCell}>{item.packaging_supplier}</td>
+                <td className={styles.dateCell}>{new Date(item.date).toLocaleDateString('ru-RU')}</td>
               </tr>
             ))}
-            <tr className={styles.totalRow}>
-              <td className={styles.productCell}>ИТОГО</td>
-              <td className={styles.countCell}>{group.totalCount}</td>
-              <td></td>
-              <td></td>
-            </tr>
+            {/*<tr className={styles.totalRow}>*/}
+            {/*  <td className={styles.productCell}>ИТОГО</td>*/}
+            {/*  <td className={styles.countCell}>{group.totalCount}</td>*/}
+            {/*  <td></td>*/}
+            {/*  <td></td>*/}
+            {/*</tr>*/}
             </tbody>
           </table>
         </div>
@@ -473,26 +473,26 @@ const AutoOrderView: React.FC<AutoOrderViewProps> = ({ autoOrderType, onBack }) 
               <thead>
               <tr>
                 <th className={styles.productColumn}>Наименование</th>
-                <th>Кол-во</th>
-                <th>Фасовка</th>
-                <th>Дата</th>
+                <th className={styles.countColumn}>Кол-во</th>
+                <th className={styles.packagingColumn}>Фасовка</th>
+                <th className={styles.dateColumn}>Дата</th>
               </tr>
               </thead>
               <tbody>
               {group.items.map(item => (
                 <tr key={item.id}>
                   <td className={styles.productCell}>{item.product_name}</td>
-                  <td>{item.count}</td>
-                  <td>{item.packaging_supplier}</td>
-                  <td>{new Date(item.date).toLocaleDateString('ru-RU')}</td>
+                  <td className={styles.countCell}>{item.count}</td>
+                  <td className={styles.packagingCell}>{item.packaging_supplier}</td>
+                  <td className={styles.dateCell}>{new Date(item.date).toLocaleDateString('ru-RU')}</td>
                 </tr>
               ))}
-              <tr className={styles.totalRow}>
-                <td className={styles.productCell}>ИТОГО</td>
-                <td>{group.totalCount}</td>
-                <td></td>
-                <td></td>
-              </tr>
+              {/*<tr className={styles.totalRow}>*/}
+              {/*  <td className={styles.productCell}>ИТОГО</td>*/}
+              {/*  <td>{group.totalCount}</td>*/}
+              {/*  <td></td>*/}
+              {/*  <td></td>*/}
+              {/*</tr>*/}
               </tbody>
             </table>
           </div>

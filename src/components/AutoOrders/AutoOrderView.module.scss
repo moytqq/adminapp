@@ -327,7 +327,6 @@ $table-border: #d5d5d5;
   }
 }
 
-// Фильтры
 .filters {
   display: flex;
   gap: 16px;
@@ -481,17 +480,16 @@ $table-border: #d5d5d5;
   }
 }
 
-// Таблицы
 .tablesWrapper {
   flex: 1;
   overflow-y: auto;
+  background: white;
 
   @media (max-width: 768px) {
   }
 }
 
 .tableSection {
-  margin-bottom: 16px;
   background: white;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -505,12 +503,12 @@ $table-border: #d5d5d5;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
+  padding: 8px 12px;
   background: #ffffff;
   border-bottom: 1px solid #e0e0e0;
 
   @media (max-width: 768px) {
-    padding: 10px 12px;
+    padding: 6px 8px;
   }
 }
 
@@ -558,7 +556,6 @@ $table-border: #d5d5d5;
 .tableContainer {
   overflow-x: auto;
   overflow-y: auto;
-  max-height: 500px;
 
   &::-webkit-scrollbar {
     width: 8px;
@@ -583,18 +580,19 @@ $table-border: #d5d5d5;
 .reportTable {
   width: 100%;
   border-collapse: collapse;
+  white-space: normal;
   font-size: var(--reports-table-font-size, 14px);
-  min-width: 500px;
+  table-layout: auto;
 
   th, td {
-    padding: 10px 12px;
-    text-align: left;
+    padding: 2px 4px;
     border-bottom: 1px solid $table-border;
     border-right: 1px solid $table-border;
   }
 
   th:first-child,
   td:first-child {
+    text-align: left;
     border-left: 1px solid $table-border;
   }
 
@@ -617,18 +615,43 @@ $table-border: #d5d5d5;
   }
 }
 
-.productColumn, .productCell {
+.productColumn {
   min-width: 200px;
+  width: auto;
 }
 
 .productCell {
-  font-weight: 500;
+  word-break: break-word;
+}
+
+.countColumn {
+  width: 1%;
+  white-space: nowrap;
 }
 
 .countCell {
   text-align: center;
-  font-weight: 600;
-  width: 80px;
+  white-space: nowrap;
+}
+
+.packagingColumn {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.packagingCell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.dateColumn {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.dateCell {
+  text-align: center;
+  white-space: nowrap;
 }
 
 .totalRow {
@@ -642,7 +665,6 @@ $table-border: #d5d5d5;
   }
 }
 
-// Состояния загрузки и ошибок
 .loading, .error, .noData {
   flex: 1;
   display: flex;
@@ -753,7 +775,6 @@ $table-border: #d5d5d5;
 .fullscreenContent {
   flex: 1;
   overflow: auto;
-  padding: 20px;
 
   .tableContainer {
     max-height: none;
