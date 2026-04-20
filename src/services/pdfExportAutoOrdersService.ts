@@ -27,7 +27,19 @@ interface AutoOrdersExportOptions {
 
 const registerFont = async (doc: jsPDF) => {
   try {
-    const response = await fetch('../fonts/inter.ttf');
+    // Пробуем разные пути для загрузки шрифта
+    let fontUrl = '/fonts/inter.ttf';
+
+    // Проверяем, не в продакшене ли мы
+    if (typeof window !== 'undefined' && window.location.pathname.includes('/client')) {
+      fontUrl = '/client/fonts/inter.ttf';
+    }
+
+    const response = await fetch(fontUrl);
+    if (!response.ok) {
+      throw new Error(`Font not found at ${fontUrl}`);
+    }
+
     const fontData = await response.arrayBuffer();
 
     let binary = '';
@@ -46,6 +58,7 @@ const registerFont = async (doc: jsPDF) => {
     console.log('Inter font registered successfully');
   } catch (error) {
     console.error('Error loading Inter font:', error);
+    // Если шрифт не загрузился, используем стандартный
     doc.setFont('helvetica');
   }
 };
