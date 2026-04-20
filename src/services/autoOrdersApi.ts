@@ -23,6 +23,8 @@ export interface OrderItem {
   id: number;
   order_id: string;
   address: string;
+  address_full: string;
+  address_ip: string;
   supplier: string;
   product_id: number;
   count: number;

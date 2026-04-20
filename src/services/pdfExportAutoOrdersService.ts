@@ -6,6 +6,8 @@ interface OrderItem {
   id: number;
   order_id: string;
   address: string;
+  address_full: string;
+  address_ip: string;
   supplier: string;
   product_id: number;
   count: number;
@@ -20,6 +22,9 @@ interface GroupedItem {
   groupName: string;
   items: OrderItem[];
   totalCount: number;
+  address?: string;
+  addressFull?: string;
+  addressIp?: string;
 }
 
 interface AutoOrdersExportOptions {
@@ -91,13 +96,28 @@ export const pdfExportAutoOrdersService = {
     currentY += 12;
 
     for (const group of groupedData) {
-      if (currentY > doc.internal.pageSize.getHeight() - 50) {
+      if (currentY > doc.internal.pageSize.getHeight() - 80) {
         doc.addPage();
         currentY = margin;
       }
 
-      addText(group.groupName, margin, currentY, 11, true);
-      currentY += 6;
+      //addText(group.groupName, margin, currentY, 11, true);
+      //currentY += 5;
+
+      if (selectedType === 'supplier' && (group.address || group.addressFull || group.addressIp)) {
+        if (group.address) {
+          addText(group.address, margin, currentY, 12, false);
+          currentY += 6;
+        }
+        if (group.addressFull) {
+          addText(group.addressFull, margin, currentY, 12, false);
+          currentY += 6;
+        }
+        if (group.addressIp) {
+          addText(group.addressIp, margin, currentY, 12, false);
+          currentY += 6;
+        }
+      }
 
       const tableData = group.items.map(item => [
         item.product_name,

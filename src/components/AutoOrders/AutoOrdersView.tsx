@@ -46,6 +46,9 @@ interface GroupedItem {
   groupName: string;
   items: OrderItem[];
   totalCount: number;
+  address?: string;
+  addressFull?: string;
+  addressIp?: string;
 }
 
 const getAutoOrderTitle = (type: string): string => {
@@ -326,40 +329,53 @@ const AutoOrderView: React.FC<AutoOrderViewProps> = ({ autoOrderType, onBack }) 
   const groupedData = useMemo((): GroupedItem[] => {
     if (data.length === 0 || !selectedType) return [];
 
-    const groupsMap = new Map<string, OrderItem[]>();
+    const groupsMap = new Map<string, {
+      items: OrderItem[];
+      address?: string;
+      addressFull?: string;
+      addressIp?: string;
+    }>();
 
     if (selectedType === 'address') {
       data.forEach(item => {
         const key = item.supplier;
-        const groupName = item.supplier_name;
         if (!groupsMap.has(key)) {
-          groupsMap.set(key, []);
+          groupsMap.set(key, {
+            items: [],
+          });
         }
-        groupsMap.get(key)!.push(item);
+        groupsMap.get(key)!.items.push(item);
       });
     } else {
       data.forEach(item => {
         const key = item.address;
-        const groupName = item.address;
         if (!groupsMap.has(key)) {
-          groupsMap.set(key, []);
+          groupsMap.set(key, {
+            items: [],
+            address: item.address,
+            addressFull: item.address_full,
+            addressIp: item.address_ip,
+          });
         }
-        groupsMap.get(key)!.push(item);
+        groupsMap.get(key)!.items.push(item);
       });
     }
 
     const result: GroupedItem[] = [];
-    for (const [key, items] of groupsMap) {
-      const totalCount = items.reduce((sum, item) => sum + item.count, 0);
+    for (const [key, group] of groupsMap) {
+      const totalCount = group.items.reduce((sum, item) => sum + item.count, 0);
       const groupName = selectedType === 'address'
-        ? items[0]?.supplier_name || key
+        ? group.items[0]?.supplier_name || key
         : key;
 
       result.push({
         groupKey: key,
         groupName: groupName,
-        items: items,
+        items: group.items,
         totalCount: totalCount,
+        address: group.address,
+        addressFull: group.addressFull,
+        addressIp: group.addressIp,
       });
     }
 
