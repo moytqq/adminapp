@@ -1,4 +1,3 @@
-// services/pdfExportAutoOrdersService.ts
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { INTER_FONT_BASE64 } from './pdfFonts';
@@ -27,7 +26,6 @@ interface AutoOrdersExportOptions {
   fileName?: string;
 }
 
-// Регистрируем шрифт из встроенного base64
 const registerFontInline = (doc: jsPDF) => {
   try {
     if (INTER_FONT_BASE64 && INTER_FONT_BASE64.length > 0) {
@@ -67,7 +65,6 @@ export const pdfExportAutoOrdersService = {
       compress: true,
     });
 
-    // Пробуем зарегистрировать встроенный шрифт
     const fontRegistered = registerFontInline(doc);
 
     if (!fontRegistered) {
