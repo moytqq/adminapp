@@ -264,24 +264,23 @@ const AutoOrderView: React.FC<AutoOrderViewProps> = ({ autoOrderType, onBack }) 
   const handleExportPDF = async () => {
     if (groupedData.length === 0) return;
     if (!selectedMonth) return;
+    if (!selectedType) return;
+    if (!selectedWeek) return;
 
     setPdfExporting(true);
     setError(null);
 
     try {
-      const rowsPerPage = isMobile ? 20 : 20;
       const selectedOptionLabel = selectOptions.find(opt => opt.value === selectedValue)?.label || '';
 
       await pdfExportAutoOrdersService.exportAutoOrdersToPdf(
         groupedData,
         selectedMonth.name,
-        selectedType!,
+        selectedType,
         selectedOptionLabel,
-        selectedWeek?.label || '',
+        selectedWeek.label,
         {
-          rowsPerPage,
           fileName: `Автозаказы_${selectedMonth.name}_${selectedOptionLabel}_${new Date().toLocaleDateString('ru-RU')}`,
-          quality: 'medium',
         }
       );
     } catch (error) {
@@ -290,7 +289,7 @@ const AutoOrderView: React.FC<AutoOrderViewProps> = ({ autoOrderType, onBack }) 
     } finally {
       setPdfExporting(false);
     }
-  }
+  };
 
   const groupedData = useMemo((): GroupedItem[] => {
     if (data.length === 0 || !selectedType) return [];
