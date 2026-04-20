@@ -1,5 +1,7 @@
+// services/pdfExportAutoOrdersService.ts
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { INTER_FONT_BASE64 } from './pdfFonts';
 
 interface OrderItem {
   id: number;
@@ -25,38 +27,21 @@ interface AutoOrdersExportOptions {
   fileName?: string;
 }
 
-const registerFont = async (doc: jsPDF) => {
+// Регистрируем шрифт из встроенного base64
+const registerFontInline = (doc: jsPDF) => {
   try {
-    let fontUrl = '/fonts/inter.ttf';
-
-    if (typeof window !== 'undefined' && window.location.pathname.includes('/client')) {
-      fontUrl = '/client/fonts/inter.ttf';
+    if (INTER_FONT_BASE64 && INTER_FONT_BASE64.length > 0) {
+      doc.addFileToVFS('inter.ttf', INTER_FONT_BASE64);
+      doc.addFont('inter.ttf', 'Inter', 'normal');
+      doc.addFont('inter.ttf', 'Inter', 'bold');
+      doc.setFont('Inter');
+      console.log('Inter font registered successfully from inline base64');
+      return true;
     }
-
-    const response = await fetch(fontUrl);
-    if (!response.ok) {
-      throw new Error(`Font not found at ${fontUrl}`);
-    }
-
-    const fontData = await response.arrayBuffer();
-
-    let binary = '';
-    const bytes = new Uint8Array(fontData);
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    const fontBase64 = btoa(binary);
-
-    doc.addFileToVFS('inter.ttf', fontBase64);
-    doc.addFont('inter.ttf', 'Inter', 'normal');
-    doc.addFont('inter.ttf', 'Inter', 'bold');
-
-    doc.setFont('Inter');
-
-    console.log('Inter font registered successfully');
+    return false;
   } catch (error) {
-    console.error('Error loading Inter font:', error);
-    doc.setFont('Arial');
+    console.error('Error registering inline font:', error);
+    return false;
   }
 };
 
@@ -70,11 +55,10 @@ export const pdfExportAutoOrdersService = {
     options: AutoOrdersExportOptions = {}
   ): Promise<void> => {
     const {
-      fileName = `Zakazy_${selectedMonthName}_${selectedOptionLabel}_${new Date().toLocaleDateString('ru-RU')}`,
+      fileName = `Avtozakazy_${selectedMonthName}_${selectedOptionLabel}_${new Date().toLocaleDateString('ru-RU')}`,
     } = options;
 
     console.log(`Exporting auto orders PDF`);
-    console.log(`Groups: ${groupedData.length}`);
 
     const doc = new jsPDF({
       orientation: 'portrait',
@@ -83,27 +67,31 @@ export const pdfExportAutoOrdersService = {
       compress: true,
     });
 
-    await registerFont(doc);
+    // Пробуем зарегистрировать встроенный шрифт
+    const fontRegistered = registerFontInline(doc);
+
+    if (!fontRegistered) {
+      console.warn('Font not registered, using helvetica');
+      doc.setFont('helvetica');
+    }
 
     const margin = 15;
     let currentY = margin;
 
     const addText = (text: string, x: number, y: number, fontSize: number, isBold: boolean = false) => {
       doc.setFontSize(fontSize);
-      if (isBold) {
-        doc.setFont('Inter', 'bold');
+      if (fontRegistered) {
+        doc.setFont('Inter', isBold ? 'bold' : 'normal');
       } else {
-        doc.setFont('Inter', 'normal');
+        doc.setFont('helvetica', isBold ? 'bold' : 'normal');
       }
       doc.text(text, x, y);
     };
 
     addText(`ЗАКАЗ ДЛЯ: ${selectedOptionLabel}`, margin, currentY, 14, true);
     currentY += 8;
-
-    //Подпись периода
-    /*addText(`${selectedMonthName} | ${selectedWeekLabel}`, margin, currentY, 10, false);
-    currentY += 12;*/
+    addText(`${selectedMonthName} | ${selectedWeekLabel}`, margin, currentY, 10, false);
+    currentY += 12;
 
     for (const group of groupedData) {
       if (currentY > doc.internal.pageSize.getHeight() - 50) {
@@ -134,19 +122,19 @@ export const pdfExportAutoOrdersService = {
           textColor: [0, 0, 0],
           lineColor: [0, 0, 0],
           lineWidth: 0.1,
-          font: 'Inter',
+          font: fontRegistered ? 'Inter' : 'helvetica',
         },
         headStyles: {
           fillColor: [217, 217, 217],
           textColor: [0, 0, 0],
           fontStyle: 'bold',
           halign: 'center',
-          font: 'Inter',
+          font: fontRegistered ? 'Inter' : 'helvetica',
         },
         bodyStyles: {
           fillColor: [255, 255, 255],
           textColor: [0, 0, 0],
-          font: 'Inter',
+          font: fontRegistered ? 'Inter' : 'helvetica',
         },
         columnStyles: {
           0: { cellWidth: 'auto', halign: 'left' },
@@ -160,11 +148,7 @@ export const pdfExportAutoOrdersService = {
       });
 
       const finalY = (doc as any).lastAutoTable?.finalY;
-      if (finalY) {
-        currentY = finalY + 8;
-      } else {
-        currentY += 50;
-      }
+      currentY = finalY ? finalY + 8 : currentY + 50;
     }
 
     doc.save(`${fileName}.pdf`);
