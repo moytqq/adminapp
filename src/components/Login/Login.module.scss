@@ -18,6 +18,79 @@
     min-width: 70vw;
   }
 }
+.inputContainer {
+  width: 100%;
+}
+
+.sessionError {
+  margin-top: 16px;
+  padding: 12px;
+  background: #fff3e0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #e65100;
+  text-align: center;
+  border: 1px solid #ffe0b2;
+}
+
+.apiError {
+  margin-top: 16px;
+  padding: 12px;
+  background: #ffebee;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #c62828;
+  text-align: center;
+}
+
+.inputLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  transition: all 0.2s ease;
+
+  &:focus {
+    border-color: #2196f3;
+  }
+
+  &.inputError {
+    border-color: #f44336;
+  }
+
+  &:disabled {
+    background: #f5f5f5;
+    cursor: not-allowed;
+  }
+}
+
+.errorText {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #f44336;
+}
+
+.apiError {
+  margin-top: 16px;
+  padding: 12px;
+  background: #ffebee;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #c62828;
+  text-align: center;
+}
+
 .actionsContainer{
   display: flex;
   flex-direction: column;

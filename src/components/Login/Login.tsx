@@ -5,21 +5,22 @@ import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/store';
 import styles from './Login.module.scss';
-import { checkToken } from '@/store/thunks/authThunk';
+import { login } from '@/store/thunks/authThunk';
 
-const Login = () => {
-  const [token, setToken] = useState('');
+interface LoginProps {
+  initialErrorMessage?: string | null;
+}
+
+const Login = ({ initialErrorMessage }: LoginProps) => {
+  const [loginValue, setLoginValue] = useState('');
+  const [password, setPassword] = useState('');
   const [inputError, setInputError] = useState('');
+  const [sessionError, setSessionError] = useState<string | null>(initialErrorMessage || null);
   const router = useRouter();
 
   const dispatch = useDispatch<AppDispatch>();
-  const { status, error, token: savedToken, tokenFromUrl } = useSelector((state: RootState) => state.auth);
+  const { status, error, token: savedToken } = useSelector((state: RootState) => state.auth);
 
-  useEffect(() => {
-    if (tokenFromUrl && !savedToken) {
-      setToken(tokenFromUrl);
-    }
-  }, [tokenFromUrl, savedToken]);
 
   useEffect(() => {
     if (savedToken) {
@@ -27,18 +28,34 @@ const Login = () => {
     }
   }, [savedToken, router]);
 
+  useEffect(() => {
+    const storedError = localStorage.getItem('login_error');
+
+    if (storedError && !sessionError) {
+      setSessionError(storedError);
+      localStorage.removeItem('login_error');
+    }
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!token.trim()) {
-      setInputError('Пожалуйста, введите код авторизации');
+    setSessionError(null);
+    setInputError('');
+    localStorage.removeItem('login_error');
+
+    if (!loginValue.trim()) {
+      setInputError('Пожалуйста, введите логин');
       return;
     }
 
-    setInputError('');
+    if (!password.trim()) {
+      setInputError('Пожалуйста, введите пароль');
+      return;
+    }
 
     try {
-      const result = await dispatch(checkToken(token)).unwrap();
+      const result = await dispatch(login({ login: loginValue, password })).unwrap();
 
       if (result.success) {
         router.push('/profile');
@@ -49,7 +66,12 @@ const Login = () => {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setToken(e.target.value);
+    const { name, value } = e.target;
+    if (name === 'login') {
+      setLoginValue(value);
+    } else if (name === 'password') {
+      setPassword(value);
+    }
     if (inputError) setInputError('');
   };
 
@@ -61,14 +83,28 @@ const Login = () => {
       <div className={styles.actionsContainer}>
         <form onSubmit={handleLogin} className={styles.form}>
           <div className={styles.inputContainer}>
-            <span className={styles.inputLabel}>Код авторизации:</span>
+            <span className={styles.inputLabel}>Логин:</span>
             <input
               type="text"
+              name="login"
               className={`${styles.input} ${inputError ? styles.inputError : ''}`}
-              value={token}
+              value={loginValue}
               onChange={handleInputChange}
               disabled={status === 'loading'}
-              placeholder="Введите токен"
+              placeholder="Введите логин"
+            />
+          </div>
+
+          <div className={styles.inputContainer}>
+            <span className={styles.inputLabel}>Пароль:</span>
+            <input
+              type="password"
+              name="password"
+              className={`${styles.input} ${inputError ? styles.inputError : ''}`}
+              value={password}
+              onChange={handleInputChange}
+              disabled={status === 'loading'}
+              placeholder="Введите пароль"
             />
             {inputError && (
               <span className={styles.errorText}>{inputError}</span>
@@ -81,13 +117,19 @@ const Login = () => {
             disabled={status === 'loading'}
           >
             {status === 'loading' ? (
-              <span className={styles.loginButtonText}>Проверка...</span>
+              <span className={styles.loginButtonText}>Вход...</span>
             ) : (
               <span className={styles.loginButtonText}>Войти</span>
             )}
           </button>
 
-          {error && status === 'failed' && (
+          {sessionError && (
+            <div className={styles.sessionError}>
+              Время сессии истекло <br/> Пожалуйста, войдите заново
+            </div>
+          )}
+
+          {error && status === 'failed' && !sessionError && (
             <div className={styles.apiError}>
               {error}
             </div>
