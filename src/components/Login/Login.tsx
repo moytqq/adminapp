@@ -11,16 +11,58 @@ interface LoginProps {
   initialErrorMessage?: string | null;
 }
 
+const formatPhoneNumber = (value: string): string => {
+  let numbers = value.replace(/\D/g, '');
+
+  if (numbers.length === 0) return '';
+
+  const countryCode = numbers[0];
+
+  numbers = numbers.slice(0, 15);
+
+  let formatted = `+${countryCode}`;
+
+  const restNumbers = numbers.slice(1);
+
+  if (restNumbers.length > 0) {
+    formatted += ` (${restNumbers.slice(0, 3)}`;
+  }
+
+  if (restNumbers.length > 3) {
+    formatted += `) ${restNumbers.slice(3, 6)}`;
+  }
+
+  if (restNumbers.length > 6) {
+    formatted += ` ${restNumbers.slice(6, 8)}`;
+  }
+
+  if (restNumbers.length > 8) {
+    formatted += ` ${restNumbers.slice(8, 10)}`;
+  }
+
+  return formatted.trim();
+};
+
+const isPhoneNumberInput = (value: string): boolean => {
+  return /^[\d+]/.test(value) && /\d/.test(value);
+};
+
+const extractRawPhoneNumber = (formatted: string): string => {
+  let numbers = formatted.replace(/\D/g, '');
+    numbers = '+' + numbers;
+  return numbers;
+};
+
 const Login = ({ initialErrorMessage }: LoginProps) => {
   const [loginValue, setLoginValue] = useState('');
   const [password, setPassword] = useState('');
   const [inputError, setInputError] = useState('');
   const [sessionError, setSessionError] = useState<string | null>(initialErrorMessage || null);
+  const [isPhoneInput, setIsPhoneInput] = useState(false);
   const router = useRouter();
 
   const dispatch = useDispatch<AppDispatch>();
   const { status, error, token: savedToken } = useSelector((state: RootState) => state.auth);
-
 
   useEffect(() => {
     if (savedToken) {
@@ -30,12 +72,28 @@ const Login = ({ initialErrorMessage }: LoginProps) => {
 
   useEffect(() => {
     const storedError = localStorage.getItem('login_error');
-
     if (storedError && !sessionError) {
       setSessionError(storedError);
       localStorage.removeItem('login_error');
     }
   }, []);
+
+  const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    const isPhone = isPhoneNumberInput(value);
+    setIsPhoneInput(isPhone);
+
+    if (isPhone) {
+      const formatted = formatPhoneNumber(value);
+      setLoginValue(formatted);
+    } else {
+      setLoginValue(value);
+    }
+
+    if (inputError) setInputError('');
+    if (sessionError) setSessionError(null);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,8 +102,10 @@ const Login = ({ initialErrorMessage }: LoginProps) => {
     setInputError('');
     localStorage.removeItem('login_error');
 
-    if (!loginValue.trim()) {
-      setInputError('Пожалуйста, введите логин');
+    let finalLoginValue = loginValue.trim();
+
+    if (!finalLoginValue) {
+      setInputError('Пожалуйста, введите логин или номер телефона');
       return;
     }
 
@@ -54,8 +114,12 @@ const Login = ({ initialErrorMessage }: LoginProps) => {
       return;
     }
 
+    if (isPhoneInput) {
+      finalLoginValue = extractRawPhoneNumber(finalLoginValue);
+    }
+
     try {
-      const result = await dispatch(login({ login: loginValue, password })).unwrap();
+      const result = await dispatch(login({ login: finalLoginValue, password })).unwrap();
 
       if (result.success) {
         router.push('/profile');
@@ -68,22 +132,21 @@ const Login = ({ initialErrorMessage }: LoginProps) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name === 'login') {
-      setLoginValue(value);
+      handleLoginChange(e);
     } else if (name === 'password') {
       setPassword(value);
     }
-    if (inputError) setInputError('');
   };
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>
-        Удачный Ltd.
+        Удачный
       </h1>
       <div className={styles.actionsContainer}>
         <form onSubmit={handleLogin} className={styles.form}>
           <div className={styles.inputContainer}>
-            <span className={styles.inputLabel}>Логин:</span>
+            <span className={styles.inputLabel}>Логин или номер телефона:</span>
             <input
               type="text"
               name="login"
@@ -91,7 +154,7 @@ const Login = ({ initialErrorMessage }: LoginProps) => {
               value={loginValue}
               onChange={handleInputChange}
               disabled={status === 'loading'}
-              placeholder="Введите логин"
+              placeholder="Введите логин или номер телефона"
             />
           </div>
 
@@ -125,7 +188,7 @@ const Login = ({ initialErrorMessage }: LoginProps) => {
 
           {sessionError && (
             <div className={styles.sessionError}>
-              Время сессии истекло <br/> Пожалуйста, войдите заново
+              {sessionError}
             </div>
           )}
 
