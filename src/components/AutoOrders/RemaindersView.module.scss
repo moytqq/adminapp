@@ -1,0 +1,432 @@
+$table-header-bg: #4472c4;
+$table-header-text: #ffffff;
+$table-row-even-bg: #ffffff;
+$table-row-odd-bg: #d9e1f2;
+$table-border: #d5d5d5;
+
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f5;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+
+  @media (max-width: 767px) {
+    padding: 10px 16px;
+
+  }
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  max-width: 36px;
+  min-height: 36px;
+  background: #f5f5f5;
+  padding: 0 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+
+  &:hover {
+    background: #e0e0e0;
+    color: #333;
+  }
+  @media (max-width: 767px) {
+    padding: 0 8px;
+    span{
+      display: none;
+    }
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: white;
+  gap: 8px;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+
+  @media (max-width: 767px) {
+    padding: 10px 16px;
+  }
+}
+
+.leftControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rightControls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.saveButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  @media (hover: hover) {
+    &:hover {
+      background: #45a049;
+      transform: translateY(-1px);
+    }
+    &:active {
+      background: #45a049;
+      transform: translateY(-1px);
+    }
+  }
+  @media (max-width: 768px) {
+    span {
+      display: none;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.unsavedIndicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #ff9800;
+}
+
+.successMessage {
+  margin: 12px 20px;
+  padding: 12px;
+  background: #e8f5e9;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #2e7d32;
+  text-align: center;
+}
+
+.fontSizeControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f5f5f5;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.fontSizeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #666;
+
+  @media(hover: hover) {
+    &:hover {
+      background: #e0e0e0;
+      color: #333;
+    }
+    &:active {
+      background: #e0e0e0;
+      color: #333;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.fontSizeValue {
+  min-width: 40px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+}
+
+.scrollableContent {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.tableSection {
+  background: white;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  @media (max-width: 767px) {
+    padding: 6px 8px;
+  }
+}
+
+.tableTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.fullscreenTableButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #666;
+
+  &:hover {
+    background: #e0e0e0;
+    color: #333;
+  }
+}
+
+.tableContainer {
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+
+.reportTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  white-space: normal;
+  font-size: var(--reports-table-font-size, 14px);
+  table-layout: auto;
+
+  th, td {
+    padding: 2px 4px;
+    border-bottom: 1px solid $table-border;
+    border-right: 1px solid $table-border;
+  }
+
+  th:first-child,
+  td:first-child {
+    border-left: 1px solid $table-border;
+  }
+
+  th {
+    background: $table-header-bg;
+    color: $table-header-text;
+    font-weight: 600;
+  }
+
+  tbody tr {
+    &:nth-child(even) {
+      background-color: $table-row-even-bg;
+    }
+
+    &:nth-child(odd) {
+      background-color: $table-row-odd-bg;
+    }
+  }
+}
+
+.productColumn {
+  position: sticky;
+  text-align: left;
+  left: 0;
+  background: $table-header-bg !important;
+  z-index: 20;
+  min-width: 200px;
+}
+
+.productCell {
+  position: sticky;
+  left: 0;
+  background: inherit;
+  z-index: 5;
+  min-width: 200px;
+
+  tr:nth-child(even) & {
+    background-color: $table-row-even-bg;
+  }
+
+  tr:nth-child(odd) & {
+    background-color: $table-row-odd-bg;
+  }
+}
+
+.packagingColumn {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.packagingCell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.valueColumn {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.valueCell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.valueInput {
+  width: 50px;
+  padding: 6px 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: inherit;
+  text-align: center;
+  outline: none;
+
+  &:focus {
+    border-color: #2196f3;
+  }
+}
+
+.loading, .error {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  gap: 16px;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  color: #2196f3;
+}
+
+.spinnerSmall {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Полноэкранный режим
+.fullscreenOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: white;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+}
+
+.fullscreenHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.fullscreenTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.fullscreenControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fullscreenCloseButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background: #d32f2f;
+  }
+}
+
+.fullscreenContent {
+  flex: 1;
+  overflow: auto;
+
+  .tableContainer {
+    max-height: none;
+    height: 100%;
+  }
+}

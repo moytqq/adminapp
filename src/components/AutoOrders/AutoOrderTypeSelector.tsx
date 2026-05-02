@@ -3,23 +3,10 @@
 import React from 'react';
 import styles from './AutoOrderTypeSelector.module.scss';
 import {
-  Coffee,
-  Cake,
-  TrendingUp,
-  DollarSign,
-  BarChart3,
-  Croissant,
-  Salad,
-  Soup,
-  UtensilsCrossed,
-  Wrench,
-  Snowflake,
-  Heater,
-  Thermometer,
-  Coins,
-  Table,
+   Table,
   ShoppingCart,
-  CalendarCheck, CalendarSync, CalendarClock, CalendarCheck2,
+  CalendarSync, CalendarClock, CalendarCheck2,
+  Package,
 } from 'lucide-react';
 
 export interface AutoOrderType {
@@ -56,7 +43,7 @@ const autoOrderTypes: AutoOrderType[] = [
     id: 'workInProgress',
     title: 'В работе',
     description: 'В работе',
-    icon: <CalendarSync  size={32} />,
+    icon: <CalendarSync size={32} />,
     color: '#ff9800',
     bgColor: '#fff3e0',
   },
@@ -72,9 +59,17 @@ const autoOrderTypes: AutoOrderType[] = [
     id: 'urgentOrder',
     title: 'Срочный заказ',
     description: 'Срочный заказ',
-    icon: <CalendarClock  size={32} />,
+    icon: <CalendarClock size={32} />,
     color: '#ff5722',
     bgColor: '#fbe9e7',
+  },
+  {
+    id: 'remainders',
+    title: 'Остатки',
+    description: 'Управление остатками товаров',
+    icon: <Package size={32} />,
+    color: '#00bcd4',
+    bgColor: '#e0f7fa',
   },
 ];
 

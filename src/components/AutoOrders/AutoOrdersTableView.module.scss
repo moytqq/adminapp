@@ -158,6 +158,7 @@ $table-border: #d5d5d5;
     }
   }
 }
+
 .backButtonWrapper {
   width: 100%;
   display: flex;
@@ -335,8 +336,11 @@ $table-border: #d5d5d5;
   background: white;
   border-bottom: 1px solid #e0e0e0;
   flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: space-evenly;
 
   @media (max-width: 768px) {
+    padding: 10px 16px;
     gap: 12px;
   }
 }
@@ -345,6 +349,9 @@ $table-border: #d5d5d5;
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+  flex: 1;
+  justify-content: space-between;
 
   label {
     font-size: 14px;
@@ -402,9 +409,15 @@ $table-border: #d5d5d5;
   transition: all 0.2s ease;
   color: #666;
 
-  &:hover:not(:disabled) {
-    background: #e0e0e0;
-    color: #333;
+  @media(hover: hover) {
+    &:hover {
+      background: #e0e0e0;
+      color: #333;
+    }
+    &:active {
+      background: #e0e0e0;
+      color: #333;
+    }
   }
 
   &:disabled {
@@ -475,6 +488,7 @@ $table-border: #d5d5d5;
 
 .exportExcelButton {
   background: #4caf50;
+
   &:hover:not(:disabled) {
     background: #45a049;
   }
@@ -579,7 +593,8 @@ $table-border: #d5d5d5;
 
 .reportTable {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   white-space: normal;
   font-size: var(--reports-table-font-size, 14px);
   table-layout: auto;
@@ -597,18 +612,16 @@ $table-border: #d5d5d5;
   }
 
   th {
-    background: $table-header-bg;
+    background: $table-header-bg !important;
     color: $table-header-text;
     font-weight: 600;
-    position: sticky;
-    top: 0;
-    z-index: 10;
   }
 
   tbody tr {
     &:nth-child(even) {
       background-color: $table-row-even-bg;
     }
+
     &:nth-child(odd) {
       background-color: $table-row-odd-bg;
     }
@@ -616,12 +629,27 @@ $table-border: #d5d5d5;
 }
 
 .productColumn {
+  position: sticky;
+  left: 0;
+  background: $table-header-bg !important;
+  z-index: 20;
   min-width: 200px;
-  width: auto;
 }
 
 .productCell {
-  word-break: break-word;
+  position: sticky;
+  left: 0;
+  background: inherit;
+  z-index: 5;
+  min-width: 200px;
+
+  tr:nth-child(even) & {
+    background-color: $table-row-even-bg;
+  }
+
+  tr:nth-child(odd) & {
+    background-color: $table-row-odd-bg;
+  }
 }
 
 .countColumn {
