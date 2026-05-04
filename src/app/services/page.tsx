@@ -52,7 +52,7 @@ const ServicesPage = () => {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requiredFlags={['SERVICE', 'SERVICE_ADMIN', 'ADMIN']} redirectTo="/main">
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <div className={styles.container}>

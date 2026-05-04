@@ -7,25 +7,41 @@ import {
   X,
   Users,
   Building2,
-  Text,
   FileText,
   ClipboardCheck,
-  MessageCircle,
-  MessageCircleMore, Lightbulb, Star, ListOrdered, User, Wrench,
+  MessageCircleMore,
+  Lightbulb,
+  ListOrdered,
+  User,
+  Wrench,
 } from 'lucide-react';
 import styles from './SideMenu.module.scss';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import LogoutButton from '@/components/LogoutButton/LogoutButton';
+import { useAccess } from '@/store/hooks/useAccess';
 
 interface SideMenuProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const iconMap: Record<string, React.ReactNode> = {
+  Building2: <Building2 size={20} />,
+  User: <User size={20} />,
+  ListOrdered: <ListOrdered size={20} />,
+  Users: <Users size={20} />,
+  ClipboardCheck: <ClipboardCheck size={20} />,
+  FileText: <FileText size={20} />,
+  Wrench: <Wrench size={20} />,
+  MessageCircleMore: <MessageCircleMore size={20} />,
+  Lightbulb: <Lightbulb size={20} />,
+};
+
 const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const { getVisibleMenuItems } = useAccess();
 
   useEffect(() => {
     setMounted(true);
@@ -47,6 +63,8 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
     onClose();
   };
 
+  const visibleMenuItems = getVisibleMenuItems();
+
   if (!mounted) return null;
 
   return createPortal(
@@ -67,81 +85,20 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
           </button>
         </div>
         <nav className={styles.nav}>
-          <Link
-            href="/main"
-            className={`${styles.navItem} ${pathname === '/main' ? styles.active : ''}`}
-            onClick={handleLinkClick}
-          >
-            <Building2 size={20} />
-            <span>Компания</span>
-          </Link>
-          <Link
-            href="/profile"
-            className={`${styles.navItem} ${pathname === '/profile' ? styles.active : ''}`}
-            onClick={handleLinkClick}
-          >
-            <User size={20} />
-            <span>Личный кабинет</span>
-          </Link>
-          <Link
-            href="/autoOrders"
-            className={`${styles.navItem} ${pathname === '/autoOrders' ? styles.active : ''}`}
-            onClick={handleLinkClick}
-          >
-            <ListOrdered  size={20} />
-            <span>Автозаказы</span>
-          </Link>
-          <Link
-            href="/staff"
-            className={`${styles.navItem} ${pathname === '/staff' ? styles.active : ''}`}
-            onClick={handleLinkClick}
-          >
-            <Users size={20} />
-            <span>Сотрудники</span>
-          </Link>
-          <Link
-            href="/planner"
-            className={`${styles.navItem} ${pathname === '/planner' ? styles.active : ''}`}
-            onClick={handleLinkClick}
-          >
-            <ClipboardCheck size={20} />
-            <span>Планировщик</span>
-          </Link>
-          <Link
-            href="/results"
-            className={`${styles.navItem} ${pathname === '/results' ? styles.active : ''}`}
-            onClick={handleLinkClick}
-          >
-            <FileText size={20} />
-            <span>Результаты</span>
-          </Link>
-          <Link
-            href="/services"
-            className={`${styles.navItem} ${pathname === '/services' ? styles.active : ''}`}
-            onClick={handleLinkClick}
-          >
-            <Wrench size={20} />
-            <span>Сервис</span>
-          </Link>
-          <Link
-            href="/chat"
-            className={`${styles.navItem} ${pathname === '/chat' ? styles.active : ''}`}
-            onClick={handleLinkClick}
-          >
-            <MessageCircleMore size={20} />
-            <span>Чат</span>
-          </Link>
-          <Link
-            href="/proposes"
-            className={`${styles.navItem} ${pathname === '/proposes' ? styles.active : ''}`}
-            onClick={handleLinkClick}
-          >
-            <Lightbulb size={20} />
-            <span>Предложения</span>
-          </Link>
+          {visibleMenuItems.map((item) => (
+            <Link
+              key={item.path}
+              href={item.path}
+              className={`${styles.navItem} ${pathname === item.path ? styles.active : ''}`}
+              onClick={handleLinkClick}
+            >
+              {iconMap[item.icon]}
+              <span>{item.label}</span>
+            </Link>
+          ))}
         </nav>
         <footer className={styles.footer}>
-          <LogoutButton/>
+          <LogoutButton />
         </footer>
       </div>
     </>,

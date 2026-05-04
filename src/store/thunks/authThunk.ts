@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { authAPI } from '@/services/api';
-import { setToken, setLoading, setError, logout } from '../slices/authSlice';
+import { setToken, setLoading, setError, logout, updateFlags } from '../slices/authSlice';
 import { hashPasswordWithSalt } from '@/utils/crypto';
 import { RootState } from '@/store/store';
 
@@ -15,9 +15,9 @@ interface CheckTokenResponse {
   status: string;
   message: string;
   userId?: number;
+  flags?: string[];
+  expiresAt?: string;
 }
-
-const SALT = '96678763';
 
 export const login = createAsyncThunk(
   'auth/login',
@@ -25,22 +25,20 @@ export const login = createAsyncThunk(
     try {
       dispatch(setLoading());
 
-      const hashedPassword = await hashPasswordWithSalt(password, SALT);
-
-      console.log('Login attempt:', {
-        login,
-        password,
-        salt: SALT,
-        combined: `${password}+${SALT}`,
-        hashedPassword
-      });
+      const salt = '96678763';
+      const hashedPassword = await hashPasswordWithSalt(password, salt);
 
       const data: LoginResponse = await authAPI.login(login, hashedPassword);
 
       if (data.status === 'success') {
+        const tokenData = await authAPI.checkToken(data.token);
+
+        console.log('Login successful, received flags:', tokenData.flags);
+
         dispatch(setToken({
           token: data.token,
           userId: data.userId,
+          flags: tokenData.flags || [],
         }));
         return { success: true, data };
       } else {
@@ -69,17 +67,22 @@ export const validateToken = createAsyncThunk(
       dispatch(setLoading());
       const data: CheckTokenResponse = await authAPI.checkToken(token);
 
-      if (data.status === 'valid') {
+      console.log('Token validation result:', data.status, data.flags);
+
+      if (data.status === 'valid' && data.userId) {
         dispatch(setToken({
           token,
-          userId: data.userId!,
+          userId: data.userId,
+          flags: data.flags || [],
         }));
         return { success: true, data };
       } else {
+        console.warn('Token invalid, logging out');
         dispatch(logout());
         return { success: false, data };
       }
     } catch (error: any) {
+      console.error('Token validation error:', error);
       dispatch(logout());
       dispatch(setError(error.message || 'Ошибка при проверке токена'));
       return { success: false };
@@ -98,6 +101,7 @@ export const checkTokenFromUrl = createAsyncThunk(
         dispatch(setToken({
           token,
           userId: data.userId,
+          flags: data.flags || [],
         }));
         return { success: true, data };
       } else {
@@ -107,6 +111,25 @@ export const checkTokenFromUrl = createAsyncThunk(
     } catch (error: any) {
       dispatch(setError(error.message || 'Ошибка при проверке токена'));
       throw error;
+    }
+  }
+);
+
+export const refreshFlags = createAsyncThunk(
+  'auth/refreshFlags',
+  async (_, { dispatch, getState }) => {
+    const state = getState() as RootState;
+    const token = state.auth.token;
+
+    if (!token) return;
+
+    try {
+      const data: CheckTokenResponse = await authAPI.checkToken(token);
+      if (data.flags) {
+        dispatch(updateFlags(data.flags));
+      }
+    } catch (error) {
+      console.error('Error refreshing flags:', error);
     }
   }
 );

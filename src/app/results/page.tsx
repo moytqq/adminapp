@@ -66,7 +66,7 @@ const RezultatyPage = () => {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requiredFlags={['RESULTS', 'ADMIN']} redirectTo="/main">
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <div className={styles.container}>

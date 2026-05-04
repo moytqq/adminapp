@@ -49,7 +49,7 @@ const AutoOrdersPage = () => {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requiredFlags={['LS_AUTOZAKAZI', 'TM_AUTOZAKAZI', 'ADMIN']} redirectTo="/main">
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <div className={styles.container}>

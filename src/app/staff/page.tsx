@@ -147,7 +147,7 @@ export default function StaffPage() {
   }, [currentPage, totalPages]);
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requiredFlags={['ADMIN']} redirectTo="/main">
       <div className={styles.container}>
         <header className={styles.header}>
           <div className={styles.headerLeft}>

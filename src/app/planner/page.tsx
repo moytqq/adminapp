@@ -53,7 +53,7 @@ const PlannerPage = () => {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requiredFlags={['ADMIN']} redirectTo="/main">
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <div className={styles.container}>

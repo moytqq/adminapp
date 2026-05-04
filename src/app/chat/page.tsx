@@ -43,7 +43,7 @@ const ChatPage = () => {
   const showBackButton = chatType !== null;
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute requiredFlags={['CHAT', 'ADMIN']} redirectTo="/main">
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <div className={styles.container}>
