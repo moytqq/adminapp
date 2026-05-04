@@ -166,7 +166,7 @@ const ReportTypeSelector: React.FC<ReportTypeSelectorProps> = ({
             <p>Выберите тип отчета для анализа продаж</p>
           </div>
           <div className={styles.backButtonWrapper}>
-            <button className={"typeSelectorBackButton"} onClick={onBackToCategories}>
+            <button className="typeSelectorBackButtonWhite" onClick={onBackToCategories}>
               <ArrowLeft size={20} />
               <span>Назад</span>
             </button>

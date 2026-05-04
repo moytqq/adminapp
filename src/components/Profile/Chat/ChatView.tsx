@@ -100,7 +100,7 @@ const ChatView: React.FC<ChatViewProps> = ({
       {!isMobile && (
         <div className={styles.header}>
           <button
-            className={`${styles.backToCategoriesButton} typeSelectorBackButton`}
+            className="typeSelectorBackButtonGray"
             onClick={handleBackToCategories}
             title="Назад к категориям"
           >
@@ -126,7 +126,7 @@ const ChatView: React.FC<ChatViewProps> = ({
           {isMobile && (
             <div className={styles.mobileHeader}>
               <button
-                className={`${styles.backToCategoriesButton} typeSelectorBackButton`}
+                className="typeSelectorBackButtonGray"
                 onClick={handleBackToCategories}
                 title="Назад к категориям"
               >
