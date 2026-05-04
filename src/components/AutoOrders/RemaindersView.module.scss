@@ -91,6 +91,13 @@ $table-border: #d5d5d5;
   gap: 16px;
 }
 
+.saveButtonContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+  margin-right: 10px;
+}
+
 .saveButton {
   display: flex;
   align-items: center;

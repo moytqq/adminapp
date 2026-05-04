@@ -211,7 +211,8 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
         </div>
         <div className={styles.tableContainer}>
           <div className={styles.tableWrapper}>
-            <table className={styles.reportTable} style={{ '--reports-table-font-size': `${currentFontSize}px` } as React.CSSProperties}>
+            <table className={styles.reportTable}
+                   style={{ '--reports-table-font-size': `${currentFontSize}px` } as React.CSSProperties}>
               <thead>
               <tr>
                 <th className={styles.productColumn}>Наименование</th>
@@ -269,7 +270,8 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
         <div className={styles.fullscreenContent}>
           <div className={styles.tableContainer}>
             <div className={styles.tableWrapper}>
-              <table className={styles.reportTable} style={{ '--reports-table-font-size': `${fullscreenFontSize}px` } as React.CSSProperties}>
+              <table className={styles.reportTable}
+                     style={{ '--reports-table-font-size': `${fullscreenFontSize}px` } as React.CSSProperties}>
                 <thead>
                 <tr>
                   <th className={styles.productColumn}>Наименование</th>
@@ -368,6 +370,16 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
 
       <div className={styles.scrollableContent}>
         {renderTable()}
+        <div className={styles.saveButtonContainer}>
+          <button
+            className={styles.saveButton}
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? <Loader size={18} className={styles.spinnerSmall} /> : <Save size={18} />}
+            <span>Сохранить</span>
+          </button>
+        </div>
       </div>
     </div>
   );
