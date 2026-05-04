@@ -1,4 +1,3 @@
-// components/AutoOrders/ItemSelector.tsx
 'use client';
 
 import React from 'react';

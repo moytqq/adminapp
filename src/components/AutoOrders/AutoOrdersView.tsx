@@ -1,4 +1,3 @@
-// components/AutoOrders/AutoOrdersView.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -6,7 +5,7 @@ import ItemSelector, { SelectorItem } from './ItemSelector';
 import AutoOrdersTableView from './AutoOrdersTableView';
 import RemaindersView from './RemaindersView';
 import { remaindersApi, RemainderForm } from '@/services/remaindersApi';
-import { Package } from 'lucide-react';
+import { ArrowLeft, Package } from 'lucide-react';
 import styles from './AutoOrdersView.module.scss';
 
 interface AutoOrdersViewProps {
@@ -49,7 +48,6 @@ const AutoOrdersView: React.FC<AutoOrdersViewProps> = ({ autoOrderType, onBack }
     }
   };
 
-  // Для остатков: выбор магазина
   if (autoOrderType === 'remainders') {
     if (!selectedForm) {
       const items: SelectorItem[] = forms.map(form => ({
@@ -78,17 +76,21 @@ const AutoOrdersView: React.FC<AutoOrdersViewProps> = ({ autoOrderType, onBack }
     return <RemaindersView form={selectedForm} onBack={() => setSelectedForm(null)} />;
   }
 
-  // Для товарной матрицы
-  if (autoOrderType === 'itemsMatrix') {
+  if (autoOrderType === 'workInProgress') {
     return <AutoOrdersTableView autoOrderType={autoOrderType} onBack={onBack} />;
   }
 
-  // Для остальных типов: заглушка
   return (
     <div className={styles.placeholderContainer}>
-      <div className={styles.placeholder}>
-        <h3>{getAutoOrderTitle(autoOrderType)}</h3>
-        <p>Функционал для этого типа автозаказов будет доступен позже</p>
+      <button className="typeSelectorBackButtonGray" onClick={onBack}>
+        <ArrowLeft size={20} />
+        <span>Назад</span>
+      </button>
+      <div>
+        <div className={styles.placeholder}>
+          <h3>{getAutoOrderTitle(autoOrderType)}</h3>
+          <p>Функционал для этого типа автозаказов будет доступен позже</p>
+        </div>
       </div>
     </div>
   );

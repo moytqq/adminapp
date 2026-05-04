@@ -59,14 +59,11 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
     setLoading(true);
     setError(null);
     try {
-      // Загружаем поля формы
       const fieldsData = await remaindersApi.getFieldsByRegId(form.id);
       setFields(fieldsData);
 
-      // Собираем все sku_id
       const skuIds = Object.values(fieldsData).map(field => field.sku_id);
 
-      // Загружаем информацию о товарах
       const skusData = await remaindersApi.getSkusByIds(skuIds);
       const skusMap = new Map<number, SkuInfo>();
       skusData.forEach(sku => {
@@ -74,7 +71,6 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
       });
       setSkusInfo(skusMap);
 
-      // Формируем данные для таблицы
       const rows: RemainderRow[] = Object.values(fieldsData).map(field => ({
         skuId: field.sku_id,
         productName: skusMap.get(field.sku_id)?.name || `Товар ${field.sku_id}`,
@@ -91,7 +87,6 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
   };
 
   const handleValueChange = (skuId: number, newValue: string) => {
-    // Разрешаем только цифры
     const numericValue = newValue.replace(/[^\d]/g, '');
 
     setTableData(prev => prev.map(row => {
@@ -137,7 +132,6 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
         }
       }
 
-      // Показываем предупреждение о незаполненных полях
       if (emptyItems.length > 0) {
         const confirmMessage = `Следующие поля не заполнены:\n${emptyItems.slice(0, 10).join('\n')}${emptyItems.length > 10 ? `\n... и еще ${emptyItems.length - 10}` : ''}\n\nПродолжить сохранение?`;
         if (!window.confirm(confirmMessage)) {
@@ -158,7 +152,6 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
         setSuccessMessage(response.message || 'Данные успешно сохранены');
         setUnsavedChanges(false);
 
-        // Обновляем originalValue для всех сохранённых строк
         setTableData(prev => prev.map(row => {
           const savedItem = filledItems.find(item => item.sku_id === row.skuId);
           if (savedItem) {
@@ -167,7 +160,6 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
           return { ...row, originalValue: undefined };
         }));
 
-        // Скрываем сообщение через 3 секунды
         setTimeout(() => setSuccessMessage(null), 3000);
       } else {
         setError(response.message || 'Ошибка при сохранении');

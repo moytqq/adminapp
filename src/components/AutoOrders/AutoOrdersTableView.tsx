@@ -1,4 +1,3 @@
-// components/AutoOrders/AutoOrdersTableView.tsx
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
@@ -412,7 +411,6 @@ const AutoOrdersTableView: React.FC<AutoOrdersTableViewProps> = ({ autoOrderType
     );
   };
 
-  // Если месяц не выбран - показываем селектор месяцев
   if (!selectedMonth) {
     const monthItems: SelectorItem[] = months.map(month => ({
       id: month.id,
@@ -423,7 +421,7 @@ const AutoOrdersTableView: React.FC<AutoOrdersTableViewProps> = ({ autoOrderType
 
     return (
       <ItemSelector
-        title="Товарная матрица"
+        title="В работе"
         subtitle="Выберите месяц для просмотра заказов"
         items={monthItems}
         onSelect={(item) => {
