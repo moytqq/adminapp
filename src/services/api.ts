@@ -8,8 +8,22 @@ const API_PROXY_URL = '/api/proxy/client_api';
 const TOKEN_KEY = 'auth_token';
 const USER_ID_KEY = 'user_id';
 
-const handleExpiredToken = (message: string) => {
+const validateToken = async (token: string): Promise<boolean> => {
+  try {
+    const response = await axios.get(`${API_PROXY_URL}/check_token?token=${token}`);
+    const data = response.data;
 
+    if (data.status === 'valid') {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Token validation error:', error);
+    return false;
+  }
+};
+
+const handleExpiredToken = (message: string) => {
   Cookies.remove(TOKEN_KEY);
   Cookies.remove(USER_ID_KEY);
 
@@ -34,11 +48,28 @@ export const createApi = () => {
   });
 
   api.interceptors.request.use(
-    (config) => {
+    async (config) => {
       const token = Cookies.get(TOKEN_KEY);
+
+      const isAuthRequest = config.url?.includes('/login') || config.url?.includes('/check_token');
+
+      if (token && !isAuthRequest) {
+        try {
+          const isValid = await validateToken(token);
+          if (!isValid) {
+            handleExpiredToken('Токен недействителен');
+            return Promise.reject(new Error('Token invalid'));
+          }
+        } catch (error) {
+          handleExpiredToken('Ошибка проверки токена');
+          return Promise.reject(error);
+        }
+      }
+
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+
       return config;
     },
     (error) => {
@@ -50,7 +81,9 @@ export const createApi = () => {
     (response) => {
       const data = response.data;
 
-      if (data && (data.status === 'expired' || data.message === 'Токен истек' || data.message === 'Токен истёк' || data.message === 'Токен не найден')) {
+      if (data && (data.status === 'expired' || data.status === 'not_found' ||
+        data.message === 'Токен истек' || data.message === 'Токен истёк' ||
+        data.message === 'Токен не найден')) {
         handleExpiredToken(data.message);
         return Promise.reject(new Error(data.message));
       }
@@ -60,7 +93,9 @@ export const createApi = () => {
     (error) => {
       const responseData = error.response?.data;
 
-      if (responseData && (responseData.status === 'expired' || responseData.message === 'Токен истек' || responseData.message === 'Токен истёк')) {
+      if (responseData && (responseData.status === 'expired' || responseData.status === 'not_found' ||
+        responseData.message === 'Токен истек' || responseData.message === 'Токен истёк' ||
+        responseData.message === 'Токен не найден')) {
         handleExpiredToken(responseData.message);
       }
 
@@ -122,7 +157,6 @@ export const authAPI = {
 export const treeApi = {
   getHierarchyTree: async (): Promise<ApiTreeItem[]> => {
     try {
-      checkAuthAndRedirect();
       const response = await api.get('/get_hierarchy_tree');
       return response.data;
     } catch (error) {
@@ -133,7 +167,6 @@ export const treeApi = {
 
   getAddressTree: async (): Promise<ApiTreeItem[]> => {
     try {
-      checkAuthAndRedirect();
       const response = await api.get('/get_address_tree');
       return response.data.filter((item: ApiTreeItem | null) => item !== null);
     } catch (error) {
@@ -144,7 +177,6 @@ export const treeApi = {
 
   getItemDetails: async (id: number, type: string) => {
     try {
-      checkAuthAndRedirect();
       const response = await api.get(`/get_item_details/${type}/${id}`);
       return response.data;
     } catch (error) {
@@ -155,7 +187,6 @@ export const treeApi = {
 
   updateItem: async (id: number, updates: Partial<ApiTreeItem>) => {
     try {
-      checkAuthAndRedirect();
       const response = await api.put(`/update_item/${id}`, updates);
       return response.data;
     } catch (error) {
