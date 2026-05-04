@@ -22,14 +22,25 @@ import ChatView from '@/components/Profile/Chat/ChatView';
 import DepartmentsView from '@/components/Profile/Departments/DepartmentsView';
 import EmployeesView from '@/components/Profile/EmployeesView/EmployeesView';
 import SalaryView from '@/components/Salary/SalaryView';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 
 type TabType = 'departments' | 'employees' | 'tasks' | 'salary' | 'chat' | 'database' | 'documents';
+
+interface TabConfig {
+  id: TabType;
+  label: string;
+  icon: React.ReactNode;
+  mobileIcon: React.ReactNode;
+  requiredFlags?: string[];
+}
 
 const ProfilePage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('departments');
   const router = useRouter();
+  const { flags } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -44,15 +55,75 @@ const ProfilePage = () => {
     };
   }, []);
 
-  const tabs = [
-    { id: 'departments' as TabType, label: 'Департаменты', icon: Building2, mobileIcon: Building2 },
-    { id: 'employees' as TabType, label: 'Сотрудники', icon: Users, mobileIcon: Users },
-    { id: 'tasks' as TabType, label: 'Задачи', icon: ClipboardCheck, mobileIcon: ClipboardCheck },
-    { id: 'salary' as TabType, label: 'ЗП/KPI', icon: RussianRuble, mobileIcon: RussianRuble },
-    { id: 'chat' as TabType, label: 'Чат', icon: MessageCircle, mobileIcon: MessageCircle },
-    { id: 'database' as TabType, label: 'База данных', icon: Database, mobileIcon: Database },
-    { id: 'documents' as TabType, label: 'Документы', icon: FileText, mobileIcon: FileText },
+  const hasAccessToTab = (requiredFlags?: string[]): boolean => {
+    if (!requiredFlags || requiredFlags.length === 0) return true;
+    if (flags.includes('ADMIN')) return true;
+    return requiredFlags.some(flag => flags.includes(flag));
+  };
+
+  // Конфигурация вкладок с требуемыми флагами
+  const allTabs: TabConfig[] = [
+    {
+      id: 'departments',
+      label: 'Департаменты',
+      icon: <Building2 size={20} />,
+      mobileIcon: <Building2 size={24} />,
+      requiredFlags: []
+    },
+    {
+      id: 'employees',
+      label: 'Сотрудники',
+      icon: <Users size={20} />,
+      mobileIcon: <Users size={24} />,
+      requiredFlags: ['ADMIN']
+    },
+    {
+      id: 'tasks',
+      label: 'Задачи',
+      icon: <ClipboardCheck size={20} />,
+      mobileIcon: <ClipboardCheck size={24} />,
+      requiredFlags: ['ADMIN']
+    },
+    {
+      id: 'salary',
+      label: 'ЗП/KPI',
+      icon: <RussianRuble size={20} />,
+      mobileIcon: <RussianRuble size={24} />,
+      requiredFlags: ['ADMIN']
+    },
+    {
+      id: 'chat',
+      label: 'Чат',
+      icon: <MessageCircle size={20} />,
+      mobileIcon: <MessageCircle size={24} />,
+      requiredFlags: ['CHAT', 'ADMIN']
+    },
+    {
+      id: 'database',
+      label: 'База данных',
+      icon: <Database size={20} />,
+      mobileIcon: <Database size={24} />,
+      requiredFlags: ['ADMIN']
+    },
+    {
+      id: 'documents',
+      label: 'Документы',
+      icon: <FileText size={20} />,
+      mobileIcon: <FileText size={24} />,
+      requiredFlags: ['ADMIN']
+    },
   ];
+
+  const visibleTabs = allTabs.filter(tab => hasAccessToTab(tab.requiredFlags));
+
+  useEffect(() => {
+    if (visibleTabs.length > 0) {
+      const hasCurrentTab = visibleTabs.some(tab => tab.id === activeTab);
+      if (!hasCurrentTab) {
+        setActiveTab(visibleTabs[0].id);
+      }
+    }
+  }, [visibleTabs, activeTab]);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -93,6 +164,39 @@ const ProfilePage = () => {
     }
   };
 
+  if (visibleTabs.length === 0) {
+    return (
+      <ProtectedRoute>
+        <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+        <div className={styles.container}>
+          <header className={styles.header}>
+            <div className={styles.headerLeft}>
+              <button
+                className={styles.menuButton}
+                onClick={() => setIsMenuOpen(true)}
+                aria-label="Открыть меню"
+              >
+                <Menu size={24} />
+              </button>
+              <h1 className={styles.title}>Личный кабинет</h1>
+            </div>
+            <div className={styles.profileInfo}>
+              <div className={styles.userAvatar}>
+                <User size={24} />
+              </div>
+            </div>
+          </header>
+          <main className={styles.content}>
+            <div className={styles.noTabsMessage}>
+              <h3>Нет доступных разделов</h3>
+              <p>У вашей учетной записи нет доступа к разделам личного кабинета</p>
+            </div>
+          </main>
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
   return (
     <ProtectedRoute>
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
@@ -111,10 +215,6 @@ const ProfilePage = () => {
           </div>
 
           <div className={styles.profileInfo}>
-            {/*<div className={styles.userInfo}>
-              <span className={styles.userName}>Иван Иванов</span>
-              {!isMobile && <span className={styles.userRole}>Администратор</span>}
-            </div>*/}
             <div className={styles.userAvatar}>
               <User size={24} />
             </div>
@@ -123,7 +223,7 @@ const ProfilePage = () => {
 
         <div className={styles.tabsContainer}>
           <nav className={styles.tabs}>
-            {tabs.map((tab) => {
+            {visibleTabs.map((tab) => {
               const Icon = isMobile ? tab.mobileIcon : tab.icon;
               return (
                 <button
@@ -132,7 +232,7 @@ const ProfilePage = () => {
                   onClick={() => setActiveTab(tab.id)}
                   title={isMobile ? tab.label : undefined}
                 >
-                  <Icon size={isMobile ? 24 : 20} />
+                  {Icon}
                   {!isMobile && <span>{tab.label}</span>}
                 </button>
               );
