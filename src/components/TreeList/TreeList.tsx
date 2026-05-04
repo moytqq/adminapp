@@ -114,8 +114,8 @@ const TreeList: React.FC = () => {
       <div className={styles.treeContainer}>
         {items.length === 0 ? (
           <div className={styles.emptyState}>
-            <p>Нет данных для отображения</p>
-            <p className={styles.emptyHint}>
+            <h3>Нет данных для отображения</h3>
+            <p>
               {viewMode === 'addresses'
                 ? storeFilter
                   ? `Нет магазинов типа "${storeFilter}"`

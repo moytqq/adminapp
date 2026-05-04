@@ -14,7 +14,7 @@ export default function AuthInitializer() {
 
   useAuthListener();
 
-  useTokenValidation(60000);
+  //useTokenValidation(60000);
 
   useEffect(() => {
     if (!initialized.current) {
