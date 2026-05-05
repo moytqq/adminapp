@@ -5,25 +5,20 @@ import ChatList from './ChatList';
 import ChatMessages from './ChatMessages';
 import CreateChatModal from './CreateChatModal';
 import styles from './ChatView.module.scss';
-import { MessageCircle, Plus, ArrowLeft } from 'lucide-react';
-import ChatCategorySelector from '@/components/Profile/Chat/ChatCategorySelector';
+import { MessageCircle, Plus } from 'lucide-react';
 
 interface ChatViewProps {
   chatType?: string;
-  onBackToCategories?: () => void;
   isInProfile?: boolean;
 }
 
 const ChatView: React.FC<ChatViewProps> = ({
-                                             chatType: initialChatType,
-                                             onBackToCategories,
+                                             chatType = 'write',
                                              isInProfile = false
                                            }) => {
   const [selectedChat, setSelectedChat] = useState<number | undefined>();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(initialChatType || null);
-  const [chatType, setChatType] = useState<string>(initialChatType || 'write');
 
   const updateChatRef = useRef<((chatId: number, isRead: boolean) => void) | null>(null);
 
@@ -63,50 +58,14 @@ const ChatView: React.FC<ChatViewProps> = ({
   const setRefreshCallback = useCallback((callback: () => void) => {
   }, []);
 
-  const handleSelectCategory = (categoryId: string) => {
-    setSelectedCategory(categoryId);
-    setChatType(categoryId);
-    setSelectedChat(undefined);
-  };
-
-  const handleBackToCategories = () => {
-    setSelectedCategory(null);
-    setSelectedChat(undefined);
-    if (onBackToCategories) {
-      onBackToCategories();
-    }
-  };
-
   const getChatTitle = () => {
-    const titles: Record<string, string> = {
-      write: 'Чаты',
-      groups: 'Группы',
-      team: 'Команда',
-      sos: 'SOS',
-    };
-    return titles[chatType] || 'Чаты';
+    return 'Чаты';
   };
-
-  if (!selectedCategory) {
-    return (
-      <div className={styles.categoryContainer}>
-        <ChatCategorySelector onSelectCategory={handleSelectCategory} />
-      </div>
-    );
-  }
 
   return (
     <div className={styles.chatView}>
       {!isMobile && (
         <div className={styles.header}>
-          <button
-            className="typeSelectorBackButtonGray"
-            onClick={handleBackToCategories}
-            title="Назад к категориям"
-          >
-            <ArrowLeft size={18} />
-            <span>Назад</span>
-          </button>
           <h2>{getChatTitle()}</h2>
           <div className={styles.headerActions}>
             <button
@@ -125,13 +84,6 @@ const ChatView: React.FC<ChatViewProps> = ({
         <div className={`${styles.chatListColumn} ${selectedChat && isMobile ? styles.hidden : ''}`}>
           {isMobile && (
             <div className={styles.mobileHeader}>
-              <button
-                className="typeSelectorBackButtonGray"
-                onClick={handleBackToCategories}
-                title="Назад к категориям"
-              >
-                <ArrowLeft size={18} />
-              </button>
               <h2>{getChatTitle()}</h2>
               <button
                 className={styles.newChatButton}

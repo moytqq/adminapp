@@ -142,7 +142,7 @@ const ProfilePage = () => {
       case 'salary':
         return <SalaryView />;
       case 'chat':
-        return <ChatView />;
+        return <ChatView  isInProfile={true}/>;
       case 'database':
         return (
           <div className={styles.placeholder}>
