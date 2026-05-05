@@ -1,12 +1,13 @@
 'use client';
 
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 import styles from './ReportTypeSelector.module.scss';
 import {
   Coffee, Cake, Croissant, Salad, Soup, UtensilsCrossed,
-  Beef, Milk, CookingPot, Box, Icon, ArrowLeft,
+  Beef, Milk, CookingPot, Box, ArrowLeft,
 } from 'lucide-react';
-import { sausage, toast } from '@lucide/lab';
 
 export interface ReportType {
   id: string;
@@ -15,6 +16,7 @@ export interface ReportType {
   icon: React.ReactNode;
   color: string;
   bgColor: string;
+  requiredFlags?: string[];
 }
 
 export interface CategoryType {
@@ -24,6 +26,7 @@ export interface CategoryType {
   icon: React.ReactNode;
   color: string;
   bgColor: string;
+  requiredFlags?: string[];
   reportTypes?: ReportType[];
 }
 
@@ -34,7 +37,7 @@ interface ReportTypeSelectorProps {
   onBackToCategories?: () => void;
 }
 
-const categories: CategoryType[] = [
+const allCategories: CategoryType[] = [
   {
     id: 'meat',
     title: 'Мясо',
@@ -42,6 +45,7 @@ const categories: CategoryType[] = [
     icon: <Beef size={32} />,
     color: '#d32f2f',
     bgColor: '#ffebee',
+    requiredFlags: ['ADMIN'],
     reportTypes: [],
   },
   {
@@ -51,15 +55,17 @@ const categories: CategoryType[] = [
     icon: <Milk size={32} />,
     color: '#1976d2',
     bgColor: '#e3f2fd',
+    requiredFlags: ['ADMIN'],
     reportTypes: [],
   },
   {
     id: 'sausage',
     title: 'Колбаса',
     description: 'Анализ продаж колбасных изделий',
-    icon: <Icon iconNode={sausage} size={32} />,
+    icon: <Box size={32} />,
     color: '#f57c00',
     bgColor: '#fff3e0',
+    requiredFlags: ['ADMIN'],
     reportTypes: [],
   },
   {
@@ -69,6 +75,7 @@ const categories: CategoryType[] = [
     icon: <CookingPot size={32} />,
     color: '#7b1fa2',
     bgColor: '#f3e5f5',
+    requiredFlags: ['RESULTS', 'ADMIN'],
     reportTypes: [
       {
         id: 'drinks',
@@ -76,7 +83,7 @@ const categories: CategoryType[] = [
         description: 'Анализ продаж кофе, чая и других напитков',
         icon: <Coffee size={32} />,
         color: '#2196f3',
-        bgColor: '#f3e5f5',
+        bgColor: '#e3f2fd',
       },
       {
         id: 'desserts',
@@ -92,15 +99,15 @@ const categories: CategoryType[] = [
         description: 'Анализ продаж выпечки',
         icon: <Croissant size={32} />,
         color: '#ff9800',
-        bgColor: '#f3e5f5',
+        bgColor: '#fff3e0',
       },
       {
         id: 'bread',
         title: 'Хлеб',
         description: 'Анализ продаж хлеба',
-        icon: <Icon iconNode={toast} size={32} />,
+        icon: <Box size={32} />,
         color: '#d1bc02',
-        bgColor: '#f3e5f5',
+        bgColor: '#f8f5dc',
       },
       {
         id: 'salads',
@@ -108,7 +115,7 @@ const categories: CategoryType[] = [
         description: 'Анализ продаж салатов и закусок',
         icon: <Salad size={32} />,
         color: '#4caf50',
-        bgColor: '#f3e5f5',
+        bgColor: '#e8f5e9',
       },
       {
         id: 'soups',
@@ -116,7 +123,7 @@ const categories: CategoryType[] = [
         description: 'Анализ продаж супов и бульонов',
         icon: <Soup size={32} />,
         color: '#ff5722',
-        bgColor: '#f3e5f5',
+        bgColor: '#fbe9e7',
       },
       {
         id: 'hot',
@@ -124,7 +131,7 @@ const categories: CategoryType[] = [
         description: 'Анализ продаж горячих блюд',
         icon: <UtensilsCrossed size={32} />,
         color: '#795548',
-        bgColor: '#f3e5f5',
+        bgColor: '#efebe9',
       },
     ],
   },
@@ -136,6 +143,19 @@ const ReportTypeSelector: React.FC<ReportTypeSelectorProps> = ({
                                                                  onSelectCategory,
                                                                  onBackToCategories,
                                                                }) => {
+  const { flags } = useSelector((state: RootState) => state.auth);
+
+  const hasAccessToCategory = (requiredFlags?: string[]): boolean => {
+    if (!requiredFlags || requiredFlags.length === 0) return true;
+    if (flags.includes('ADMIN')) return true;
+    return requiredFlags.some(flag => flags.includes(flag));
+  };
+
+  const categories = allCategories.filter(category => hasAccessToCategory(category.requiredFlags));
+
+  console.log('ReportTypeSelector - user flags:', flags);
+  console.log('Visible categories:', categories.map(c => c.title));
+
   if (selectedCategory) {
     const category = categories.find(c => c.id === selectedCategory);
 
@@ -166,7 +186,7 @@ const ReportTypeSelector: React.FC<ReportTypeSelectorProps> = ({
             <p>Выберите тип отчета для анализа продаж</p>
           </div>
           <div className={styles.backButtonWrapper}>
-            <button className="typeSelectorBackButtonWhite" onClick={onBackToCategories}>
+            <button className={styles.backButton} onClick={onBackToCategories}>
               <ArrowLeft size={20} />
               <span>Назад</span>
             </button>
