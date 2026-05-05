@@ -1,11 +1,15 @@
 'use client';
 
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 import styles from './AutoOrderTypeSelector.module.scss';
 import {
-   Table,
+  Table,
   ShoppingCart,
-  CalendarSync, CalendarClock, CalendarCheck2,
+  CalendarSync,
+  CalendarCheck2,
+  CalendarClock,
   Package,
 } from 'lucide-react';
 
@@ -16,13 +20,14 @@ export interface AutoOrderType {
   icon: React.ReactNode;
   color: string;
   bgColor: string;
+  requiredFlags?: string[];
 }
 
 interface AutoOrderTypeSelectorProps {
   onSelectType: (typeId: string) => void;
 }
 
-const autoOrderTypes: AutoOrderType[] = [
+const allAutoOrderTypes: AutoOrderType[] = [
   {
     id: 'itemsMatrix',
     title: 'Товарная матрица',
@@ -30,6 +35,7 @@ const autoOrderTypes: AutoOrderType[] = [
     icon: <Table size={32} />,
     color: '#2196f3',
     bgColor: '#e3f2fd',
+    requiredFlags: ['ADMIN'],
   },
   {
     id: 'nonProfitablePurchases',
@@ -38,6 +44,7 @@ const autoOrderTypes: AutoOrderType[] = [
     icon: <ShoppingCart size={32} />,
     color: '#9c27b0',
     bgColor: '#f3e5f5',
+    requiredFlags: ['ADMIN'],
   },
   {
     id: 'workInProgress',
@@ -46,6 +53,7 @@ const autoOrderTypes: AutoOrderType[] = [
     icon: <CalendarSync size={32} />,
     color: '#ff9800',
     bgColor: '#fff3e0',
+    requiredFlags: ['LS_AUTOZAKAZI', 'TM_AUTOZAKAZI', 'ADMIN'],
   },
   {
     id: 'completed',
@@ -54,6 +62,7 @@ const autoOrderTypes: AutoOrderType[] = [
     icon: <CalendarCheck2 size={32} />,
     color: '#4caf50',
     bgColor: '#e8f5e9',
+    requiredFlags: ['ADMIN'],
   },
   {
     id: 'urgentOrder',
@@ -62,6 +71,7 @@ const autoOrderTypes: AutoOrderType[] = [
     icon: <CalendarClock size={32} />,
     color: '#ff5722',
     bgColor: '#fbe9e7',
+    requiredFlags: ['ADMIN'],
   },
   {
     id: 'remainders',
@@ -70,10 +80,24 @@ const autoOrderTypes: AutoOrderType[] = [
     icon: <Package size={32} />,
     color: '#00bcd4',
     bgColor: '#e0f7fa',
+    requiredFlags: ['LS_AUTOZAKAZI', 'TM_AUTOZAKAZI', 'ADMIN'],
   },
 ];
 
 const AutoOrderTypeSelector: React.FC<AutoOrderTypeSelectorProps> = ({ onSelectType }) => {
+  const { flags } = useSelector((state: RootState) => state.auth);
+
+  const hasAccessToType = (requiredFlags?: string[]): boolean => {
+    if (!requiredFlags || requiredFlags.length === 0) return true;
+    if (flags.includes('ADMIN')) return true;
+    return requiredFlags.some(flag => flags.includes(flag));
+  };
+
+  const visibleTypes = allAutoOrderTypes.filter(type => hasAccessToType(type.requiredFlags));
+
+  console.log('AutoOrderTypeSelector - user flags:', flags);
+  console.log('Visible types:', visibleTypes.map(t => t.title));
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -81,7 +105,7 @@ const AutoOrderTypeSelector: React.FC<AutoOrderTypeSelectorProps> = ({ onSelectT
         <p>Выберите тип Автозаказа</p>
       </div>
       <div className={styles.grid}>
-        {autoOrderTypes.map(type => (
+        {visibleTypes.map(type => (
           <button
             key={type.id}
             className={styles.card}
