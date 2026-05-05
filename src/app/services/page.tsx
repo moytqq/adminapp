@@ -9,11 +9,12 @@ import { Menu, ArrowLeft } from 'lucide-react';
 import stylesSideMenu from '@/app/main/main.module.scss';
 import ServiceTypeSelector from '@/components/Services/ServiceTypeSelector';
 import ServiceView from '@/components/Services/ServiceView';
+import { ServiceType } from '@/services/serviceApi';
 
 const ServicesPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [selectedServiceType, setSelectedServiceType] = useState<string | null>(null);
+  const [selectedServiceType, setSelectedServiceType] = useState<ServiceType | null>(null);
   const router = useRouter();
 
   React.useEffect(() => {
@@ -36,17 +37,7 @@ const ServicesPage = () => {
   const showBackButton = selectedServiceType !== null;
   const getHeaderTitle = () => {
     if (selectedServiceType) {
-      const typeTitles: Record<string, string> = {
-        repairs: 'Ремонт',
-        coffeeMakers: 'Кофемашины',
-        fridges: 'Холодильники',
-        shopWindows: 'Витрины',
-        kitchen: 'Кухня',
-        stove: 'Печи',
-        climate: 'Климат',
-        cashRegisters: 'Кассы-Орг',
-      };
-      return typeTitles[selectedServiceType] || 'Сервис';
+      return selectedServiceType.name === 'История заявок' ? 'История заявок' : selectedServiceType.name;
     }
     return 'Сервис';
   };
@@ -65,14 +56,8 @@ const ServicesPage = () => {
             >
               <Menu size={24} />
             </button>
-            {!selectedServiceType && <h1 className={styles.title}>{getHeaderTitle()}</h1>}
+            <h1 className={styles.title}>Сервис</h1>
           </div>
-          {showBackButton && (
-            <button className="typeSelectorBackButtonGray" onClick={handleBack} title="Назад">
-              <ArrowLeft size={20} />
-              <span>Назад</span>
-            </button>
-          )}
         </header>
 
         <main className={styles.content}>

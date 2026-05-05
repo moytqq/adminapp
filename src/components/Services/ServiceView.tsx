@@ -1,69 +1,106 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
+import { serviceApi, ServiceType } from '@/services/serviceApi';
+import ServiceRegistration from './ServiceRegistration';
+import ServiceHistory from './ServiceHistory';
 import styles from './ServiceView.module.scss';
-import {
-  Calendar,
-  CalendarClock,
-  Table,
-  ShoppingCart,
-  CalendarSync,
-  CalendarCheck2,
-  Wrench,
-  Coffee,
-  Snowflake,
-  Grid2X2,
-  ChefHat,
-  Heater,
-  Thermometer,
-  Coins,
-} from 'lucide-react';
+import { Loader } from 'lucide-react';
 
 interface ServiceViewProps {
-  serviceType: string;
-  onBack?: () => void;
+  serviceType: ServiceType;
+  onBack: () => void;
 }
 
-const getServiceTitle = (type: string): string => {
-  const titles: Record<string, string> = {
-    repairs: 'Ремонт',
-    coffeeMakers: 'Кофемашины',
-    fridges: 'Холодильники',
-    shopWindows: 'Витрины',
-    kitchen: 'Кухня',
-    stove: 'Печи',
-    climate: 'Климат',
-    cashRegisters: 'Кассы-Орг',
-  };
-  return titles[type] || 'Сервис';
-};
-
-const getServiceIcon = (type: string) => {
-  const icons: Record<string, React.ReactNode> = {
-    repairs: <Wrench size={48} />,
-    coffeeMakers: <Coffee size={48} />,
-    fridges: <Snowflake size={48} />,
-    shopWindows: <Grid2X2 size={48} />,
-    kitchen: <ChefHat size={48} />,
-    stove: <Heater size={48} />,
-    climate: <Thermometer size={48} />,
-    cashRegisters: <Coins size={48} />,
-  };
-  return icons[type] || <Wrench size={48} />;
-};
-
 const ServiceView: React.FC<ServiceViewProps> = ({ serviceType, onBack }) => {
-  const title = getServiceTitle(serviceType);
-  const icon = getServiceIcon(serviceType);
+  const [userAddresses, setUserAddresses] = useState<number[]>([]);
+  const [storeNamesMap, setStoreNamesMap] = useState<Map<number, string>>(new Map());
+  const [loading, setLoading] = useState(true);
+  const [showHistory, setShowHistory] = useState(false);
+  const { flags } = useSelector((state: RootState) => state.auth);
+
+  const isHistory = serviceType.type === 'history';
+  const isServiceAdmin = flags.includes('SERVICE_ADMIN') || flags.includes('ADMIN');
+
+  useEffect(() => {
+    loadUserAddresses();
+  }, []);
+
+  const loadUserAddresses = async () => {
+    setLoading(true);
+    try {
+      const hids: number[] = [];
+      flags.forEach(flag => {
+        if (flag.startsWith('LS_') || flag.startsWith('TM_')) {
+          const hid = parseInt(flag.split('_')[1], 10);
+          if (!isNaN(hid)) {
+            hids.push(hid);
+          }
+        }
+      });
+      setUserAddresses(hids);
+
+      const map = new Map<number, string>();
+      hids.forEach(hid => {
+        map.set(hid, `Магазин ${hid}`);
+      });
+      setStoreNamesMap(map);
+    } catch (error) {
+      console.error('Error loading user addresses:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegistrationSuccess = () => {
+    setShowHistory(true);
+  };
+
+  const handleBackToRegistration = () => {
+    setShowHistory(false);
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.loading}>
+        <Loader size={48} className={styles.spinner} />
+        <p>Загрузка...</p>
+      </div>
+    );
+  }
+
+  if (isHistory) {
+    return (
+      <ServiceHistory
+        onBack={onBack}
+        userHids={userAddresses}
+        storeNamesMap={storeNamesMap}
+        isAdmin={isServiceAdmin}
+      />
+    );
+  }
+
+  if (showHistory) {
+    return (
+      <ServiceHistory
+        onBack={handleBackToRegistration}
+        userHids={userAddresses}
+        storeNamesMap={storeNamesMap}
+        isAdmin={isServiceAdmin}
+      />
+    );
+  }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.content}>
-        <div className={styles.placeholder}>
-          {icon}
-          <h3>{title}</h3>
-          <p>Функционал Сервиса для "{title}" будет доступен позже</p>
-        </div>
-      </div>
-    </div>
+    <ServiceRegistration
+      serviceType={serviceType}
+      userAddresses={userAddresses}
+      storeNamesMap={storeNamesMap}
+      onBack={onBack}
+      onSuccess={handleRegistrationSuccess}
+    />
   );
 };
 
