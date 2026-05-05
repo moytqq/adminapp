@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { serviceApi, ServiceType } from '@/services/serviceApi';
 import styles from './ServiceTypeSelector.module.scss';
-import { Loader, History } from 'lucide-react';
+import { Loader, History, Wrench } from 'lucide-react';
 
 interface ServiceTypeSelectorProps {
   onSelectType: (type: ServiceType) => void;
@@ -83,6 +83,7 @@ const ServiceTypeSelector: React.FC<ServiceTypeSelectorProps> = ({ onSelectType 
           >
             <div className={styles.iconWrapper} style={{ color: getColorForType(type.type) }}>
               <div className={styles.defaultIcon} />
+              <Wrench size={32} />
             </div>
             <h3 className={styles.title}>{type.name}</h3>
             <p className={styles.description}>{type.type}</p>
