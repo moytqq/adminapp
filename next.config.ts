@@ -4,7 +4,6 @@ const ROUNDCUBE_URL = process.env.NEXT_PUBLIC_ROUNDCUBE_URL ?? '';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   reactCompiler: true,
   async rewrites() {
     return [
