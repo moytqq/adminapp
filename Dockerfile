@@ -8,6 +8,10 @@ COPY package*.json .
 RUN npm ci
 
 COPY --chown=node:node . .
+
+ARG NEXT_PUBLIC_ROUNDCUBE_URL
+ENV NEXT_PUBLIC_ROUNDCUBE_URL=$NEXT_PUBLIC_ROUNDCUBE_URL
+
 RUN npm run build && npm prune --omit=dev
 
 
