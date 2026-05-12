@@ -9,7 +9,7 @@ RUN npm ci
 
 COPY --chown=node:node . .
 
-ARG NEXT_PUBLIC_ROUNDCUBE_URL
+ARG NEXT_PUBLIC_ROUNDCUBE_URL=https://p3dc-9elh-qoa6.gw-1a.dockhost.net
 ENV NEXT_PUBLIC_ROUNDCUBE_URL=$NEXT_PUBLIC_ROUNDCUBE_URL
 
 RUN npm run build && npm prune --omit=dev
