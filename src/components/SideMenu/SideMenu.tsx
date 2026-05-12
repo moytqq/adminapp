@@ -14,6 +14,7 @@ import {
   ListOrdered,
   User,
   Wrench,
+  Mail,
 } from 'lucide-react';
 import styles from './SideMenu.module.scss';
 import Link from 'next/link';
@@ -36,6 +37,7 @@ const iconMap: Record<string, React.ReactNode> = {
   Wrench: <Wrench size={20} />,
   MessageCircleMore: <MessageCircleMore size={20} />,
   Lightbulb: <Lightbulb size={20} />,
+  Mail: <Mail size={20} />,
 };
 
 const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {

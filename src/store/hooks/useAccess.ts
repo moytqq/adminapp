@@ -7,6 +7,7 @@ export const pageAccessMap: Record<string, string[]> = {
   '/autoOrders': ['LS_AUTOZAKAZI', 'TM_AUTOZAKAZI', 'ADMIN'],
   '/results': ['RESULTS', 'ADMIN'],
   '/chat': ['CHAT', 'ADMIN'],
+  '/mail': ['MAIL', 'ADMIN'],
   '/staff': ['ADMIN'],
   '/planner': ['ADMIN'],
   '/proposes': ['ADMIN'],
@@ -40,6 +41,7 @@ export const useAccess = () => {
       { path: '/results', label: 'Результаты', icon: 'FileText', requiredFlags: ['RESULTS', 'ADMIN'] },
       { path: '/services', label: 'Сервис', icon: 'Wrench', requiredFlags: ['SERVICE', 'SERVICE_ADMIN', 'ADMIN'] },
       { path: '/chat', label: 'Чат', icon: 'MessageCircleMore', requiredFlags: ['CHAT', 'ADMIN'] },
+      { path: '/mail', label: 'Почта', icon: 'Mail', requiredFlags: ['MAIL', 'ADMIN'] },
       { path: '/proposes', label: 'Предложения', icon: 'Lightbulb', requiredFlags: ['ADMIN'] },
     ];
 
