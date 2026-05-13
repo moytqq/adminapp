@@ -36,7 +36,7 @@ function rewriteBody(text: string): string {
 
 const TEXT_TYPES = ['text/html', 'text/javascript', 'application/javascript', 'text/css'];
 
-async function handler(req: NextRequest) {
+async function handler(req: NextRequest, _ctx?: unknown) {
   if (!RC_ORIGIN) {
     return NextResponse.json({ error: 'Roundcube URL not configured' }, { status: 503 });
   }
