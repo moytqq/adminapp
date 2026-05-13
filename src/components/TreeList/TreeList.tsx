@@ -102,7 +102,7 @@ const TreeList: React.FC = () => {
                 onClick={() => setIsMenuOpen(true)}
                 aria-label="Открыть меню"
               >
-                <Menu size={24} />
+                <Menu size={36} />
               </button>
             </div>
             <h1>{getTitle()}</h1>
