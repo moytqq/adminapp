@@ -68,9 +68,15 @@ async function handler(req: NextRequest) {
 
   if (isText) {
     let text = await upstream.text();
-    // Rewrite <base href> so relative URLs resolve through the proxy, not the upstream host
+    // Ensure <base href="/api/rc/"> so all relative URLs resolve through the proxy
     if (ct.includes('text/html')) {
-      text = text.replace(/<base\s+href="[^"]*"/gi, '<base href="/api/rc/"');
+      if (/<base\s/i.test(text)) {
+        // Replace href in existing <base> tag
+        text = text.replace(/(<base\s[^>]*)href="[^"]*"/gi, '$1href="/api/rc/"');
+      } else {
+        // Inject <base> into <head> if not present
+        text = text.replace(/(<head[^>]*>)/i, '$1<base href="/api/rc/">');
+      }
     }
     return new NextResponse(text, { status: upstream.status, headers: resHeaders });
   }
