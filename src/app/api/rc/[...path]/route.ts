@@ -72,7 +72,7 @@ async function handler(req: NextRequest) {
   const resHeaders = new Headers();
   upstream.headers.forEach((value, key) => {
     const lower = key.toLowerCase();
-    if (['transfer-encoding', 'connection', 'keep-alive'].includes(lower)) return;
+    if (['transfer-encoding', 'connection', 'keep-alive', 'content-encoding', 'content-length'].includes(lower)) return;
     if (lower === 'location') {
       resHeaders.set(key, rewriteLocation(value, req.nextUrl.origin));
     } else if (lower === 'set-cookie') {
