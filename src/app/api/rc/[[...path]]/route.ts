@@ -68,15 +68,20 @@ async function handler(req: NextRequest) {
 
   if (isText) {
     let text = await upstream.text();
-    // Ensure <base href="/api/rc/"> so all relative URLs resolve through the proxy
     if (ct.includes('text/html')) {
-      if (/<base\s/i.test(text)) {
-        // Replace href in existing <base> tag
-        text = text.replace(/(<base\s[^>]*)href="[^"]*"/gi, '$1href="/api/rc/"');
-      } else {
-        // Inject <base> into <head> if not present
-        text = text.replace(/(<head[^>]*>)/i, '$1<base href="/api/rc/">');
+      // Neutralize upstream absolute <base href> — keeps relative URLs working without breaking href="#"
+      if (RC_ORIGIN) {
+        const originEscaped = RC_ORIGIN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        text = text.replace(
+          new RegExp(`(<base\\s[^>]*)href="${originEscaped}[^"]*"`, 'gi'),
+          '$1href="/"',
+        );
       }
+      // Rewrite root-relative static asset paths: /skins/ /plugins/ /program/ → /api/rc/…
+      text = text.replace(
+        /((?:href|src)=["'])\/(skins|plugins|program)\//g,
+        '$1/api/rc/$2/',
+      );
     }
     return new NextResponse(text, { status: upstream.status, headers: resHeaders });
   }
