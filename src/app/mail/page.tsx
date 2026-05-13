@@ -6,11 +6,15 @@ import SideMenu from '@/components/SideMenu/SideMenu';
 import { Menu } from 'lucide-react';
 import styles from './mail.module.scss';
 import stylesSideMenu from '@/app/main/main.module.scss';
+import { useAccess } from '@/store/hooks/useAccess';
 
 const ROUNDCUBE_URL = process.env.NEXT_PUBLIC_ROUNDCUBE_URL ?? '';
 
 const MailPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { hasFlag } = useAccess();
+
+  const iframeSrc = hasFlag(['MAIL_SSO']) ? '/api/mail-auth' : ROUNDCUBE_URL;
 
   return (
     <ProtectedRoute requiredFlags={['MAIL', 'ADMIN']} redirectTo="/main">
@@ -31,9 +35,9 @@ const MailPage = () => {
         </header>
 
         <main className={styles.content}>
-          {ROUNDCUBE_URL ? (
+          {iframeSrc ? (
             <iframe
-              src={ROUNDCUBE_URL}
+              src={iframeSrc}
               className={styles.iframe}
               title="Roundcube Webmail"
               allow="clipboard-read; clipboard-write"
