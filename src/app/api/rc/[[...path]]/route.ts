@@ -16,7 +16,7 @@ function rewriteLocation(value: string, reqOrigin: string): string {
 }
 
 // Rewrite URLs embedded in HTML / JS / CSS so assets load through the proxy
-function rewriteBody(text: string): string {
+function rewriteBody(text: string, isHtml: boolean): string {
   if (RC_ORIGIN) {
     const escaped = RC_ORIGIN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     text = text.replace(new RegExp(escaped, 'g'), PROXY_PREFIX);
@@ -26,11 +26,15 @@ function rewriteBody(text: string): string {
   text = text.replace(/(href|src|action)='\//g, `$1='${PROXY_PREFIX}/`);
   // CSS url(/…)
   text = text.replace(/url\(\//g, `url(${PROXY_PREFIX}/`);
-  // JS string paths for skins / plugins (Roundcube sets these in inline JS)
-  text = text.replace(/"\/skins\//g, `"${PROXY_PREFIX}/skins/`);
-  text = text.replace(/'\/skins\//g, `'${PROXY_PREFIX}/skins/`);
-  text = text.replace(/"\/plugins\//g, `"${PROXY_PREFIX}/plugins/`);
-  text = text.replace(/'\/plugins\//g, `'${PROXY_PREFIX}/plugins/`);
+  // JS string absolute paths for Roundcube asset dirs
+  for (const dir of ['skins', 'plugins', 'program']) {
+    text = text.replace(new RegExp(`"/${dir}/`, 'g'), `"${PROXY_PREFIX}/${dir}/`);
+    text = text.replace(new RegExp(`'/${dir}/`, 'g'), `'${PROXY_PREFIX}/${dir}/`);
+  }
+  // Inject <base> tag so relative URLs in JS (e.g. skin_path) resolve via the proxy
+  if (isHtml) {
+    text = text.replace(/(<head[^>]*>)/i, `$1<base href="${PROXY_PREFIX}/">`);
+  }
   return text;
 }
 
@@ -86,8 +90,9 @@ async function handler(req: NextRequest, _ctx?: unknown) {
   const isText = TEXT_TYPES.some(t => ct.includes(t));
 
   if (isText) {
+    const isHtml = ct.includes('text/html');
     const text = await upstream.text();
-    return new NextResponse(rewriteBody(text), { status: upstream.status, headers: resHeaders });
+    return new NextResponse(rewriteBody(text, isHtml), { status: upstream.status, headers: resHeaders });
   }
 
   return new NextResponse(upstream.body, { status: upstream.status, headers: resHeaders });
