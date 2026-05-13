@@ -4,7 +4,7 @@ const RC_ORIGIN = process.env.NEXT_PUBLIC_ROUNDCUBE_URL ?? '';
 const PROXY_PREFIX = '/api/rc';
 
 // Rewrite absolute URLs in Location headers to go through the proxy
-function rewriteLocation(value: string, reqOrigin: string): string {
+function rewriteLocation(value: string): string {
   if (RC_ORIGIN && value.startsWith(RC_ORIGIN)) {
     return PROXY_PREFIX + value.slice(RC_ORIGIN.length);
   }
@@ -40,7 +40,7 @@ function rewriteBody(text: string, isHtml: boolean): string {
 
 const TEXT_TYPES = ['text/html', 'text/javascript', 'application/javascript', 'text/css'];
 
-async function handler(req: NextRequest, _ctx?: unknown) {
+async function handler(req: NextRequest) {
   if (!RC_ORIGIN) {
     return NextResponse.json({ error: 'Roundcube URL not configured' }, { status: 503 });
   }
@@ -68,7 +68,7 @@ async function handler(req: NextRequest, _ctx?: unknown) {
       body,
       redirect: 'manual',
     });
-  } catch {
+  } catch (_e) {
     return NextResponse.json({ error: 'Upstream unreachable' }, { status: 502 });
   }
 
@@ -78,7 +78,7 @@ async function handler(req: NextRequest, _ctx?: unknown) {
     const lower = key.toLowerCase();
     if (['transfer-encoding', 'connection', 'keep-alive', 'content-encoding', 'content-length'].includes(lower)) return;
     if (lower === 'location') {
-      resHeaders.set(key, rewriteLocation(value, req.nextUrl.origin));
+      resHeaders.set(key, rewriteLocation(value));
     } else if (lower === 'set-cookie') {
       resHeaders.append(key, value);
     } else {
