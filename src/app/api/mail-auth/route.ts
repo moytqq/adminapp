@@ -40,7 +40,10 @@ export async function GET(req: NextRequest) {
     .update(`${mail}:${ts}`)
     .digest('hex');
 
-  const url = new URL('/api/rc/autologin.php', req.nextUrl.origin);
+  const fwdHost  = req.headers.get('x-forwarded-host');
+  const fwdProto = req.headers.get('x-forwarded-proto') ?? 'https';
+  const publicOrigin = fwdHost ? `${fwdProto}://${fwdHost}` : req.nextUrl.origin;
+  const url = new URL('/api/rc/autologin.php', publicOrigin);
   url.searchParams.set('mail', mail);
   url.searchParams.set('pass', pass);
   url.searchParams.set('ts', String(ts));
