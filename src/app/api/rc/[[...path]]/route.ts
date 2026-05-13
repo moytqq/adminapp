@@ -69,19 +69,15 @@ async function handler(req: NextRequest) {
   if (isText) {
     let text = await upstream.text();
     if (ct.includes('text/html')) {
-      // Neutralize upstream absolute <base href> — keeps relative URLs working without breaking href="#"
-      if (RC_ORIGIN) {
-        const originEscaped = RC_ORIGIN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        text = text.replace(
-          new RegExp(`(<base\\s[^>]*)href="${originEscaped}[^"]*"`, 'gi'),
-          '$1href="/"',
-        );
+      // Set <base href="/api/rc/"> so relative asset URLs resolve through the proxy
+      if (/<base\s/i.test(text)) {
+        text = text.replace(/(<base\s[^>]*)href="[^"]*"/gi, '$1href="/api/rc/"');
+      } else {
+        text = text.replace(/(<head[^>]*>)/i, '$1<base href="/api/rc/">');
       }
-      // Rewrite root-relative static asset paths: /skins/ /plugins/ /program/ → /api/rc/…
-      text = text.replace(
-        /((?:href|src)=["'])\/(skins|plugins|program)\//g,
-        '$1/api/rc/$2/',
-      );
+      // With <base href="/api/rc/">, bare href="#" resolves to /api/rc/# (different URL → navigation).
+      // Replace with javascript:void(0) — click events still fire, no navigation occurs.
+      text = text.replace(/\bhref="#"/g, 'href="javascript:void(0)"');
     }
     return new NextResponse(text, { status: upstream.status, headers: resHeaders });
   }
