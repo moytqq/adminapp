@@ -15,29 +15,6 @@ function rewriteLocation(value: string): string {
   return value;
 }
 
-// Rewrite URLs embedded in HTML / JS / CSS so assets load through the proxy
-function rewriteBody(text: string, isHtml: boolean): string {
-  if (RC_ORIGIN) {
-    const escaped = RC_ORIGIN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    text = text.replace(new RegExp(escaped, 'g'), PROXY_PREFIX);
-  }
-  // HTML attributes: href="/…" src="/…" action="/…"
-  text = text.replace(/(href|src|action)="\//g, `$1="${PROXY_PREFIX}/`);
-  text = text.replace(/(href|src|action)='\//g, `$1='${PROXY_PREFIX}/`);
-  // CSS url(/…)
-  text = text.replace(/url\(\//g, `url(${PROXY_PREFIX}/`);
-  // JS string absolute paths for Roundcube asset dirs
-  for (const dir of ['skins', 'plugins', 'program']) {
-    text = text.replace(new RegExp(`"/${dir}/`, 'g'), `"${PROXY_PREFIX}/${dir}/`);
-    text = text.replace(new RegExp(`'/${dir}/`, 'g'), `'${PROXY_PREFIX}/${dir}/`);
-  }
-  // Inject <base> tag so relative URLs in JS (e.g. skin_path) resolve via the proxy
-  if (isHtml) {
-    text = text.replace(/(<head[^>]*>)/i, `$1<base href="${PROXY_PREFIX}/">`);
-  }
-  return text;
-}
-
 const TEXT_TYPES = ['text/html', 'text/javascript', 'application/javascript', 'text/css'];
 
 async function handler(req: NextRequest) {
@@ -90,9 +67,8 @@ async function handler(req: NextRequest) {
   const isText = TEXT_TYPES.some(t => ct.includes(t));
 
   if (isText) {
-    const isHtml = ct.includes('text/html');
     const text = await upstream.text();
-    return new NextResponse(rewriteBody(text, isHtml), { status: upstream.status, headers: resHeaders });
+    return new NextResponse(text, { status: upstream.status, headers: resHeaders });
   }
 
   return new NextResponse(upstream.body, { status: upstream.status, headers: resHeaders });
