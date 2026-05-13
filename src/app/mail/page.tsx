@@ -14,7 +14,7 @@ const MailPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { hasFlag } = useAccess();
 
-  const iframeSrc = hasFlag(['MAIL_SSO']) ? '/api/mail-auth' : ROUNDCUBE_URL;
+  const iframeSrc = hasFlag(['MAIL_SSO']) ? '/api/mail-auth' : '/api/rc/';
 
   return (
     <ProtectedRoute requiredFlags={['MAIL', 'ADMIN']} redirectTo="/main">

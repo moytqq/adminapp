@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
     .update(`${mail}:${ts}`)
     .digest('hex');
 
-  const url = new URL(`${ROUNDCUBE_URL}/autologin.php`);
+  const url = new URL('/api/rc/autologin.php', req.nextUrl.origin);
   url.searchParams.set('mail', mail);
   url.searchParams.set('pass', pass);
   url.searchParams.set('ts', String(ts));
