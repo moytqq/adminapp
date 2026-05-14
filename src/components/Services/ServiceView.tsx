@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
-import { serviceApi, ServiceType } from '@/services/serviceApi';
+import { serviceApi, ServiceType, HierarchyItem } from '@/services/serviceApi';
 import ServiceRegistration from './ServiceRegistration';
 import ServiceHistory from './ServiceHistory';
 import styles from './ServiceView.module.scss';
@@ -42,9 +42,11 @@ const ServiceView: React.FC<ServiceViewProps> = ({ serviceType, onBack }) => {
       });
       setUserAddresses(hids);
 
+      const items = await Promise.all(hids.map(hid => serviceApi.getHierarchyItem(hid)));
       const map = new Map<number, string>();
-      hids.forEach(hid => {
-        map.set(hid, `Магазин ${hid}`);
+      hids.forEach((hid, i) => {
+        const item = items[i];
+        map.set(hid, item?.name ?? `ID: ${hid}`);
       });
       setStoreNamesMap(map);
     } catch (error) {

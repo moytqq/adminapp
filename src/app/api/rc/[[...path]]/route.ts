@@ -68,13 +68,14 @@ async function handler(req: NextRequest) {
 
   if (isText) {
     let text = await upstream.text();
-    if (ct.includes('text/html')) {
-      // Rewrite root-relative static asset paths in href/src attributes → go through the proxy
-      // Avoids <base> tag which breaks href="#" modal triggers and other relative navigation
-      text = text.replace(
-        /((?:href|src)=["'])\/(skins|plugins|program)\//g,
-        '$1/api/rc/$2/',
-      );
+    // Only autologin.php needs HTML patching: it has a hidden iframe loading the Roundcube login
+    // page, which uses relative asset URLs. All other Roundcube pages are proxied transparently.
+    if (ct.includes('text/html') && rcPath === '/autologin.php') {
+      if (/<base\s/i.test(text)) {
+        text = text.replace(/(<base\s[^>]*)href="[^"]*"/gi, '$1href="/api/rc/"');
+      } else {
+        text = text.replace(/(<head[^>]*>)/i, '$1<base href="/api/rc/">');
+      }
     }
     return new NextResponse(text, { status: upstream.status, headers: resHeaders });
   }

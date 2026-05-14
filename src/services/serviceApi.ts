@@ -33,7 +33,29 @@ export interface ChangeStatusResponse {
   message: string;
 }
 
+export interface HierarchyItem {
+  id: number;
+  name: string;
+  type: string;
+  parent_id: number;
+  description: string;
+}
+
 export const serviceApi = {
+  getHierarchyItem: async (hid: number): Promise<HierarchyItem | null> => {
+    try {
+      const response = await api.get(`/get_hierarchy_item?hid=${hid}`);
+      if (response.data?.status === 'success') {
+        return response.data.data as HierarchyItem;
+      }
+      return null;
+    } catch (error) {
+      console.error(`Error fetching hierarchy item ${hid}:`, error);
+      return null;
+    }
+  },
+
+
   getTypes: async (): Promise<ServiceType[]> => {
     try {
       const response = await api.get('/service/types');
