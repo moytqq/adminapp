@@ -1,14 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   Menu,
   User,
   Building2,
   Users,
   ClipboardCheck,
-  DollarSign,
   MessageCircle,
   Database,
   FileText,
@@ -17,15 +15,15 @@ import {
 import styles from './profile.module.scss';
 import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
 import SideMenu from '@/components/SideMenu/SideMenu';
-import LogoutButton from '@/components/LogoutButton/LogoutButton';
 import ChatView from '@/components/Profile/Chat/ChatView';
 import DepartmentsView from '@/components/Profile/Departments/DepartmentsView';
 import EmployeesView from '@/components/Profile/EmployeesView/EmployeesView';
 import SalaryView from '@/components/Salary/SalaryView';
+import PersonalView from '@/components/Profile/Personal/PersonalView';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 
-type TabType = 'departments' | 'employees' | 'tasks' | 'salary' | 'chat' | 'database' | 'documents';
+type TabType = 'personal' | 'departments' | 'employees' | 'tasks' | 'salary' | 'chat' | 'database' | 'documents';
 
 interface TabConfig {
   id: TabType;
@@ -38,8 +36,7 @@ interface TabConfig {
 const ProfilePage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>('departments');
-  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<TabType>('personal');
   const { flags } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
@@ -63,6 +60,13 @@ const ProfilePage = () => {
 
   // Конфигурация вкладок с требуемыми флагами
   const allTabs: TabConfig[] = [
+    {
+      id: 'personal',
+      label: 'Профиль',
+      icon: <User size={20} />,
+      mobileIcon: <User size={24} />,
+      requiredFlags: [],
+    },
     {
       id: 'departments',
       label: 'Департаменты',
@@ -127,6 +131,8 @@ const ProfilePage = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
+      case 'personal':
+        return <PersonalView />;
       case 'departments':
         return <DepartmentsView />;
       case 'employees':

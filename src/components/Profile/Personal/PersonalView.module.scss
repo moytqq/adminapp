@@ -1,0 +1,139 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+  max-width: 560px;
+  padding: 8px 0;
+  align-self: flex-start;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #999;
+  font-size: 14px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionTitle {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+}
+
+.hint {
+  margin: -8px 0 0;
+  font-size: 13px;
+  color: #888;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
+.label {
+  flex-shrink: 0;
+  width: 160px;
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+
+  @media (max-width: 600px) {
+    width: auto;
+  }
+}
+
+.value {
+  font-size: 14px;
+  color: #333;
+}
+
+.input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #333;
+  background: #fafafa;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  min-width: 0;
+
+  &:focus {
+    outline: none;
+    border-color: #2196f3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+    background: #fff;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 4px;
+  padding-left: 172px;
+
+  @media (max-width: 600px) {
+    padding-left: 0;
+    flex-wrap: wrap;
+  }
+}
+
+.saveButton {
+  padding: 9px 20px;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #1976d2;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.messageOk {
+  font-size: 13px;
+  color: #4caf50;
+}
+
+.messageError {
+  font-size: 13px;
+  color: #f44336;
+}
