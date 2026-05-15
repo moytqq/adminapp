@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: `frame-src 'self'`,
+            value: `frame-src 'self' ${ROUNDCUBE_URL}`,
           },
         ],
       },

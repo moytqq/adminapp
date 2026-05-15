@@ -10,7 +10,7 @@ export const pageAccessMap: Record<string, string[]> = {
   '/mail': ['MAIL', 'ADMIN'],
   '/staff': ['ADMIN'],
   '/planner': ['ADMIN'],
-  '/proposes': ['ADMIN'],
+  '/proposes': [],
   '/profile': [],
   '/main': [],
 };
@@ -42,7 +42,7 @@ export const useAccess = () => {
       { path: '/services', label: 'Сервис', icon: 'Wrench', requiredFlags: ['SERVICE', 'SERVICE_ADMIN', 'ADMIN'] },
       { path: '/chat', label: 'Чат', icon: 'MessageCircleMore', requiredFlags: ['CHAT', 'ADMIN'] },
       { path: '/mail', label: 'Почта', icon: 'Mail', requiredFlags: ['MAIL', 'ADMIN'] },
-      { path: '/proposes', label: 'Предложения', icon: 'Lightbulb', requiredFlags: ['ADMIN'] },
+      { path: '/proposes', label: 'Предложения', icon: 'Lightbulb' },
     ];
 
     return menuItems.filter(item => {

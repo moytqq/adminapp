@@ -1,21 +1,10 @@
 'use client';
 
 import React from 'react';
-import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
-import PlaceholderPage from '@/components/PlaceholderPage/PlaceholderPage';
-import { Lightbulb } from 'lucide-react';
+import Proposes from '@/components/Proposes/Proposes';
 
 const ProposesPage = () => {
-  return (
-    <ProtectedRoute requiredFlags={['ADMIN']} redirectTo="/main">
-      <PlaceholderPage
-        title="Предложения"
-        description="Здесь будут отображаться идеи сотрудников, предложения по улучшению и голосования"
-        icon={<Lightbulb size={48} />}
-        color="#f44336"
-      />
-    </ProtectedRoute>
-  );
+  return <Proposes />;
 };
 
 export default ProposesPage;
