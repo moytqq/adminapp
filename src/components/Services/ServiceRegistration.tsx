@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { serviceApi, ServiceType } from '@/services/serviceApi';
+import { typeConfigMap } from './ServiceTypeSelector';
 import styles from './ServiceRegistration.module.scss';
 import { Loader, Send, CheckCircle, ArrowLeft } from 'lucide-react';
 
@@ -80,6 +81,8 @@ const ServiceRegistration: React.FC<ServiceRegistrationProps> = ({
     );
   }
 
+  const cfg = typeConfigMap.get(serviceType.type);
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -87,7 +90,17 @@ const ServiceRegistration: React.FC<ServiceRegistrationProps> = ({
           <ArrowLeft size={20} />
           <span>Назад</span>
         </button>
-        <h2>Новая заявка: {serviceType.name}</h2>
+        <div className={styles.headerTitle}>
+          {cfg && (
+            <span
+              className={styles.headerIcon}
+              style={{ color: cfg.color, backgroundColor: cfg.bgColor }}
+            >
+              {cfg.icon}
+            </span>
+          )}
+          <h2>{serviceType.name}</h2>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className={styles.form}>
