@@ -170,15 +170,15 @@ export const filterDepartmentsAndDescendants = (apiItems: ApiTreeItem[]): ApiTre
 };
 
 export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
-  const filteredItems = filterDepartmentsAndDescendants(apiItems);
-
   const itemsMap = new Map<string, TreeItem>();
   const rootItems: TreeItem[] = [];
 
-  filteredItems.forEach(apiItem => {
+  apiItems.forEach(apiItem => {
     const treeItem = transformApiItemToTreeItem(apiItem);
     itemsMap.set(treeItem.id, treeItem);
   });
+
+  const knownIds = new Set(itemsMap.keys());
 
   const sortChildren = (children: TreeItem[]): TreeItem[] => {
     const typeOrder: Record<TreeItemType, number> = {
@@ -190,21 +190,15 @@ export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
     };
 
     return children.sort((a, b) => {
-      const orderA = typeOrder[a.type] || 999;
-      const orderB = typeOrder[b.type] || 999;
-
-      if (orderA !== orderB) {
-        return orderA - orderB;
-      }
-
-      return a.label.localeCompare(b.label);
+      const orderA = typeOrder[a.type] ?? 999;
+      const orderB = typeOrder[b.type] ?? 999;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.label.localeCompare(b.label, 'ru');
     });
   };
 
   const buildTreeRecursive = (itemId: string, level: number): TreeItem => {
-    const item = itemsMap.get(itemId);
-    if (!item) throw new Error(`Item ${itemId} not found`);
-
+    const item = itemsMap.get(itemId)!;
     item.level = level;
 
     const children = Array.from(itemsMap.values()).filter(
@@ -214,9 +208,7 @@ export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
     item.hasChildren = children.length > 0;
 
     if (children.length > 0) {
-      const sortedChildren = sortChildren(children);
-
-      item.children = sortedChildren.map(child =>
+      item.children = sortChildren(children).map(child =>
         buildTreeRecursive(child.id, level + 1),
       );
     }
@@ -224,15 +216,18 @@ export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
     return item;
   };
 
+  // Root items: Department or Company nodes whose parent is not in the dataset
   Array.from(itemsMap.values()).forEach(item => {
-    const parentExists = Array.from(itemsMap.values()).some(p => p.id === item.parentId);
+    const isStructural =
+      item.type === TreeItemType.DEPARTMENT || item.type === TreeItemType.COMPANY;
+    const parentInData = knownIds.has(item.parentId);
 
-    if (!parentExists && item.type === TreeItemType.DEPARTMENT) {
+    if (isStructural && !parentInData) {
       rootItems.push(buildTreeRecursive(item.id, 0));
     }
   });
 
-  rootItems.sort((a, b) => a.label.localeCompare(b.label));
+  rootItems.sort((a, b) => a.label.localeCompare(b.label, 'ru'));
 
   return rootItems;
 };

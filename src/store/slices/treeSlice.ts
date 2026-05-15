@@ -65,10 +65,8 @@ export const loadTreeData = createAsyncThunk(
 
       let treeData: TreeItem[];
       if (viewMode === 'hierarchy') {
-        const filteredApiData = filterDepartmentsAndDescendants(apiData);
-        treeData = buildTreeFromApiData(filteredApiData);
+        treeData = buildTreeFromApiData(apiData);
         treeData = enhanceTreeDataWithMockInfo(treeData);
-        console.log('Applying custom sort for Sales Department...');
         treeData = applyCustomSortToTree(treeData);
       } else {
         treeData = buildTreeFromApiData(apiData);
