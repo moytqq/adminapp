@@ -43,6 +43,12 @@ export interface SaveRemainderResponse {
   message: string;
 }
 
+export interface LastStockItem {
+  sku_id: number;
+  value: number;
+  date: string;
+}
+
 export const remaindersApi = {
   getFormsList: async (): Promise<RemainderForm[]> => {
     try {
@@ -80,6 +86,16 @@ export const remaindersApi = {
       return response.data;
     } catch (error) {
       console.error('Error fetching SKUs info:', error);
+      throw error;
+    }
+  },
+
+  getLastStock: async (regId: number, address: number): Promise<LastStockItem[]> => {
+    try {
+      const response = await api.get(`/ostatki/get_last_stock?reg_id=${regId}&address=${address}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching last stock:', error);
       throw error;
     }
   },

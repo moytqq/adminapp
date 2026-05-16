@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { remaindersApi, RemainderForm, RemainderField, SkuInfo, SaveRemainderItem } from '@/services/remaindersApi';
+import { remaindersApi, RemainderForm, RemainderField, SkuInfo, SaveRemainderItem, LastStockItem } from '@/services/remaindersApi';
 import styles from './RemaindersView.module.scss';
 import {
   Loader,
@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   Save,
   AlertTriangle,
+  History,
 } from 'lucide-react';
 
 interface RemaindersViewProps {
@@ -41,6 +42,10 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
   const [fullscreenTable, setFullscreenTable] = useState<string | null>(null);
   const [fullscreenFontSize, setFullscreenFontSize] = useState<number>(14);
   const tableRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyData, setHistoryData] = useState<LastStockItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -83,6 +88,45 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
       setError('Ошибка при загрузке данных');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const day   = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year  = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const mins  = String(d.getMinutes()).padStart(2, '0');
+    return `${day}.${month}.${year} ${hours}:${mins}`;
+  };
+
+  const handleToggleHistory = async () => {
+    if (showHistory) {
+      setShowHistory(false);
+      return;
+    }
+    setShowHistory(true);
+    if (historyData.length === 0) {
+      setHistoryLoading(true);
+      try {
+        const data = await remaindersApi.getLastStock(form.id, form.address);
+        setHistoryData(data);
+      } catch {
+        // ignore
+      } finally {
+        setHistoryLoading(false);
+      }
+    }
+  };
+
+  // После успешного сохранения обновляем историю
+  const refreshHistory = async () => {
+    try {
+      const data = await remaindersApi.getLastStock(form.id, form.address);
+      setHistoryData(data);
+    } catch {
+      // ignore
     }
   };
 
@@ -159,6 +203,10 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
           }
           return { ...row, originalValue: undefined };
         }));
+
+        if (showHistory) {
+          refreshHistory();
+        }
 
         setTimeout(() => setSuccessMessage(null), 3000);
       } else {
@@ -343,14 +391,16 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
               <ZoomIn size={18} />
             </button>
           </div>
+          <button
+            className={`${styles.historyButton} ${showHistory ? styles.historyButtonActive : ''}`}
+            onClick={handleToggleHistory}
+            title="Последнее внесение"
+          >
+            <History size={18} />
+            <span>История</span>
+          </button>
         </div>
         <div className={styles.rightControls}>
-          {/*{unsavedChanges && (
-            <span className={styles.unsavedIndicator}>
-              <AlertTriangle size={16} />
-              Есть несохранённые изменения
-            </span>
-          )}*/}
           <button
             className={styles.saveButton}
             onClick={handleSave}
@@ -370,6 +420,57 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
 
       <div className={styles.scrollableContent}>
         {renderTable()}
+
+        {showHistory && (
+          <div className={`${styles.tableSection} ${styles.historySection}`}>
+            <div className={styles.tableHeader}>
+              <h3 className={styles.tableTitle}>
+                Последнее внесение: {form.name.replace(/^[^ ]* /, '')}
+              </h3>
+            </div>
+            <div className={styles.tableContainer}>
+              <div className={styles.tableWrapper}>
+                {historyLoading ? (
+                  <div className={styles.historyLoading}>
+                    <Loader size={24} className={styles.spinner} />
+                  </div>
+                ) : (
+                  <table
+                    className={styles.reportTable}
+                    style={{ '--reports-table-font-size': `${fontSize}px` } as React.CSSProperties}
+                  >
+                    <thead>
+                      <tr>
+                        <th className={styles.productColumn}>Наименование</th>
+                        <th className={styles.packagingColumn}>Фасовка</th>
+                        <th className={styles.valueColumn}>Остаток</th>
+                        <th className={styles.dateColumn}>Дата внесения</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tableData.map(row => {
+                        const hist = historyData.find(h => h.sku_id === row.skuId);
+                        return (
+                          <tr key={row.skuId}>
+                            <td className={styles.productCell}>{row.productName}</td>
+                            <td className={styles.packagingCell}>{row.packaging}</td>
+                            <td className={styles.valueCell}>
+                              {hist ? hist.value : <span className={styles.noData}>—</span>}
+                            </td>
+                            <td className={styles.dateCell}>
+                              {hist ? formatDate(hist.date) : <span className={styles.noData}>—</span>}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className={styles.saveButtonContainer}>
           <button
             className={styles.saveButton}

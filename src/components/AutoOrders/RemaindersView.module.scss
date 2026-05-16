@@ -348,6 +348,70 @@ $table-border: #d5d5d5;
   }
 }
 
+.historyButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  @media (hover: hover) {
+    &:hover {
+      background: #e8f0fd;
+      border-color: #4472c4;
+      color: #4472c4;
+    }
+  }
+
+  @media (max-width: 768px) {
+    span { display: none; }
+    padding: 6px 10px;
+  }
+}
+
+.historyButtonActive {
+  background: #e8f0fd;
+  border-color: #4472c4;
+  color: #4472c4;
+}
+
+.historySection {
+  margin-top: 12px;
+}
+
+.historyLoading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.dateColumn {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.dateCell {
+  text-align: center;
+  white-space: nowrap;
+  color: #555;
+}
+
+.noData {
+  color: #bbb;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
 .loading, .error {
   flex: 1;
   display: flex;
