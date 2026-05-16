@@ -266,9 +266,81 @@
   }
 }
 
+// ── Attachment rendering ──────────────────────────────────────────────────
+
+.attachmentLink {
+  display: block;
+  margin-bottom: 4px;
+  cursor: zoom-in;
+}
+
+.attachmentImg {
+  max-width: 260px;
+  max-height: 260px;
+  border-radius: 8px;
+  display: block;
+  object-fit: cover;
+
+  @media (max-width: 768px) {
+    max-width: 200px;
+    max-height: 200px;
+  }
+}
+
+.attachmentError {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #999;
+  font-size: 13px;
+  padding: 6px 0;
+}
+
+// ── Pending attachment preview ────────────────────────────────────────────
+
+.pendingAttachment {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-start;
+  padding: 8px 16px;
+  background: #f5f5f5;
+  border-top: 1px solid #e0e0e0;
+}
+
+.pendingImg {
+  max-height: 80px;
+  max-width: 120px;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+}
+
+.removePending {
+  position: absolute;
+  top: 4px;
+  left: 108px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.75);
+  }
+}
+
+// ── Input area ────────────────────────────────────────────────────────────
+
 .inputArea {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   padding: 16px 20px;
   background: #f5f5f5;
   border-top: 1px solid #e0e0e0;
@@ -277,10 +349,36 @@
   bottom: 0;
   z-index: 10;
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
+  align-items: center;
 
   @media (max-width: 768px) {
     padding: 12px 16px;
-    gap: 8px;
+    gap: 6px;
+  }
+}
+
+.attachButton {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: #888;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #e0e0e0;
+    color: #444;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
 }
 

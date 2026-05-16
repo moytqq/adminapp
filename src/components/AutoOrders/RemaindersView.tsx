@@ -74,7 +74,7 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
       const rows: RemainderRow[] = Object.values(fieldsData).map(field => ({
         skuId: field.sku_id,
         productName: skusMap.get(field.sku_id)?.name || `Товар ${field.sku_id}`,
-        packaging: skusMap.get(field.sku_id)?.packaging_supplier || '',
+        packaging: skusMap.get(field.sku_id)?.packaging || '',
         value: '',
       }));
       setTableData(rows);

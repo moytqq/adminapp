@@ -127,4 +127,19 @@ export const chatApi = {
       throw error;
     }
   },
+
+  uploadFile: async (file: File): Promise<{ status: string; fileId?: string; originalName?: string; message?: string }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const response = await api.post('/files/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 30000,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw error;
+    }
+  },
 };
