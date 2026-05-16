@@ -8,13 +8,11 @@ import styles from './mail.module.scss';
 import stylesSideMenu from '@/app/main/main.module.scss';
 import { useAccess } from '@/store/hooks/useAccess';
 
-const ROUNDCUBE_URL = process.env.NEXT_PUBLIC_ROUNDCUBE_URL ?? '';
-
 const MailPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { hasFlag } = useAccess();
 
-  const iframeSrc = hasFlag(['MAIL_SSO']) ? '/api/mail-auth' : ROUNDCUBE_URL;
+  const iframeSrc = hasFlag(['MAIL_SSO']) ? '/api/mail-auth' : '/roundcube/';
 
   return (
     <ProtectedRoute requiredFlags={['MAIL', 'ADMIN']} redirectTo="/main">
@@ -35,19 +33,12 @@ const MailPage = () => {
         </header>
 
         <main className={styles.content}>
-          {iframeSrc ? (
-            <iframe
-              src={iframeSrc}
-              className={styles.iframe}
-              title="Roundcube Webmail"
-              allow="clipboard-read; clipboard-write"
-            />
-          ) : (
-            <div className={styles.placeholder}>
-              <p>URL Roundcube не настроен.</p>
-              <p>Задайте переменную <code>NEXT_PUBLIC_ROUNDCUBE_URL</code> в настройках деплоя.</p>
-            </div>
-          )}
+          <iframe
+            src={iframeSrc}
+            className={styles.iframe}
+            title="Roundcube Webmail"
+            allow="clipboard-read; clipboard-write"
+          />
         </main>
       </div>
     </ProtectedRoute>

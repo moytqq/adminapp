@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createHmac } from 'crypto';
 
 const BACKEND_URL = 'https://o4wb-xcdb-nu1f.gw-1a.dockhost.net';
-const ROUNDCUBE_URL = process.env.NEXT_PUBLIC_ROUNDCUBE_URL ?? '';
 const SSO_SECRET = process.env.ROUNDCUBE_SSO_SECRET ?? '';
 
 export async function GET(req: NextRequest) {
-  if (!ROUNDCUBE_URL || !SSO_SECRET) {
+  if (!SSO_SECRET) {
     return NextResponse.json({ error: 'SSO not configured' }, { status: 503 });
   }
 
@@ -40,11 +39,9 @@ export async function GET(req: NextRequest) {
     .update(`${mail}:${ts}`)
     .digest('hex');
 
-  const url = new URL('/autologin.php', ROUNDCUBE_URL);
-  url.searchParams.set('mail', mail);
-  url.searchParams.set('pass', pass);
-  url.searchParams.set('ts', String(ts));
-  url.searchParams.set('sig', sig);
-
-  return NextResponse.redirect(url.toString(), 302);
+  const params = new URLSearchParams({ mail, pass, ts: String(ts), sig });
+  return NextResponse.redirect(
+    new URL(`/roundcube/autologin.php?${params}`, req.url),
+    302,
+  );
 }
