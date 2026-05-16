@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const RC_ORIGIN = process.env.NEXT_PUBLIC_ROUNDCUBE_URL ?? '';
+const RC_ORIGIN = process.env.ROUNDCUBE_URL ?? process.env.NEXT_PUBLIC_ROUNDCUBE_URL ?? '';
 const PROXY_PREFIX = '/api/rc';
 
-// Rewrite absolute URLs in Location headers to go through the proxy
 function rewriteLocation(value: string): string {
   if (RC_ORIGIN && value.startsWith(RC_ORIGIN)) {
     return PROXY_PREFIX + value.slice(RC_ORIGIN.length);
   }
-  // Absolute-path redirect (e.g. /?_task=mail) — must pass through proxy prefix
   if (value.startsWith('/') && !value.startsWith(PROXY_PREFIX)) {
     return PROXY_PREFIX + value;
   }
@@ -22,12 +20,10 @@ async function handler(req: NextRequest) {
     return NextResponse.json({ error: 'Roundcube URL not configured' }, { status: 503 });
   }
 
-  // Build upstream URL
   const url = new URL(req.url);
   const rcPath = url.pathname.replace(new RegExp(`^${PROXY_PREFIX}`), '') || '/';
   const targetUrl = RC_ORIGIN + rcPath + url.search;
 
-  // Forward headers, strip hop-by-hop and host
   const proxyHeaders = new Headers();
   req.headers.forEach((value, key) => {
     const lower = key.toLowerCase();
@@ -45,11 +41,10 @@ async function handler(req: NextRequest) {
       body,
       redirect: 'manual',
     });
-  } catch (_e) {
+  } catch {
     return NextResponse.json({ error: 'Upstream unreachable' }, { status: 502 });
   }
 
-  // Build response headers
   const resHeaders = new Headers();
   upstream.headers.forEach((value, key) => {
     const lower = key.toLowerCase();
@@ -68,8 +63,6 @@ async function handler(req: NextRequest) {
 
   if (isText) {
     let text = await upstream.text();
-    // Only autologin.php needs HTML patching: it has a hidden iframe loading the Roundcube login
-    // page, which uses relative asset URLs. All other Roundcube pages are proxied transparently.
     if (ct.includes('text/html') && rcPath === '/autologin.php') {
       if (/<base\s/i.test(text)) {
         text = text.replace(/(<base\s[^>]*)href="[^"]*"/gi, '$1href="/api/rc/"');
