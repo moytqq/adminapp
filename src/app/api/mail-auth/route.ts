@@ -39,9 +39,8 @@ export async function GET(req: NextRequest) {
     .update(`${mail}:${ts}`)
     .digest('hex');
 
+  const proto = req.headers.get('x-forwarded-proto') ?? 'https';
+  const host = req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? '';
   const params = new URLSearchParams({ mail, pass, ts: String(ts), sig });
-  return NextResponse.redirect(
-    new URL(`/roundcube/autologin.php?${params}`, req.url),
-    302,
-  );
+  return NextResponse.redirect(`${proto}://${host}/roundcube/autologin.php?${params}`, 302);
 }
