@@ -1,13 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { profileApi, UserProfile } from '@/services/profileApi';
+import { chatApi } from '@/services/chatApi';
 import { hashPasswordWithSalt } from '@/utils/crypto';
+import UserAvatar from '@/components/UserAvatar/UserAvatar';
 import styles from './PersonalView.module.scss';
 
 const PersonalView = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentHid, setCurrentHid] = useState<number | null>(null);
+  const [avatarKey, setAvatarKey] = useState(0);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarMessage, setAvatarMessage] = useState<{ text: string; ok: boolean } | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const [birthday, setBirthday] = useState('');
   const [phone, setPhone] = useState('');
@@ -26,7 +33,33 @@ const PersonalView = () => {
       setBirthday(data.birthday ? data.birthday.slice(0, 10) : '');
       setPhone(data.phone ?? '');
     }).finally(() => setLoading(false));
+
+    chatApi.getSendersList().then(senders => {
+      if (senders.length > 0) setCurrentHid(senders[0].id);
+    }).catch(() => {});
   }, []);
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    setAvatarUploading(true);
+    setAvatarMessage(null);
+    try {
+      const result = await profileApi.uploadAvatar(file);
+      if (result.status === 'success') {
+        setAvatarKey(k => k + 1);
+        setAvatarMessage({ text: 'Фото обновлено', ok: true });
+      } else {
+        setAvatarMessage({ text: result.message ?? 'Ошибка загрузки', ok: false });
+      }
+    } catch {
+      setAvatarMessage({ text: 'Ошибка загрузки', ok: false });
+    } finally {
+      setAvatarUploading(false);
+      setTimeout(() => setAvatarMessage(null), 3000);
+    }
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -82,6 +115,36 @@ const PersonalView = () => {
 
   return (
     <div className={styles.container}>
+
+      {/* Аватар */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Фото профиля</h2>
+        <div className={styles.avatarRow}>
+          <div className={styles.avatarWrap} onClick={() => avatarInputRef.current?.click()} title="Изменить фото">
+            <UserAvatar key={avatarKey} hid={currentHid} name={profile?.name ?? ''} size={88} />
+            <div className={styles.avatarOverlay}>
+              {avatarUploading ? '...' : '✎'}
+            </div>
+          </div>
+          <div className={styles.avatarHint}>
+            <p>Нажмите на фото, чтобы загрузить новое</p>
+            <p>JPG, PNG, WEBP — до 10 МБ</p>
+            {avatarMessage && (
+              <span className={avatarMessage.ok ? styles.messageOk : styles.messageError}>
+                {avatarMessage.text}
+              </span>
+            )}
+          </div>
+        </div>
+        <input
+          ref={avatarInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={handleAvatarChange}
+        />
+      </section>
+
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Личные данные</h2>
 

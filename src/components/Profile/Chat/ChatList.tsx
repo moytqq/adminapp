@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import styles from './ChatList.module.scss';
 import { MessageCircle, Check, CheckCheck } from 'lucide-react';
+import UserAvatar from '@/components/UserAvatar/UserAvatar';
 
 interface ChatListProps {
   onSelectChat: (chatId: number) => void;
@@ -79,7 +80,7 @@ const ChatItem = memo(({
       onClick={() => onSelect(chat.id)}
     >
       <div className={styles.chatAvatar}>
-        <MessageCircle size={20} />
+        <UserAvatar hid={chat.hid_to} name={chat.toName ?? ''} size={40} />
       </div>
       <div className={styles.chatInfo}>
         <div className={styles.chatHeader}>

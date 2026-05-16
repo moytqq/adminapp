@@ -17,6 +17,15 @@ export const profileApi = {
     await api.patch('/profile', data);
   },
 
+  uploadAvatar: async (file: File): Promise<{ status: string; message?: string }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/files/upload-avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
   changePassword: async (
     oldHashedPassword: string,
     newHashedPassword: string,

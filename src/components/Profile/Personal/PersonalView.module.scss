@@ -128,6 +128,49 @@
   }
 }
 
+.avatarRow {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatarWrap {
+  position: relative;
+  cursor: pointer;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &:hover .avatarOverlay {
+    opacity: 1;
+  }
+}
+
+.avatarOverlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.avatarHint {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  p {
+    font-size: 13px;
+    color: #888;
+    margin: 0;
+  }
+}
+
 .messageOk {
   font-size: 13px;
   color: #4caf50;
