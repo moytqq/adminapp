@@ -10,7 +10,6 @@ import {
   CalendarSync,
   CalendarCheck2,
   CalendarClock,
-  Package,
 } from 'lucide-react';
 
 export interface AutoOrderType {
@@ -72,15 +71,6 @@ const allAutoOrderTypes: AutoOrderType[] = [
     color: '#ff5722',
     bgColor: '#fbe9e7',
     requiredFlags: ['ADMIN'],
-  },
-  {
-    id: 'remainders',
-    title: 'Остатки',
-    description: 'Управление остатками товаров',
-    icon: <Package size={32} />,
-    color: '#00bcd4',
-    bgColor: '#e0f7fa',
-    requiredFlags: ['LS_AUTOZAKAZI', 'TM_AUTOZAKAZI', 'ADMIN'],
   },
 ];
 

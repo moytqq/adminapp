@@ -4,7 +4,8 @@ import { RootState } from '@/store/store';
 // Маппинг страниц на необходимые флаги
 export const pageAccessMap: Record<string, string[]> = {
   '/services': ['SERVICE', 'SERVICE_ADMIN', 'ADMIN'],
-  '/autoOrders': ['LS_AUTOZAKAZI', 'TM_AUTOZAKAZI', 'ADMIN'],
+  '/autoOrders': ['TM_AUTOZAKAZI', 'ADMIN'],
+  '/remainders': ['LS_AUTOZAKAZI', 'TM_AUTOZAKAZI', 'ADMIN'],
   '/results': ['RESULTS', 'ADMIN'],
   '/chat': ['CHAT', 'ADMIN'],
   '/mail': ['MAIL', 'ADMIN'],
@@ -35,7 +36,8 @@ export const useAccess = () => {
     const menuItems = [
       { path: '/main', label: 'Компания', icon: 'Building2' },
       { path: '/profile', label: 'Личный кабинет', icon: 'User' },
-      { path: '/autoOrders', label: 'Автозаказы', icon: 'ListOrdered', requiredFlags: ['LS_AUTOZAKAZI', 'TM_AUTOZAKAZI', 'ADMIN'] },
+      { path: '/autoOrders', label: 'Автозаказы', icon: 'ListOrdered', requiredFlags: ['TM_AUTOZAKAZI', 'ADMIN'] },
+      { path: '/remainders', label: 'Остатки', icon: 'Package', requiredFlags: ['LS_AUTOZAKAZI', 'TM_AUTOZAKAZI', 'ADMIN'] },
       { path: '/staff', label: 'Сотрудники', icon: 'Users', requiredFlags: ['ADMIN'] },
       { path: '/planner', label: 'Планировщик', icon: 'ClipboardCheck', requiredFlags: ['ADMIN'] },
       { path: '/results', label: 'Результаты', icon: 'FileText', requiredFlags: ['RESULTS', 'ADMIN'] },
