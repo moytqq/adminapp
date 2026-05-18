@@ -163,14 +163,14 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
       const emptyItems: string[] = [];
 
       for (const row of tableData) {
-        if (row.value && parseInt(row.value) > 0) {
+        if (row.value !== '') {
           filledItems.push({
             address: form.address,
             sku_id: row.skuId,
             value: parseInt(row.value),
             date: dateToSend,
           });
-        } else if (row.value === '' || (row.value && parseInt(row.value) === 0)) {
+        } else {
           const productName = skusInfo.get(row.skuId)?.name || `Товар ${row.skuId}`;
           emptyItems.push(productName);
         }
@@ -279,7 +279,7 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
                       className={styles.valueInput}
                       value={row.value}
                       onChange={(e) => handleValueChange(row.skuId, e.target.value)}
-                      placeholder="0"
+                      placeholder="-"
                     />
                   </td>
                 </tr>
@@ -338,7 +338,7 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
                         className={styles.valueInput}
                         value={row.value}
                         onChange={(e) => handleValueChange(row.skuId, e.target.value)}
-                        placeholder="0"
+                        placeholder="-"
                       />
                     </td>
                   </tr>
