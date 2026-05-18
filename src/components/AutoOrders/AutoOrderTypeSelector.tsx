@@ -53,7 +53,7 @@ const allAutoOrderTypes: AutoOrderType[] = [
     icon: <CalendarSync size={32} />,
     color: '#ff9800',
     bgColor: '#fff3e0',
-    requiredFlags: ['LS_AUTOZAKAZI', 'TM_AUTOZAKAZI', 'ADMIN'],
+    requiredFlags: ['TM_AUTOZAKAZI', 'ADMIN'],
   },
   {
     id: 'completed',
