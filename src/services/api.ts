@@ -59,7 +59,7 @@ const getRequiredFlagsForEndpoint = (url: string): string[] => {
   if (url.includes('/services') || url.includes('/service')) {
     return ['SERVICE', 'SERVICE_ADMIN', 'ADMIN'];
   }
-  if (url.includes('/autoorders') || url.includes('/orders')) {
+  if (url.includes('/autoorders') || url.includes('/orders') || url.includes('/auto-orders')) {
     return ['LS_AUTOZAKAZI', 'TM_AUTOZAKAZI', 'ADMIN'];
   }
   if (url.includes('/otchet') || url.includes('/results')) {

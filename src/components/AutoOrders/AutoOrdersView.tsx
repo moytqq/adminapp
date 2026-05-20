@@ -2,6 +2,8 @@
 
 import React from 'react';
 import AutoOrdersTableView from './AutoOrdersTableView';
+import ItemsMatrix from './ItemsMatrix/ItemsMatrix';
+import SupplierSettingsComponent from './SupplierSettings/SupplierSettings';
 import { ArrowLeft } from 'lucide-react';
 import styles from './AutoOrdersView.module.scss';
 
@@ -24,6 +26,14 @@ const getAutoOrderTitle = (type: string): string => {
 const AutoOrdersView: React.FC<AutoOrdersViewProps> = ({ autoOrderType, onBack }) => {
   if (autoOrderType === 'workInProgress') {
     return <AutoOrdersTableView autoOrderType={autoOrderType} onBack={onBack} />;
+  }
+
+  if (autoOrderType === 'itemsMatrix') {
+    return <ItemsMatrix onBack={onBack} />;
+  }
+
+  if (autoOrderType === 'suppliers') {
+    return <SupplierSettingsComponent onBack={onBack} />;
   }
 
   return (

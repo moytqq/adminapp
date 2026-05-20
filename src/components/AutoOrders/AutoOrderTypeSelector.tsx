@@ -10,6 +10,7 @@ import {
   CalendarSync,
   CalendarCheck2,
   CalendarClock,
+  Truck,
 } from 'lucide-react';
 
 export interface AutoOrderType {
@@ -34,7 +35,16 @@ const allAutoOrderTypes: AutoOrderType[] = [
     icon: <Table size={32} />,
     color: '#2196f3',
     bgColor: '#e3f2fd',
-    requiredFlags: ['ADMIN'],
+    requiredFlags: ['TM_AUTOZAKAZI', 'ADMIN'],
+  },
+  {
+    id: 'suppliers',
+    title: 'Поставщики',
+    description: 'Настройки поставщиков',
+    icon: <Truck size={32} />,
+    color: '#00897b',
+    bgColor: '#e0f2f1',
+    requiredFlags: ['TM_AUTOZAKAZI', 'ADMIN'],
   },
   {
     id: 'nonProfitablePurchases',

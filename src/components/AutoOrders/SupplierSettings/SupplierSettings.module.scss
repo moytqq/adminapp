@@ -1,0 +1,227 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #f5f5f5;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    flex: 1;
+  }
+}
+
+.addressSelect {
+  .selectWrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+
+    select {
+      appearance: none;
+      padding: 8px 32px 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #333;
+      background: #fafafa;
+      cursor: pointer;
+      outline: none;
+
+      &:focus {
+        border-color: #2196f3;
+      }
+    }
+
+    .chevron {
+      position: absolute;
+      right: 8px;
+      pointer-events: none;
+      color: #666;
+    }
+  }
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: #666;
+  font-size: 14px;
+}
+
+.cards {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+  align-content: start;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 2px solid transparent;
+  transition: border-color 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cardDirty {
+  border-color: #ffc107;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.supplierName {
+  font-size: 15px;
+  font-weight: 600;
+  color: #222;
+}
+
+.supplierRole {
+  font-size: 11px;
+  color: #888;
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.dayButtons {
+  display: flex;
+  gap: 4px;
+}
+
+.dayBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #f5f5f5;
+  font-size: 12px;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    background: #e3f2fd;
+    border-color: #90caf9;
+    color: #1976d2;
+  }
+}
+
+.dayActive {
+  background: #2196f3;
+  border-color: #2196f3;
+  color: white;
+
+  &:hover {
+    background: #1976d2;
+    border-color: #1976d2;
+    color: white;
+  }
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.inputNum {
+  width: 80px;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #333;
+  background: #fafafa;
+  outline: none;
+  text-align: right;
+
+  &:focus {
+    border-color: #2196f3;
+    background: white;
+  }
+}
+
+.toggleBtn {
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #f5f5f5;
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: #90caf9;
+  }
+}
+
+.toggleOn {
+  background: #e3f2fd;
+  border-color: #2196f3;
+  color: #1565c0;
+}
+
+.saveBtn {
+  width: 100%;
+  padding: 10px;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #1976d2;
+  }
+
+  &:disabled {
+    background: #90caf9;
+    cursor: not-allowed;
+  }
+}
