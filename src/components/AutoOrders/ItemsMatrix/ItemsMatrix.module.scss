@@ -40,9 +40,7 @@
       cursor: pointer;
       outline: none;
 
-      &:focus {
-        border-color: #2196f3;
-      }
+      &:focus { border-color: #2196f3; }
     }
 
     .chevron {
@@ -95,52 +93,69 @@
     font-size: 13px;
   }
 
-  tr:last-child td {
-    border-bottom: none;
-  }
-
-  tr:hover td {
-    background: #fafbff;
-  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbff; }
 }
 
 .rowDirty {
-  td {
-    background: #fffde7 !important;
-  }
+  td { background: #fffde7 !important; }
 }
 
+// Название товара
 .skuName {
   font-weight: 500;
   color: #222;
+  font-size: 13px;
 }
 
-.skuShort {
+.skuFull {
   font-size: 11px;
-  color: #888;
+  color: #999;
   margin-top: 2px;
 }
 
-.null {
+.cellMuted {
   color: #bbb;
+  font-size: 12px;
 }
 
-.inputSmall {
-  width: 110px;
-  padding: 4px 8px;
+// Поставщик
+.selectWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.supplierSelect {
+  appearance: none;
+  padding: 4px 24px 4px 8px;
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 12px;
   color: #333;
   background: #fafafa;
+  cursor: pointer;
   outline: none;
+  max-width: 150px;
 
-  &:focus {
-    border-color: #2196f3;
-    background: white;
-  }
+  &:focus { border-color: #2196f3; background: white; }
 }
 
+.chevronSmall {
+  position: absolute;
+  right: 6px;
+  pointer-events: none;
+  color: #888;
+}
+
+.supplierRole {
+  font-size: 10px;
+  color: #bbb;
+  margin-top: 2px;
+  font-family: monospace;
+}
+
+// Числовые поля
 .inputNum {
   width: 70px;
   padding: 4px 8px;
@@ -152,30 +167,50 @@
   outline: none;
   text-align: right;
 
-  &:focus {
-    border-color: #2196f3;
-    background: white;
-  }
+  &:focus { border-color: #2196f3; background: white; }
 }
 
+// Расход
+.consumptionCell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.consumptionEffective {
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+}
+
+.consumptionBase {
+  font-size: 10px;
+  color: #aaa;
+}
+
+// Слайдер
 .sliderWrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  min-width: 120px;
+  min-width: 110px;
 }
 
 .sliderValue {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  color: #2196f3;
+  color: #666;
 }
 
 .slider {
   width: 100%;
   cursor: pointer;
-  accent-color: #2196f3;
+  accent-color: #9e9e9e;
+
+  &.sliderModified {
+    accent-color: #2196f3;
+  }
 }
 
 .sliderTicks {
@@ -186,10 +221,11 @@
 
   span {
     font-size: 10px;
-    color: #999;
+    color: #bbb;
   }
 }
 
+// Кнопка сохранить
 .saveBtn {
   padding: 5px 12px;
   background: #2196f3;
@@ -201,12 +237,6 @@
   white-space: nowrap;
   transition: background 0.15s;
 
-  &:hover {
-    background: #1976d2;
-  }
-
-  &:disabled {
-    background: #90caf9;
-    cursor: not-allowed;
-  }
+  &:hover { background: #1976d2; }
+  &:disabled { background: #90caf9; cursor: not-allowed; }
 }

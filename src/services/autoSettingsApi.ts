@@ -7,6 +7,11 @@ export interface AddressOption {
   hid: number | null;
 }
 
+export interface SupplierOption {
+  role: string;
+  name: string;
+}
+
 export interface SkuItemSetting {
   id: number;
   address_code: string;
@@ -15,11 +20,15 @@ export interface SkuItemSetting {
   nz: number | null;
   max_stock: number | null;
   consumption_factor: number;
-  order_multiple: number | null;
-  packaging_multiple: number | null;
+  // Обогащённые поля из sku_parameters
   sku_name: string | null;
   sku_name_short: string | null;
   packaging: string | null;
+  order_multiple_sku: number | null;
+  packaging_multiple_sku: number | null;
+  // Суточный расход из sku_rashod
+  daily_consumption_base: number | null;
+  daily_consumption_effective: number | null;
 }
 
 export interface SupplierSetting {
@@ -44,20 +53,26 @@ export const autoSettingsApi = {
     }
   },
 
-  getItemSettings: async (address: string): Promise<SkuItemSetting[]> => {
+  getItemSettings: async (address: string): Promise<{ items: SkuItemSetting[]; supplierOptions: SupplierOption[] }> => {
     try {
       const res = await api.get(`/auto-orders/items?address=${address}`);
-      return res.data.status === 'success' ? res.data.data : [];
+      if (res.data.status === 'success') {
+        return {
+          items: res.data.data,
+          supplierOptions: res.data.supplier_options ?? [],
+        };
+      }
+      return { items: [], supplierOptions: [] };
     } catch (e) {
       console.error('autoSettingsApi.getItemSettings', e);
-      return [];
+      return { items: [], supplierOptions: [] };
     }
   },
 
   updateItemSetting: async (
     address: string,
     sku_id: number,
-    updates: Partial<Pick<SkuItemSetting, 'supplier_role' | 'nz' | 'max_stock' | 'consumption_factor' | 'order_multiple' | 'packaging_multiple'>>,
+    updates: Partial<Pick<SkuItemSetting, 'supplier_role' | 'nz' | 'max_stock' | 'consumption_factor'>>,
   ): Promise<boolean> => {
     try {
       const res = await api.put(`/auto-orders/items?address=${address}&sku_id=${sku_id}`, updates);

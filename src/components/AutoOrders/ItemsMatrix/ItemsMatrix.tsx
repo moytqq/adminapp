@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { ArrowLeft, ChevronDown } from 'lucide-react';
-import { autoSettingsApi, AddressOption, SkuItemSetting } from '@/services/autoSettingsApi';
+import { autoSettingsApi, AddressOption, SkuItemSetting, SupplierOption } from '@/services/autoSettingsApi';
 import styles from './ItemsMatrix.module.scss';
 
 const FACTOR_STEPS = [0.8, 0.9, 1.0, 1.1, 1.2];
@@ -15,6 +15,7 @@ const ItemsMatrix: React.FC<ItemsMatrixProps> = ({ onBack }) => {
   const [addresses, setAddresses] = useState<AddressOption[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<string>('');
   const [items, setItems] = useState<SkuItemSetting[]>([]);
+  const [supplierOptions, setSupplierOptions] = useState<SupplierOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState<Record<number, boolean>>({});
   const [editValues, setEditValues] = useState<Record<number, Partial<SkuItemSetting>>>({});
@@ -30,8 +31,9 @@ const ItemsMatrix: React.FC<ItemsMatrixProps> = ({ onBack }) => {
     if (!selectedAddress) return;
     setLoading(true);
     setEditValues({});
-    autoSettingsApi.getItemSettings(selectedAddress).then(data => {
+    autoSettingsApi.getItemSettings(selectedAddress).then(({ items: data, supplierOptions: opts }) => {
       setItems(data);
+      setSupplierOptions(opts);
       setLoading(false);
     });
   }, [selectedAddress]);
@@ -56,7 +58,15 @@ const ItemsMatrix: React.FC<ItemsMatrixProps> = ({ onBack }) => {
     const ok = await autoSettingsApi.updateItemSetting(selectedAddress, item.sku_id, edits);
     if (ok) {
       setItems(prev =>
-        prev.map(i => (i.sku_id === item.sku_id ? { ...i, ...edits } : i)),
+        prev.map(i => {
+          if (i.sku_id !== item.sku_id) return i;
+          const updated = { ...i, ...edits };
+          const base = updated.daily_consumption_base;
+          updated.daily_consumption_effective = base !== null
+            ? Math.round(base * updated.consumption_factor * 1000) / 1000
+            : null;
+          return updated;
+        }),
       );
       setEditValues(prev => {
         const next = { ...prev };
@@ -68,6 +78,9 @@ const ItemsMatrix: React.FC<ItemsMatrixProps> = ({ onBack }) => {
   }, [editValues, selectedAddress]);
 
   const factorStep = (value: number) => FACTOR_STEPS.indexOf(Math.round(value * 10) / 10);
+
+  const supplierName = (role: string | null) =>
+    supplierOptions.find(s => s.role === role)?.name ?? null;
 
   return (
     <div className={styles.container}>
@@ -107,9 +120,8 @@ const ItemsMatrix: React.FC<ItemsMatrixProps> = ({ onBack }) => {
                 <th>Поставщик</th>
                 <th>НЗ</th>
                 <th>Макс. запас</th>
-                <th>Множитель расхода</th>
-                <th>Кратность заказа</th>
-                <th>Кратность упак.</th>
+                <th>Расход/сут</th>
+                <th>Множитель</th>
                 <th></th>
               </tr>
             </thead>
@@ -119,22 +131,42 @@ const ItemsMatrix: React.FC<ItemsMatrixProps> = ({ onBack }) => {
                 const hasChanges = !!editValues[item.sku_id] && Object.keys(editValues[item.sku_id]).length > 0;
                 const isSaving = saving[item.sku_id];
 
+                // Вычисляем эффективный расход с учётом текущего значения слайдера
+                const baseConsumption = edited.daily_consumption_base;
+                const effectiveConsumption = baseConsumption !== null
+                  ? Math.round(baseConsumption * edited.consumption_factor * 1000) / 1000
+                  : null;
+
                 return (
                   <tr key={item.sku_id} className={hasChanges ? styles.rowDirty : ''}>
                     <td>
-                      <div className={styles.skuName}>{item.sku_name ?? `SKU ${item.sku_id}`}</div>
-                      {item.sku_name_short && (
-                        <div className={styles.skuShort}>{item.sku_name_short}</div>
+                      <div className={styles.skuName}>
+                        {item.sku_name_short ?? item.sku_name ?? `SKU ${item.sku_id}`}
+                      </div>
+                      {item.sku_name_short && item.sku_name && (
+                        <div className={styles.skuFull}>{item.sku_name}</div>
                       )}
                     </td>
-                    <td>{edited.packaging ?? <span className={styles.null}>—</span>}</td>
+                    <td className={styles.cellMuted}>
+                      {edited.packaging ?? '—'}
+                    </td>
                     <td>
-                      <input
-                        className={styles.inputSmall}
-                        value={edited.supplier_role ?? ''}
-                        placeholder="не указан"
-                        onChange={e => handleChange(item.sku_id, 'supplier_role', e.target.value || null)}
-                      />
+                      <div className={styles.selectWrapper}>
+                        <select
+                          className={styles.supplierSelect}
+                          value={edited.supplier_role ?? ''}
+                          onChange={e => handleChange(item.sku_id, 'supplier_role', e.target.value || null)}
+                        >
+                          <option value="">— не указан —</option>
+                          {supplierOptions.map(s => (
+                            <option key={s.role} value={s.role}>{s.name}</option>
+                          ))}
+                        </select>
+                        <ChevronDown size={12} className={styles.chevronSmall} />
+                      </div>
+                      {edited.supplier_role && (
+                        <div className={styles.supplierRole}>{edited.supplier_role}</div>
+                      )}
                     </td>
                     <td>
                       <input
@@ -159,16 +191,28 @@ const ItemsMatrix: React.FC<ItemsMatrixProps> = ({ onBack }) => {
                       />
                     </td>
                     <td>
+                      {baseConsumption !== null ? (
+                        <div className={styles.consumptionCell}>
+                          <span className={styles.consumptionEffective}>{effectiveConsumption}</span>
+                          {edited.consumption_factor !== 1.0 && (
+                            <span className={styles.consumptionBase}>база: {baseConsumption}</span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className={styles.cellMuted}>—</span>
+                      )}
+                    </td>
+                    <td>
                       <div className={styles.sliderWrap}>
-                        <span className={styles.sliderValue}>{(edited.consumption_factor ?? 1.0).toFixed(1)}×</span>
+                        <span className={styles.sliderValue}>{edited.consumption_factor.toFixed(1)}×</span>
                         <input
                           type="range"
                           min={0}
                           max={4}
                           step={1}
-                          value={factorStep(edited.consumption_factor ?? 1.0)}
+                          value={factorStep(edited.consumption_factor)}
                           onChange={e => handleChange(item.sku_id, 'consumption_factor', FACTOR_STEPS[parseInt(e.target.value)])}
-                          className={styles.slider}
+                          className={`${styles.slider} ${edited.consumption_factor !== 1.0 ? styles.sliderModified : ''}`}
                         />
                         <div className={styles.sliderTicks}>
                           {FACTOR_STEPS.map(s => (
@@ -176,28 +220,6 @@ const ItemsMatrix: React.FC<ItemsMatrixProps> = ({ onBack }) => {
                           ))}
                         </div>
                       </div>
-                    </td>
-                    <td>
-                      <input
-                        className={styles.inputNum}
-                        type="number"
-                        value={edited.order_multiple ?? ''}
-                        placeholder="—"
-                        min={0}
-                        step={1}
-                        onChange={e => handleChange(item.sku_id, 'order_multiple', e.target.value === '' ? null : parseFloat(e.target.value))}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        className={styles.inputNum}
-                        type="number"
-                        value={edited.packaging_multiple ?? ''}
-                        placeholder="—"
-                        min={0}
-                        step={1}
-                        onChange={e => handleChange(item.sku_id, 'packaging_multiple', e.target.value === '' ? null : parseFloat(e.target.value))}
-                      />
                     </td>
                     <td>
                       {hasChanges && (
