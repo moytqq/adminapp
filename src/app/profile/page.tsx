@@ -6,12 +6,14 @@ import styles from './profile.module.scss';
 import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
 import SideMenu from '@/components/SideMenu/SideMenu';
 import PersonalView from '@/components/Profile/Personal/PersonalView';
+import PageTitle from '@/components/PageTitle/PageTitle';
 
 const ProfilePage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <ProtectedRoute>
+      <PageTitle title="Личный кабинет" />
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <div className={styles.container}>

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import styles from './login.module.scss';
+import PageTitle from '@/components/PageTitle/PageTitle';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,7 +28,7 @@ export default function LoginPage() {
     }
   }, []);
 
-  return <Login initialErrorMessage={errorMessage} />;
+  return <><PageTitle title="Вход" /><Login initialErrorMessage={errorMessage} /></>;
 }
 
 export const dynamic = 'force-dynamic';

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
 import SideMenu from '@/components/SideMenu/SideMenu';
 import ChatView from '@/components/Profile/Chat/ChatView';
+import PageTitle from '@/components/PageTitle/PageTitle';
 import styles from './chat.module.scss';
 import { Menu } from 'lucide-react';
 import stylesSideMenu from '@/app/main/main.module.scss';
@@ -15,6 +16,7 @@ const ChatPage = () => {
 
   return (
     <ProtectedRoute requiredFlags={['CHAT', 'ADMIN']} redirectTo="/main">
+      <PageTitle title="Чат" />
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <div className={styles.container}>

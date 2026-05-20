@@ -6,12 +6,14 @@ import Proposes from '@/components/Proposes/Proposes';
 import styles from './proposes.module.scss';
 import stylesSideMenu from '@/app/main/main.module.scss';
 import { Menu } from 'lucide-react';
+import PageTitle from '@/components/PageTitle/PageTitle';
 
 const ProposesPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <>
+      <PageTitle title="Предложения" />
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       <div className={styles.container}>
         <header className={styles.header}>

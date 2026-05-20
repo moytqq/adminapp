@@ -9,6 +9,7 @@ import { Menu, ArrowLeft } from 'lucide-react';
 import stylesSideMenu from '@/app/main/main.module.scss';
 import AutoOrderTypeSelector from '@/components/AutoOrders/AutoOrderTypeSelector';
 import AutoOrdersView from '@/components/AutoOrders/AutoOrdersView';
+import PageTitle from '@/components/PageTitle/PageTitle';
 
 const AutoOrdersPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -50,6 +51,7 @@ const AutoOrdersPage = () => {
 
   return (
     <ProtectedRoute requiredFlags={['TM_AUTOZAKAZI', 'ADMIN']} redirectTo="/main">
+      <PageTitle title="Автозаказы" />
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <div className={styles.container}>

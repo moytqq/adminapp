@@ -6,6 +6,7 @@ import SideMenu from '@/components/SideMenu/SideMenu';
 import ItemSelector, { SelectorItem } from '@/components/AutoOrders/ItemSelector';
 import RemaindersView from '@/components/AutoOrders/RemaindersView';
 import { remaindersApi, RemainderForm } from '@/services/remaindersApi';
+import PageTitle from '@/components/PageTitle/PageTitle';
 import styles from '@/app/autoOrders/autoOrders.module.scss';
 import { Menu, Package } from 'lucide-react';
 import stylesSideMenu from '@/app/main/main.module.scss';
@@ -40,6 +41,7 @@ const RemaindersPage = () => {
 
   return (
     <ProtectedRoute requiredFlags={['LS_AUTOZAKAZI', 'TM_AUTOZAKAZI', 'ADMIN']} redirectTo="/main">
+      <PageTitle title="Остатки" />
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <div className={styles.container}>

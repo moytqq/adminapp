@@ -9,6 +9,7 @@ import { Menu, ArrowLeft } from 'lucide-react';
 import stylesSideMenu from '@/app/main/main.module.scss';
 import PlannerTypeSelector from '@/components/Planner/PlannerTypeSelector';
 import PlannerView from '@/components/Planner/PlannerView';
+import PageTitle from '@/components/PageTitle/PageTitle';
 
 const PlannerPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -54,6 +55,7 @@ const PlannerPage = () => {
 
   return (
     <ProtectedRoute requiredFlags={['ADMIN']} redirectTo="/main">
+      <PageTitle title="Планировщик" />
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <div className={styles.container}>

@@ -7,6 +7,7 @@ import { Menu } from 'lucide-react';
 import styles from './mail.module.scss';
 import stylesSideMenu from '@/app/main/main.module.scss';
 import { useAccess } from '@/store/hooks/useAccess';
+import PageTitle from '@/components/PageTitle/PageTitle';
 
 const MailPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,6 +17,7 @@ const MailPage = () => {
 
   return (
     <ProtectedRoute requiredFlags={['MAIL', 'ADMIN']} redirectTo="/main">
+      <PageTitle title="Почта" />
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <div className={styles.container}>

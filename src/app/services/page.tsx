@@ -10,6 +10,7 @@ import stylesSideMenu from '@/app/main/main.module.scss';
 import ServiceTypeSelector from '@/components/Services/ServiceTypeSelector';
 import ServiceView from '@/components/Services/ServiceView';
 import { ServiceType } from '@/services/serviceApi';
+import PageTitle from '@/components/PageTitle/PageTitle';
 
 const ServicesPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -44,6 +45,7 @@ const ServicesPage = () => {
 
   return (
     <ProtectedRoute requiredFlags={['SERVICE', 'SERVICE_ADMIN', 'ADMIN']} redirectTo="/main">
+      <PageTitle title="Сервис" />
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <div className={styles.container}>

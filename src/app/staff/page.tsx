@@ -19,6 +19,7 @@ import { Users, Briefcase, Menu, ArrowUpDown, Filter, Search, ArrowLeft } from '
 import { TreeItemType } from '@/types/tree.types';
 import SideMenu from '@/components/SideMenu/SideMenu';
 import stylesSideMenu from '@/app/main/main.module.scss';
+import PageTitle from '@/components/PageTitle/PageTitle';
 
 type SortOrder = 'asc' | 'desc';
 
@@ -148,6 +149,7 @@ export default function StaffPage() {
 
   return (
     <ProtectedRoute requiredFlags={['ADMIN']} redirectTo="/main">
+      <PageTitle title="Сотрудники" />
       <div className={styles.container}>
         <header className={styles.header}>
           <div className={styles.headerLeft}>

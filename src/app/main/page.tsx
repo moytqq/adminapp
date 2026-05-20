@@ -10,6 +10,7 @@ import styles from './main.module.scss';
 import LogoutButton from '@/components/LogoutButton/LogoutButton';
 import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
 import SideMenu from '@/components/SideMenu/SideMenu';
+import PageTitle from '@/components/PageTitle/PageTitle';
 
 const TreeList = dynamic(() => import('@/components/TreeList/TreeList'), {
   ssr: false,
@@ -35,6 +36,7 @@ export default function Home() {
 
   return (
     <>
+      <PageTitle title="Компания" />
       <ProtectedRoute>
         <TreeDataLoader />
           {/*<Link*/}
