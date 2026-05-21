@@ -21,6 +21,7 @@ const ItemsMatrix: React.FC<ItemsMatrixProps> = ({ onBack }) => {
   const [editValues, setEditValues] = useState<Record<number, Partial<SkuItemSetting>>>({});
   const [recalculating, setRecalculating] = useState(false);
   const [recalcResult, setRecalcResult] = useState<string | null>(null);
+  const [showSupplierUnits, setShowSupplierUnits] = useState(false);
 
   useEffect(() => {
     autoSettingsApi.getAddresses().then(data => {
@@ -158,7 +159,18 @@ const ItemsMatrix: React.FC<ItemsMatrixProps> = ({ onBack }) => {
                 <th>Поставщик</th>
                 <th>НЗ</th>
                 <th>Макс. запас</th>
-                <th>Расход/сут</th>
+                <th>
+                  <button
+                    className={styles.unitToggle}
+                    onClick={() => setShowSupplierUnits(v => !v)}
+                    title="Переключить единицы отображения расхода"
+                  >
+                    Расход/сут
+                    <span className={styles.unitToggleLabel}>
+                      {showSupplierUnits ? 'поставщик ↕' : 'наша ↕'}
+                    </span>
+                  </button>
+                </th>
                 <th>Множитель</th>
                 <th></th>
               </tr>
@@ -229,14 +241,32 @@ const ItemsMatrix: React.FC<ItemsMatrixProps> = ({ onBack }) => {
                       />
                     </td>
                     <td>
-                      {baseConsumption !== null ? (
-                        <div className={styles.consumptionCell}>
-                          <span className={styles.consumptionEffective}>{effectiveConsumption}</span>
-                          {edited.consumption_factor !== 1.0 && (
-                            <span className={styles.consumptionBase}>база: {baseConsumption}</span>
-                          )}
-                        </div>
-                      ) : (
+                      {baseConsumption !== null ? (() => {
+                        const pm = item.packaging_multiple_sku;
+                        const canConvert = showSupplierUnits && pm != null && pm !== 0;
+                        const displayEff = canConvert
+                          ? Math.round(effectiveConsumption! * pm! * 1_000_000) / 1_000_000
+                          : effectiveConsumption;
+                        const displayBase = canConvert
+                          ? Math.round(baseConsumption * pm! * 1_000_000) / 1_000_000
+                          : baseConsumption;
+                        const unit = showSupplierUnits
+                          ? (item.packaging_supplier ?? item.packaging ?? '')
+                          : (item.packaging ?? '');
+                        return (
+                          <div className={styles.consumptionCell}>
+                            <span className={styles.consumptionEffective}>
+                              {displayEff}
+                              {unit && <span className={styles.consumptionUnit}> {unit}</span>}
+                            </span>
+                            {edited.consumption_factor !== 1.0 && (
+                              <span className={styles.consumptionBase}>
+                                база: {displayBase}{unit ? ` ${unit}` : ''}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })() : (
                         <span className={styles.cellMuted}>—</span>
                       )}
                     </td>

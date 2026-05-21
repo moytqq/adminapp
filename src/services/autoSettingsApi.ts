@@ -24,6 +24,7 @@ export interface SkuItemSetting {
   sku_name: string | null;
   sku_name_short: string | null;
   packaging: string | null;
+  packaging_supplier: string | null;
   order_multiple_sku: number | null;
   packaging_multiple_sku: number | null;
   // Суточный расход из sku_rashod
