@@ -164,4 +164,8 @@ export interface TtkRow {
   coeff: number;
   is_override: boolean;
   global_coeff: number | null;
+  sku_name_short: string | null;
+  packaging: string | null;
+  packaging_supplier: string | null;
+  packaging_multiple: number | null;
 }
