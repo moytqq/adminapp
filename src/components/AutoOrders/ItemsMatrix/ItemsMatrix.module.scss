@@ -225,6 +225,34 @@
   }
 }
 
+// Кнопка пересчёта расхода
+.recalcWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recalcBtn {
+  padding: 6px 14px;
+  background: white;
+  color: #555;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover { background: #f0f4ff; border-color: #90caf9; }
+  &:disabled { color: #aaa; cursor: not-allowed; }
+}
+
+.recalcHint {
+  font-size: 12px;
+  color: #888;
+  white-space: nowrap;
+}
+
 // Кнопка сохранить
 .saveBtn {
   padding: 5px 12px;

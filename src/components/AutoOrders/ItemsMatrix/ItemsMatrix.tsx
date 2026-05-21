@@ -19,6 +19,8 @@ const ItemsMatrix: React.FC<ItemsMatrixProps> = ({ onBack }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState<Record<number, boolean>>({});
   const [editValues, setEditValues] = useState<Record<number, Partial<SkuItemSetting>>>({});
+  const [recalculating, setRecalculating] = useState(false);
+  const [recalcResult, setRecalcResult] = useState<string | null>(null);
 
   useEffect(() => {
     autoSettingsApi.getAddresses().then(data => {
@@ -77,6 +79,28 @@ const ItemsMatrix: React.FC<ItemsMatrixProps> = ({ onBack }) => {
     setSaving(prev => ({ ...prev, [item.sku_id]: false }));
   }, [editValues, selectedAddress]);
 
+  const handleRecalculate = async () => {
+    setRecalculating(true);
+    setRecalcResult(null);
+    const res = await autoSettingsApi.recalculateConsumption();
+    setRecalculating(false);
+    if (res) {
+      setRecalcResult(`Обновлено: ${res.updated} записей`);
+      // Перезагружаем данные чтобы показать новые значения расхода
+      if (selectedAddress) {
+        setLoading(true);
+        setEditValues({});
+        autoSettingsApi.getItemSettings(selectedAddress).then(({ items: data, supplierOptions: opts }) => {
+          setItems(data);
+          setSupplierOptions(opts);
+          setLoading(false);
+        });
+      }
+    } else {
+      setRecalcResult('Ошибка пересчёта');
+    }
+  };
+
   const factorStep = (value: number) => FACTOR_STEPS.indexOf(Math.round(value * 10) / 10);
 
   const supplierName = (role: string | null) =>
@@ -90,6 +114,20 @@ const ItemsMatrix: React.FC<ItemsMatrixProps> = ({ onBack }) => {
           <span>Назад</span>
         </button>
         <h2>Товарная матрица</h2>
+
+        <div className={styles.recalcWrap}>
+          <button
+            className={styles.recalcBtn}
+            onClick={handleRecalculate}
+            disabled={recalculating}
+            title="Пересчитать суточный расход по ТТК за последние 6 месяцев"
+          >
+            {recalculating ? 'Пересчёт...' : 'Пересчитать расход'}
+          </button>
+          {recalcResult && (
+            <span className={styles.recalcHint}>{recalcResult}</span>
+          )}
+        </div>
 
         <div className={styles.addressSelect}>
           <div className={styles.selectWrapper}>

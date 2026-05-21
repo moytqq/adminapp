@@ -109,4 +109,14 @@ export const autoSettingsApi = {
       return false;
     }
   },
+
+  recalculateConsumption: async (): Promise<{ updated: number } | null> => {
+    try {
+      const res = await api.post('/auto-orders/consumption/recalculate');
+      return res.data.status === 'ok' ? { updated: res.data.updated } : null;
+    } catch (e) {
+      console.error('autoSettingsApi.recalculateConsumption', e);
+      return null;
+    }
+  },
 };
