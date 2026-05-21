@@ -119,4 +119,49 @@ export const autoSettingsApi = {
       return null;
     }
   },
+
+  getTtk: async (address: string): Promise<TtkRow[]> => {
+    try {
+      const res = await api.get(`/auto-orders/ttk?address=${address}`);
+      return res.data.status === 'success' ? res.data.data : [];
+    } catch (e) {
+      console.error('autoSettingsApi.getTtk', e);
+      return [];
+    }
+  },
+
+  updateTtk: async (address: string, drink_code: string, sku_id: number, coeff: number): Promise<boolean> => {
+    try {
+      const res = await api.put(
+        `/auto-orders/ttk?address=${address}&drink_code=${encodeURIComponent(drink_code)}&sku_id=${sku_id}`,
+        { coeff },
+      );
+      return res.data.status === 'success';
+    } catch (e) {
+      console.error('autoSettingsApi.updateTtk', e);
+      return false;
+    }
+  },
+
+  resetTtk: async (address: string, drink_code: string, sku_id: number): Promise<boolean> => {
+    try {
+      const res = await api.delete(
+        `/auto-orders/ttk?address=${address}&drink_code=${encodeURIComponent(drink_code)}&sku_id=${sku_id}`,
+      );
+      return res.data.status === 'success';
+    } catch (e) {
+      console.error('autoSettingsApi.resetTtk', e);
+      return false;
+    }
+  },
 };
+
+export interface TtkRow {
+  id: number;
+  address_code: string | null;
+  drink_code: string;
+  sku_id: number;
+  coeff: number;
+  is_override: boolean;
+  global_coeff: number | null;
+}

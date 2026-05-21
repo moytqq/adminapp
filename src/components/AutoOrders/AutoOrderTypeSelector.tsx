@@ -11,6 +11,7 @@ import {
   CalendarCheck2,
   CalendarClock,
   Truck,
+  FlaskConical,
 } from 'lucide-react';
 
 export interface AutoOrderType {
@@ -44,6 +45,15 @@ const allAutoOrderTypes: AutoOrderType[] = [
     icon: <Truck size={32} />,
     color: '#00897b',
     bgColor: '#e0f2f1',
+    requiredFlags: ['TM_AUTOZAKAZI', 'ADMIN'],
+  },
+  {
+    id: 'ttk',
+    title: 'ТТК',
+    description: 'Матрица расхода ингредиентов',
+    icon: <FlaskConical size={32} />,
+    color: '#6d4c41',
+    bgColor: '#efebe9',
     requiredFlags: ['TM_AUTOZAKAZI', 'ADMIN'],
   },
   {
