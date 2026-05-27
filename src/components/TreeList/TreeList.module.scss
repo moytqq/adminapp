@@ -404,14 +404,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
   gap: 12px;
+  flex-wrap: nowrap;
 
   @media (max-width: 767px) {
     margin: 10px 15px;
-    flex-direction: row;
-    align-items: stretch;
-    gap: 16px;
+    gap: 8px;
   }
 }
 
@@ -419,13 +417,14 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  flex: 1;
+  flex-shrink: 0;
 
   h1 {
     margin: 0;
     font-size: 24px;
     font-weight: 600;
     color: #333;
+    white-space: nowrap;
 
     @media (max-width: 768px) {
       font-size: 20px;
@@ -436,18 +435,15 @@
     }
   }
 
-  @media (min-width: 768px) {
-    .mobileToggleContainer {
-      display: none;
-    }
-  }
-
   @media (max-width: 767px) {
-    .mobileToggleContainer {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px;
+    gap: 8px;
+    flex-shrink: 1;
+    min-width: 0;
+
+    h1 {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }
@@ -455,6 +451,32 @@
 .mobileToggleContainer {
   .toggleContainer.mobile {
     margin-left: auto;
+  }
+}
+
+.toggleContainer {
+  flex-shrink: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+
+  @media (max-width: 767px) {
+    width: auto;
+    justify-content: flex-end;
+
+    .toggleContainer.desktop {
+      display: flex;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .toggleContainer.desktop {
+      display: flex;
+    }
   }
 }
 
@@ -476,6 +498,17 @@
     .toggleContainer.desktop {
       display: flex;
     }
+  }
+}
+
+.controlsSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+
+  @media (max-width: 767px) {
+    gap: 8px;
   }
 }
 

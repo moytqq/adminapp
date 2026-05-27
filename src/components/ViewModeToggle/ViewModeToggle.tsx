@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { LayoutGrid, MapPin, Filter, X } from 'lucide-react';
+import { LayoutGrid, MapPin, Filter, X, Building2 } from 'lucide-react';
 import styles from './ViewModeToggle.module.scss';
 import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks';
 import { switchViewMode, setStoreFilter } from '@/store/slices/treeSlice';
@@ -66,24 +66,14 @@ const ViewModeToggle: React.FC = () => {
                 >
                   <Filter size={isMobile ? 18 : 16} />
                   {!isMobile && <span>Фильтр</span>}
-
                 </button>
                 {storeFilter && !isMobile && (
                   <button
                     className={styles.filterBadge}
                     onClick={() => handleFilterSelect(storeFilter)}>
-                    {storeFilter} x</button>
+                    {storeFilter} x
+                  </button>
                 )}
-                {/*{storeFilter && (*/}
-                {/*  <button*/}
-                {/*    className={styles.clearButton}*/}
-                {/*    onClick={clearFilter}*/}
-                {/*    aria-label="Сбросить фильтр"*/}
-                {/*    title="Сбросить фильтр"*/}
-                {/*  >*/}
-                {/*    <X size={isMobile ? 16 : 14} />*/}
-                {/*  </button>*/}
-                {/*)}*/}
 
                 {isFilterOpen && (
                   <>
@@ -110,6 +100,7 @@ const ViewModeToggle: React.FC = () => {
               </div>
             </div>
           )}
+
           <button
             className={`${styles.toggleButton} ${viewMode === 'hierarchy' ? styles.active : ''}`}
             onClick={() => handleSwitchView('hierarchy')}
@@ -117,8 +108,19 @@ const ViewModeToggle: React.FC = () => {
             aria-label={isMobile ? 'Компания' : 'Иерархическое отображение'}
             title="Иерархическое отображение"
           >
-            <LayoutGrid size={isMobile ? 20 : 18} />
+            <Building2 size={isMobile ? 20 : 18} />
             {!isMobile && <span>Компания</span>}
+          </button>
+
+          <button
+            className={`${styles.toggleButton} ${viewMode === 'departments' ? styles.active : ''}`}
+            onClick={() => handleSwitchView('departments')}
+            disabled={loading}
+            aria-label={isMobile ? 'Департаменты' : 'Отображение департаментов'}
+            title="Отображение департаментов"
+          >
+            <LayoutGrid size={isMobile ? 20 : 18} />
+            {!isMobile && <span>Департаменты</span>}
           </button>
 
           <button

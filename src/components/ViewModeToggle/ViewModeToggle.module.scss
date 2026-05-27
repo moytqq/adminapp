@@ -2,6 +2,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 
   &.desktop {
     flex-direction: row;
@@ -9,7 +10,7 @@
 
   &.mobile {
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 8px;
   }
 }
@@ -22,6 +23,23 @@
   padding: 4px;
   border-radius: 8px;
   border: 1px solid #e0e0e0;
+
+  &.mobile {
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+}
+
+.toggleGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f5f5f5;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  flex-shrink: 0;
 
   &.mobile {
     background: transparent;
@@ -43,6 +61,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  flex-shrink: 0;
 
   &:disabled {
     opacity: 0.6;
@@ -87,32 +106,27 @@
     padding: 0;
     justify-content: center;
     background: #f5f5f5;
-    //border: 1px solid #e0e0e0;
-
-    &:hover {
-      background: #e0e0e0;
-    }
 
     &.active {
       background: #2196f3;
       color: white;
-      border-color: #1976d2;
 
       svg {
         color: white;
       }
     }
 
-    svg {
-      width: 20px;
-      height: 20px;
+    span {
+      display: none;
     }
   }
 }
 
+
 .filterWrapper {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .filterContainer {
@@ -120,6 +134,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
 }
 
 .filterButton {
@@ -135,6 +150,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  flex-shrink: 0;
 
   &:hover:not(:disabled) {
     background: #e0e0e0;
@@ -189,6 +205,7 @@
   font-size: 12px;
   font-weight: 600;
   margin-left: 4px;
+  flex-shrink: 0;
 
   &:hover:not(:disabled) {
     background: #e0e0e0;

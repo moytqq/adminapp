@@ -29,6 +29,13 @@ export enum TreeItemType {
   PERSON = 'Person',
   ADDRESS = 'Address',
 }
+export interface Department {
+  id: string;
+  name: string;
+  description?: string;
+  employeeCount?: number;
+  head?: string;
+}
 
 export interface CompanyItem extends BaseTreeItem {
   type: TreeItemType.COMPANY;
@@ -116,7 +123,7 @@ export interface ApiTreeItem {
   data?: any;
 }
 
-export type TreeViewMode = 'hierarchy' | 'store-departments' | 'addresses';
+export type TreeViewMode = 'hierarchy' | 'departments' | 'addresses';
 
 export interface WidgetItem {
   id: string;

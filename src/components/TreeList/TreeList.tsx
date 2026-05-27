@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks';
 import { loadTreeData, toggleExpand } from '@/store/slices/treeSlice';
 import TreeItem from './TreeItem';
+import DepartmentsView from './DepartmentsView';
 import styles from './TreeList.module.scss';
 import stylesSideMenu from '@/app/main/main.module.scss';
 import { Menu, RefreshCw } from 'lucide-react';
@@ -55,16 +56,54 @@ const TreeList: React.FC = () => {
     }
   };
 
-  const getTitle = () => {
-    switch (viewMode) {
-      case 'hierarchy':
-        return 'Компания';
-      case 'addresses':
-        return 'Адреса и магазины';
-      default:
-        return 'Неизвестный тип отображения';
-    }
-  };
+  // Заголовок всегда "Компания"
+  const pageTitle = 'Компания';
+
+  // Рендер для режима департаментов
+  if (viewMode === 'departments') {
+    return (
+      <div className={styles.treeList}>
+        <div className={styles.header}>
+          <div className={styles.headerTop}>
+            <div className={styles.titleSection}>
+              <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+              <div className={stylesSideMenu.headerLeft}>
+                <button
+                  className={stylesSideMenu.menuButton}
+                  onClick={() => setIsMenuOpen(true)}
+                  aria-label="Открыть меню"
+                >
+                  <Menu size={36} />
+                </button>
+              </div>
+              <h1>{pageTitle}</h1>
+            </div>
+            <div className={styles.controlsSection}>
+              <ViewModeToggle />
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.treeContainer}>
+          {loading && !isRefreshing ? (
+            <div className={styles.loading}>
+              <div className={styles.spinner} />
+              <p>Загрузка данных...</p>
+            </div>
+          ) : error ? (
+            <div className={styles.error}>
+              <p>Ошибка загрузки: {error}</p>
+              <button onClick={handleRefresh} className={styles.retryButton}>
+                Повторить
+              </button>
+            </div>
+          ) : (
+            <DepartmentsView items={items} />
+          )}
+        </div>
+      </div>
+    );
+  }
 
   if (loading && !isRefreshing) {
     return (
@@ -105,9 +144,11 @@ const TreeList: React.FC = () => {
                 <Menu size={36} />
               </button>
             </div>
-            <h1>{getTitle()}</h1>
+            <h1>{pageTitle}</h1>
           </div>
-          <ViewModeToggle />
+          <div className={styles.controlsSection}>
+            <ViewModeToggle />
+          </div>
         </div>
       </div>
 
