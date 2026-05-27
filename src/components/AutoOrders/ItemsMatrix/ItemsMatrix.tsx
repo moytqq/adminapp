@@ -214,9 +214,7 @@ const ItemsMatrix: React.FC<ItemsMatrixProps> = ({ onBack }) => {
                         </select>
                         <ChevronDown size={12} className={styles.chevronSmall} />
                       </div>
-                      {edited.supplier_role && (
-                        <div className={styles.supplierRole}>{edited.supplier_role}</div>
-                      )}
+
                     </td>
                     <td>
                       <input
