@@ -125,7 +125,6 @@ const SupplierSettingsComponent: React.FC<SupplierSettingsProps> = ({ onBack }) 
               >
                 <div className={styles.cardHeader}>
                   <div className={styles.supplierName}>{edited.supplier_name}</div>
-                  <div className={styles.supplierRole}>{edited.supplier_role}</div>
                 </div>
 
                 <div className={styles.field}>
