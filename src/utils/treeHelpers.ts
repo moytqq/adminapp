@@ -15,7 +15,7 @@ export const transformTreeDataByViewMode = (
   viewMode: TreeViewMode
 ): TreeItem[] => {
   switch (viewMode) {
-    case 'store-departments':
+    case 'departments':
       console.log('Transforming to store-department view');
       return transformToStoreDepartmentView(apiItems);
 
@@ -30,7 +30,7 @@ export const transformTreeDataByViewMode = (
   }
 };
 
-export const fetchMockTreeData = async (viewMode: 'hierarchy' | 'store-departments' | 'addresses'): Promise<TreeItem[]> => {
+export const fetchMockTreeData = async (viewMode: 'hierarchy' | 'departments' | 'addresses'): Promise<TreeItem[]> => {
   await new Promise(resolve => setTimeout(resolve, 500));
 
   // if (viewMode === 'store-departments') {

@@ -57,7 +57,7 @@ export const loadTreeData = createAsyncThunk(
           apiData = await treeApi.getAddressTree();
           break;
         case 'hierarchy':
-        case 'store-departments':
+        case 'departments':
         default:
           apiData = await treeApi.getHierarchyTree();
           break;
