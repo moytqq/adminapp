@@ -56,10 +56,8 @@ const TreeList: React.FC = () => {
     }
   };
 
-  // Заголовок всегда "Компания"
   const pageTitle = 'Компания';
 
-  // Рендер для режима департаментов
   if (viewMode === 'departments') {
     return (
       <div className={styles.treeList}>

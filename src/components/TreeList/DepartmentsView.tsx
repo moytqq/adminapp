@@ -1,4 +1,3 @@
-// components/TreeList/DepartmentsView.tsx
 'use client';
 
 import React from 'react';
@@ -44,6 +43,11 @@ const getDepartmentTypeName = (type: ItemType): string => {
   }
 };
 
+const extractNumericId = (id: string): number => {
+  const match = id.match(/\d+$/);
+  return match ? parseInt(match[0], 10) : 0;
+};
+
 const DepartmentsView: React.FC<DepartmentsViewProps> = ({ items }) => {
   const departments: TreeItemType[] = [];
 
@@ -60,7 +64,13 @@ const DepartmentsView: React.FC<DepartmentsViewProps> = ({ items }) => {
 
   extractDepartments(items);
 
-  if (departments.length === 0) {
+  const sortedDepartments = [...departments].sort((a, b) => {
+    const idA = extractNumericId(a.id);
+    const idB = extractNumericId(b.id);
+    return idA - idB;
+  });
+
+  if (sortedDepartments.length === 0) {
     return (
       <div className={styles.emptyState}>
         <Building2 size={64} className={styles.emptyIcon} />
@@ -72,16 +82,13 @@ const DepartmentsView: React.FC<DepartmentsViewProps> = ({ items }) => {
 
   return (
     <div className={styles.departmentsGrid}>
-      {departments.map(department => (
+      {sortedDepartments.map(department => (
         <div key={department.id} className={styles.departmentCard}>
           <div className={styles.cardIcon}>
             {getDepartmentIcon(department.type)}
           </div>
           <div className={styles.cardContent}>
             <h3 className={styles.departmentName}>{department.label}</h3>
-            <span className={styles.departmentType}>
-              {getDepartmentTypeName(department.type)}
-            </span>
           </div>
         </div>
       ))}

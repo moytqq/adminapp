@@ -117,7 +117,6 @@ const TreeItem: React.FC<TreeItemProps> = ({
 
   const itemColor = getColorForType(item.type);
 
-  //console.log(item);
 
   return (
     <>
