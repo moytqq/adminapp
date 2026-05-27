@@ -43,6 +43,7 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
   const [fullscreenFontSize, setFullscreenFontSize] = useState<number>(14);
   const tableRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
+  const historySectionRef = useRef<HTMLDivElement>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [historyData, setHistoryData] = useState<LastStockItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -101,6 +102,17 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
     return `${day}.${month}.${year} ${hours}:${mins}`;
   };
 
+  const scrollToHistory = () => {
+    setTimeout(() => {
+      if (historySectionRef.current) {
+        historySectionRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }
+    }, 100); // Небольшая задержка для рендера DOM
+  };
+
   const handleToggleHistory = async () => {
     if (showHistory) {
       setShowHistory(false);
@@ -112,11 +124,16 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
       try {
         const data = await remaindersApi.getLastStock(form.id, form.address);
         setHistoryData(data);
+        // После загрузки данных прокручиваем к истории
+        scrollToHistory();
       } catch {
         // ignore
       } finally {
         setHistoryLoading(false);
       }
+    } else {
+      // Если данные уже загружены, просто прокручиваем
+      scrollToHistory();
     }
   };
 
@@ -422,7 +439,7 @@ const RemaindersView: React.FC<RemaindersViewProps> = ({ form, onBack }) => {
         {renderTable()}
 
         {showHistory && (
-          <div className={`${styles.tableSection} ${styles.historySection}`}>
+          <div ref={historySectionRef} className={`${styles.tableSection} ${styles.historySection}`}>
             <div className={styles.tableHeader}>
               <h3 className={styles.tableTitle}>
                 Последнее внесение: {form.name.replace(/^[^ ]* /, '')}
