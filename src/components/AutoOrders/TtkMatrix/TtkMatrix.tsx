@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { ChevronDown, ArrowLeft } from 'lucide-react';
 import { autoSettingsApi, AddressOption, TtkRow } from '@/services/autoSettingsApi';
 import styles from './TtkMatrix.module.scss';
@@ -21,7 +21,6 @@ const DRINK_LABELS: Record<string, string> = {
   te03: 'Чай 300 мл',
 };
 
-// Порядок отображения напитков
 const DRINK_ORDER = [
   'ca02','ca03','ca04','ca_w',
   'la02','la03','la04',
@@ -31,11 +30,8 @@ const DRINK_ORDER = [
 ];
 
 interface RowState {
-  /** Значение в наших единицах */
   ourVal: string;
-  /** Значение в единицах поставщика */
   supVal: string;
-  /** Какой инпут последний редактировали (чтобы знать что сохранять) */
   lastEdited: 'our' | 'sup';
   dirty: boolean;
   saving: boolean;
@@ -65,6 +61,7 @@ export default function TtkMatrix({ onBack }: Props) {
   const [rows, setRows] = useState<TtkRow[]>([]);
   const [rowState, setRowState] = useState<Record<string, RowState>>({});
   const [loading, setLoading] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     autoSettingsApi.getAddresses().then(list => {
@@ -139,13 +136,12 @@ export default function TtkMatrix({ onBack }: Props) {
     if (ok) load(selectedAddress);
   };
 
-  // Группируем по drink_code
   const grouped = new Map<string, TtkRow[]>();
   for (const r of rows) {
     if (!grouped.has(r.drink_code)) grouped.set(r.drink_code, []);
     grouped.get(r.drink_code)!.push(r);
   }
-  // Сортируем группы по заданному порядку
+
   const sortedDrinks = [
     ...DRINK_ORDER.filter(d => grouped.has(d)),
     ...[...grouped.keys()].filter(d => !DRINK_ORDER.includes(d)).sort(),
@@ -174,122 +170,123 @@ export default function TtkMatrix({ onBack }: Props) {
       {loading ? (
         <div className={styles.loading}>Загрузка...</div>
       ) : (
-        <div className={styles.tableWrapper}>
-          {sortedDrinks.map(drinkCode => {
-            const drinkRows = grouped.get(drinkCode)!;
-            return (
-              <div key={drinkCode} className={styles.drinkGroup}>
-                <div className={styles.drinkHeader}>
-                  <span className={styles.drinkName}>
-                    {DRINK_LABELS[drinkCode] ?? drinkCode}
-                  </span>
-                  <span className={styles.drinkCode}>{drinkCode}</span>
-                </div>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Ингредиент</th>
-                      <th>Наша фасовка</th>
-                      <th>Фасовка поставщика</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {drinkRows.map(r => {
-                      const key = rowKey(r);
-                      const st = rowState[key];
-                      const hasPm = r.packaging_multiple !== null && r.packaging_multiple !== 0;
-                      return (
-                        <tr
-                          key={key}
-                          className={
-                            st?.dirty ? styles.rowDirty
-                            : r.is_override ? styles.rowOverride
-                            : undefined
-                          }
-                        >
-                          {/* Ингредиент */}
-                          <td className={styles.ingredientCell}>
-                            <span className={styles.ingredientName}>
-                              {r.sku_name_short ?? `SKU ${r.sku_id}`}
-                            </span>
-                            {r.is_override && !st?.dirty && (
-                              <span className={styles.overrideBadge}>адресный</span>
-                            )}
-                          </td>
-
-                          {/* Наша фасовка */}
-                          <td>
-                            <div className={styles.inputWithUnit}>
-                              <input
-                                type="number"
-                                step="0.0001"
-                                min="0"
-                                className={styles.inputNum}
-                                value={st?.ourVal ?? r.coeff}
-                                onChange={e => handleOurChange(r, e.target.value)}
-                              />
-                              {r.packaging && (
-                                <span className={styles.unitLabel}>{r.packaging}</span>
-                              )}
-                            </div>
-                            {r.global_coeff !== null && r.is_override && !st?.dirty && (
-                              <div className={styles.globalHint}>
-                                глобальный: {r.global_coeff} {r.packaging}
-                              </div>
-                            )}
-                          </td>
-
-                          {/* Фасовка поставщика */}
-                          <td>
-                            {hasPm ? (
-                              <div className={styles.inputWithUnit}>
-                                <input
-                                  type="number"
-                                  step="0.000001"
-                                  min="0"
-                                  className={styles.inputNum}
-                                  value={st?.supVal ?? ''}
-                                  onChange={e => handleSupChange(r, e.target.value)}
-                                />
-                                {r.packaging_supplier && (
-                                  <span className={styles.unitLabel}>{r.packaging_supplier}</span>
-                                )}
-                              </div>
-                            ) : (
-                              <span className={styles.noConvert}>
-                                {r.packaging_supplier ?? '—'}
-                              </span>
-                            )}
-                          </td>
-
-                          {/* Действия */}
-                          <td>
-                            <div className={styles.actions}>
-                              {st?.dirty && (
-                                <button
-                                  className={styles.saveBtn}
-                                  disabled={st.saving}
-                                  onClick={() => handleSave(r)}
-                                >
-                                  {st.saving ? '...' : 'Сохранить'}
-                                </button>
-                              )}
-                              {r.is_override && !st?.dirty && (
-                                <button className={styles.resetBtn} onClick={() => handleReset(r)}>
-                                  Сброс
-                                </button>
-                              )}
-                            </div>
-                          </td>
+        <div className={styles.scrollableContainer} ref={scrollContainerRef}>
+          <div className={styles.tableWrapper}>
+            {sortedDrinks.map(drinkCode => {
+              const drinkRows = grouped.get(drinkCode)!;
+              return (
+                <div key={drinkCode} className={styles.drinkGroup}>
+                  <div className={styles.drinkHeader}>
+                    <span className={styles.drinkName}>
+                      {DRINK_LABELS[drinkCode] ?? drinkCode}
+                    </span>
+                  </div>
+                  <div className={styles.tableScrollWrapper}>
+                    <div className={styles.tableContainer}>
+                      <table className={styles.table}>
+                        <thead>
+                        <tr>
+                          <th className={styles.ingredientCol}>Ингредиент</th>
+                          <th className={styles.ourPackCol}>Наша фасовка</th>
+                          <th className={styles.supPackCol}>Фасовка поставщика</th>
+                          <th className={styles.actionsCol}></th>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            );
-          })}
+                        </thead>
+                        <tbody>
+                        {drinkRows.map(r => {
+                          const key = rowKey(r);
+                          const st = rowState[key];
+                          const hasPm = r.packaging_multiple !== null && r.packaging_multiple !== 0;
+                          return (
+                            <tr
+                              key={key}
+                              className={
+                                st?.dirty ? styles.rowDirty
+                                  : r.is_override ? styles.rowOverride
+                                    : undefined
+                              }
+                            >
+                              <td className={styles.ingredientCell}>
+                                  <span className={styles.ingredientName}>
+                                    {r.sku_name_short ?? `SKU ${r.sku_id}`}
+                                  </span>
+                                {r.is_override && !st?.dirty && (
+                                  <span className={styles.overrideBadge}>адресный</span>
+                                )}
+                              </td>
+
+                              <td className={styles.ourPackCell}>
+                                <div className={styles.inputWithUnit}>
+                                  <input
+                                    type="number"
+                                    step="0.0001"
+                                    min="0"
+                                    className={styles.inputNum}
+                                    value={st?.ourVal ?? r.coeff}
+                                    onChange={e => handleOurChange(r, e.target.value)}
+                                  />
+                                  {r.packaging && (
+                                    <span className={styles.unitLabel}>{r.packaging}</span>
+                                  )}
+                                </div>
+                                {r.global_coeff !== null && r.is_override && !st?.dirty && (
+                                  <div className={styles.globalHint}>
+                                    глобальный: {r.global_coeff} {r.packaging}
+                                  </div>
+                                )}
+                              </td>
+
+                              <td className={styles.supPackCell}>
+                                {hasPm ? (
+                                  <div className={styles.inputWithUnit}>
+                                    <input
+                                      type="number"
+                                      step="0.000001"
+                                      min="0"
+                                      className={styles.inputNum}
+                                      value={st?.supVal ?? ''}
+                                      onChange={e => handleSupChange(r, e.target.value)}
+                                    />
+                                    {r.packaging_supplier && (
+                                      <span className={styles.unitLabel}>{r.packaging_supplier}</span>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span className={styles.noConvert}>
+                                      {r.packaging_supplier ?? '—'}
+                                    </span>
+                                )}
+                              </td>
+
+                              <td className={styles.actionsCell}>
+                                <div className={styles.actions}>
+                                  {st?.dirty && (
+                                    <button
+                                      className={styles.saveBtn}
+                                      disabled={st.saving}
+                                      onClick={() => handleSave(r)}
+                                    >
+                                      {st.saving ? '...' : 'Сохранить'}
+                                    </button>
+                                  )}
+                                  {r.is_override && !st?.dirty && (
+                                    <button className={styles.resetBtn} onClick={() => handleReset(r)}>
+                                      Сброс
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
