@@ -74,7 +74,7 @@ const allCategories: CategoryType[] = [
     description: 'Анализ продаж кулинарных изделий',
     icon: <CookingPot size={32} />,
     color: '#7b1fa2',
-    bgColor: '#f3e5f5',
+    bgColor: '#ecbef1',
     requiredFlags: ['RESULTS', 'ADMIN'],
     reportTypes: [
       {
@@ -205,7 +205,6 @@ const ReportTypeSelector: React.FC<ReportTypeSelectorProps> = ({
               </div>
               <h3 className={styles.title}>{type.title}</h3>
               <p className={styles.description}>{type.description}</p>
-              <div className={styles.arrow}>→</div>
             </button>
           ))}
         </div>
@@ -234,7 +233,6 @@ const ReportTypeSelector: React.FC<ReportTypeSelectorProps> = ({
             </div>
             <h3 className={styles.title}>{category.title}</h3>
             <p className={styles.description}>{category.description}</p>
-            <div className={styles.arrow}>→</div>
           </button>
         ))}
       </div>
