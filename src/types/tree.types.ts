@@ -1,4 +1,3 @@
-import { BaseWidgetData } from '@/types/widget.types';
 
 export interface TreeState {
   items: TreeItem[];
@@ -46,19 +45,22 @@ export interface CompanyItem extends BaseTreeItem {
     totalRevenue?: number;
     employeeCount?: number;
   };
+  children?: (DepartmentItem | PersonItem)[];
 }
 
 export interface DepartmentItem extends BaseTreeItem {
   type: TreeItemType.DEPARTMENT;
+  divisionType?: 'department';
   data: {
     departmentName: string;
+    description?: string;
     managerId?: string;
     budget?: number;
     storeCount?: number;
     employeeCount?: number;
-    description?: string;
     originalId?: number;
   };
+  children?: DepartmentChildItem[];
 }
 
 export interface StoreItem extends BaseTreeItem {
@@ -112,7 +114,21 @@ export interface AddressItem extends BaseTreeItem {
   };
 }
 
-export type TreeItem = CompanyItem | DepartmentItem | StoreItem | PersonItem | AddressItem;
+export interface DivisionItem extends BaseTreeItem {
+  type: TreeItemType.DEPARTMENT;
+  divisionType: 'division';
+  data: {
+    divisionName: string;
+    description?: string;
+    managerId?: string;
+    employeeCount?: number;
+    originalId?: number;
+  };
+}
+
+export type DepartmentChildItem = DepartmentItem | DivisionItem | PersonItem | StoreItem;
+
+export type TreeItem = CompanyItem | DepartmentItem | DivisionItem | StoreItem | PersonItem | AddressItem;
 
 export interface ApiTreeItem {
   id: number;

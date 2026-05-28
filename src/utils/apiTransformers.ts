@@ -1,5 +1,3 @@
-// utils/apiTransformers.ts
-
 import {
   ApiTreeItem,
   TreeItem,
@@ -7,7 +5,7 @@ import {
   CompanyItem,
   DepartmentItem,
   StoreItem,
-  PersonItem, AddressItem,
+  PersonItem, AddressItem, DivisionItem,
 } from '@/types/tree.types';
 import treeItem from '@/components/TreeList/TreeItem';
 
@@ -26,6 +24,16 @@ const mapApiTypeToTreeItemType = (apiType: string): TreeItemType => {
     default:
       return TreeItemType.PERSON;
   }
+};
+
+const isDepartmentItem = (item: TreeItem): item is DepartmentItem => {
+  return item.type === TreeItemType.DEPARTMENT &&
+    ((item as DepartmentItem).divisionType === 'department' || !(item as any).divisionType);
+};
+
+const isDivisionItem = (item: TreeItem): item is DivisionItem => {
+  return item.type === TreeItemType.DEPARTMENT &&
+    (item as DivisionItem).divisionType === 'division';
 };
 
 const transformApiItemToTreeItem = (apiItem: ApiTreeItem): TreeItem => {
@@ -53,15 +61,29 @@ const transformApiItemToTreeItem = (apiItem: ApiTreeItem): TreeItem => {
       } as CompanyItem;
 
     case TreeItemType.DEPARTMENT:
-      return {
-        ...baseItem,
-        type: TreeItemType.DEPARTMENT,
-        data: {
-          departmentName: apiItem.name,
-          description: apiItem.description,
-          ...(apiItem.data || {}),
-        },
-      } as DepartmentItem;
+      if (isDepartmentNode(apiItem.name)) {
+        return {
+          ...baseItem,
+          type: TreeItemType.DEPARTMENT,
+          divisionType: 'department',
+          data: {
+            departmentName: apiItem.name,
+            description: apiItem.description,
+            originalId: apiItem.id,
+          },
+        } as DepartmentItem;
+      } else {
+        return {
+          ...baseItem,
+          type: TreeItemType.DEPARTMENT,
+          divisionType: 'division',
+          data: {
+            divisionName: apiItem.name,
+            description: apiItem.description,
+            originalId: apiItem.id,
+          },
+        } as DivisionItem;
+      }
 
     case TreeItemType.STORE:
       return {
@@ -145,6 +167,15 @@ const transformApiItemToTreeItem = (apiItem: ApiTreeItem): TreeItem => {
   }
 };
 
+const isDepartmentNode = (name: string): boolean => {
+  const lowerName = name.toLowerCase();
+  return lowerName.includes('департамент') || lowerName === 'деп. закупок';
+};
+
+const isDivisionNode = (name: string, type: string): boolean => {
+  return type === 'Department' && !isDepartmentNode(name);
+};
+
 export const filterDepartmentsAndDescendants = (apiItems: ApiTreeItem[]): ApiTreeItem[] => {
   const departmentIds = new Set(
     apiItems
@@ -172,62 +203,62 @@ export const filterDepartmentsAndDescendants = (apiItems: ApiTreeItem[]): ApiTre
 export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
   const itemsMap = new Map<string, TreeItem>();
   const rootItems: TreeItem[] = [];
+  const departments: Map<string, DepartmentItem> = new Map();
+  const divisions: Map<string, DivisionItem[]> = new Map();
 
   apiItems.forEach(apiItem => {
     const treeItem = transformApiItemToTreeItem(apiItem);
     itemsMap.set(treeItem.id, treeItem);
+
+    if (treeItem.type === TreeItemType.DEPARTMENT && !(treeItem as any).isDivision) {
+      departments.set(treeItem.id, treeItem as DepartmentItem);
+    }
+
+    if (treeItem.type === TreeItemType.DEPARTMENT && (treeItem as any).isDivision) {
+      const parentId = treeItem.parentId;
+      if (!divisions.has(parentId)) {
+        divisions.set(parentId, []);
+      }
+      divisions.get(parentId)!.push(treeItem as DivisionItem);
+    }
   });
-
-  const knownIds = new Set(itemsMap.keys());
-
-  const sortChildren = (children: TreeItem[]): TreeItem[] => {
-    const typeOrder: Record<TreeItemType, number> = {
-      [TreeItemType.COMPANY]: 1,
-      [TreeItemType.DEPARTMENT]: 2,
-      [TreeItemType.ADDRESS]: 3,
-      [TreeItemType.STORE]: 4,
-      [TreeItemType.PERSON]: 5,
-    };
-
-    return children.sort((a, b) => {
-      const orderA = typeOrder[a.type] ?? 999;
-      const orderB = typeOrder[b.type] ?? 999;
-      if (orderA !== orderB) return orderA - orderB;
-      return a.label.localeCompare(b.label, 'ru');
-    });
-  };
 
   const buildTreeRecursive = (itemId: string, level: number): TreeItem => {
     const item = itemsMap.get(itemId)!;
     item.level = level;
 
     const children = Array.from(itemsMap.values()).filter(
-      child => child.parentId === itemId,
+      child => child.parentId === itemId && child.id !== itemId
     );
 
     item.hasChildren = children.length > 0;
 
     if (children.length > 0) {
-      item.children = sortChildren(children).map(child =>
-        buildTreeRecursive(child.id, level + 1),
+      const sortedChildren = children.sort((a, b) => {
+        const order: Record<string, number> = {
+          'Department': 1,
+          'Person': 2,
+        };
+        const orderA = order[a.type] ?? 999;
+        const orderB = order[b.type] ?? 999;
+        return orderA - orderB;
+      });
+
+      item.children = sortedChildren.map(child =>
+        buildTreeRecursive(child.id, level + 1)
       );
     }
 
     return item;
   };
 
-  // Root items: Department or Company nodes whose parent is not in the dataset
   Array.from(itemsMap.values()).forEach(item => {
-    const isStructural =
-      item.type === TreeItemType.DEPARTMENT || item.type === TreeItemType.COMPANY;
-    const parentInData = knownIds.has(item.parentId);
-
-    if (isStructural && !parentInData) {
+    if (item.type === TreeItemType.COMPANY) {
       rootItems.push(buildTreeRecursive(item.id, 0));
     }
   });
 
-  rootItems.sort((a, b) => a.label.localeCompare(b.label, 'ru'));
+  //rootItems.sort((a, b) => a.label.localeCompare(b.label, 'ru'));
 
   return rootItems;
 };

@@ -1,13 +1,55 @@
-// components/TreeList/DepartmentsView.module.scss
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f5;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+  }
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+
+  &:hover {
+    background: #e0e0e0;
+  }
+}
+
 .departmentsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   padding: 20px;
+  overflow-y: auto;
 
   @media (max-width: 900px) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
   }
 
   @media (max-width: 768px) {
@@ -15,16 +57,32 @@
     gap: 12px;
     padding: 12px;
   }
+}
 
-  @media (max-width: 480px) {
-    gap: 10px;
+.divisionsGrid {
+  background: white;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 12px;
   }
 }
 
-.departmentCard {
-  background: #e3f2fd;
+.departmentCard, .divisionCard {
+  background: linear-gradient(135deg, #e8f4fd 0%, #bbdefb 100%);
   border-radius: 16px;
-  padding: 20px;
+  padding: 24px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -32,6 +90,7 @@
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   cursor: pointer;
+  position: relative;
 
   &:hover {
     transform: translateY(-4px);
@@ -42,10 +101,10 @@
     padding: 16px 12px;
     border-radius: 12px;
   }
+}
 
-  @media (max-width: 480px) {
-    padding: 12px 10px;
-  }
+.divisionCard {
+  background: #e3f2fd;
 }
 
 .cardIcon {
@@ -57,38 +116,15 @@
   svg {
     width: 32px;
     height: 32px;
-
-    @media (max-width: 768px) {
-      width: 28px;
-      height: 28px;
-    }
-
-    @media (max-width: 480px) {
-      width: 24px;
-      height: 24px;
-    }
   }
 }
 
-.iconCompany {
-  color: #9c27b0;
-}
-
-.iconDepartment {
-  color: #2196f3;
-}
-
-.iconStore {
-  color: #4caf50;
-}
-
-.iconPerson {
-  color: #ff9800;
-}
-
-.iconAddress {
-  color: #00bcd4;
-}
+.iconCompany { color: #4caf50; }
+.iconDepartment { color: #2196f3; }
+.iconDivision { color: #53b1f8; }
+.iconStore { color: #ff9800; }
+.iconPerson { color: #795548; }
+.iconAddress { color: #00bcd4; }
 
 .cardContent {
   display: flex;
@@ -97,37 +133,73 @@
   gap: 8px;
 }
 
-.departmentName {
+.departmentName, .divisionName {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
   color: #333;
   line-height: 1.3;
   word-break: break-word;
+}
 
-  @media (max-width: 768px) {
-    font-size: 14px;
-  }
+.divisionType {
+  font-size: 12px;
+  //color: #7b1fa2;
+  background: #b6dfff;
+  padding: 4px 8px;
+  border-radius: 20px;
+}
 
-  @media (max-width: 480px) {
-    font-size: 13px;
+.arrow {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  font-size: 20px;
+  color: #ccc;
+  transition: transform 0.3s ease;
+}
+
+.divisionInfo {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.infoCard {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  gap: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.infoIcon {
+  flex-shrink: 0;
+
+  svg {
+    width: 48px;
+    height: 48px;
   }
 }
 
-.departmentType {
-  font-size: 12px;
-  color: #999;
-  background: #f5f5f5;
-  padding: 4px 8px;
-  border-radius: 20px;
+.infoContent {
+  flex: 1;
 
-  @media (max-width: 768px) {
-    font-size: 10px;
-    padding: 3px 6px;
+  p {
+    margin: 0 0 12px;
+    font-size: 14px;
+    color: #333;
+
+    strong {
+      color: #666;
+      font-weight: 500;
+    }
   }
 }
 
 .emptyState {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -34,28 +34,20 @@ const PersonnelManagementWidget: React.FC<PersonnelManagementWidgetProps> = ({
   const [newPositionName, setNewPositionName] = useState('');
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
   const [loadingPositions, setLoadingPositions] = useState(false);
-  /*const [storeName, setStoreName] = useState<string>('');*/
-
 
   useEffect(() => {
+    console.log('PersonnelManagementWidget mounted with hid:', hid, 'itemName:', itemName);
     loadData();
   }, [hid]);
 
   useEffect(() => {
     if (positionsByHid && positionsByHid[hid]) {
+      console.log('Positions loaded for hid:', hid, positionsByHid[hid]);
       setPositions(positionsByHid[hid]);
     } else {
       setPositions([]);
     }
   }, [positionsByHid, hid]);
-
-/*  useEffect(() => {
-    if (itemName) {
-      setStoreName(itemName);
-    } else {
-      const state = useAppSelector((state) => state.tree);
-    }
-  }, [itemName, hid]);*/
 
   const refreshData = async () => {
     await dispatch(loadAllStaff());
@@ -182,7 +174,7 @@ const PersonnelManagementWidget: React.FC<PersonnelManagementWidgetProps> = ({
           {sortedPositions.length === 0 ? (
             <div className={styles.emptyState}>
               <Briefcase size={32} />
-              <p>Нет вакансии для этого магазина</p>
+              <p>Нет вакансий для этого подразделения</p>
               <button
                 className={styles.emptyStateButton}
                 onClick={() => setShowAddForm(true)}
@@ -200,7 +192,7 @@ const PersonnelManagementWidget: React.FC<PersonnelManagementWidgetProps> = ({
                   staff={assignedStaff}
                   allStaff={staff}
                   onUpdate={refreshData}
-                  /*storeName={storeName}*/
+                  storeName={itemName}
                 />
               );
             })

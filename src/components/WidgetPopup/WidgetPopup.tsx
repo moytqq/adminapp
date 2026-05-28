@@ -45,7 +45,15 @@ const WIDGETS_BY_TYPE: Record<TreeItemType, WidgetItem[]> = {
     },
   ],
   [TreeItemType.COMPANY]: [],
-  [TreeItemType.DEPARTMENT]: [],
+  [TreeItemType.DEPARTMENT]: [
+    {
+      id: 'department-personnel',
+      title: 'Сотрудники и вакансии',
+      description: 'Управление персоналом и вакансиями департамента',
+      type: 'personnel-management',
+      availableFor: [TreeItemType.DEPARTMENT],
+    },
+  ],
   [TreeItemType.PERSON]: [
     {
       id: 'person-1',
@@ -233,7 +241,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
         } else if (widgetType === 'store-info') {
           setActiveWidget('store');
         } else if (widgetType === 'personnel-management') {
-          if (itemType === TreeItemType.STORE) {
+          if (itemType === TreeItemType.STORE || itemType === TreeItemType.DEPARTMENT) {
             const hid = getHidFromItemId(itemId);
             const itemName = getItemNameFromTree(itemId);
             setSelectedHid(hid);
@@ -296,7 +304,16 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
       };
 
       const item = findItem(treeItems);
-      return item?.label || '';
+      if (item) {
+        if (item.type === TreeItemType.DEPARTMENT && item.data?.departmentName) {
+          return item.data.departmentName;
+        }
+        if (item.type === TreeItemType.DEPARTMENT && item.data?.divisionName) {
+          return item.data.divisionName;
+        }
+        return item.label || '';
+      }
+      return '';
     };
 
     useEffect(() => {
