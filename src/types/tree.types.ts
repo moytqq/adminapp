@@ -21,6 +21,8 @@ export interface BaseTreeItem {
   description?: string;
 }
 
+export type CompanyChildItem = DepartmentItem | PersonItem;
+
 export enum TreeItemType {
   COMPANY = 'Company',
   DEPARTMENT = 'Department',
@@ -45,8 +47,9 @@ export interface CompanyItem extends BaseTreeItem {
     totalRevenue?: number;
     employeeCount?: number;
   };
-  children?: (DepartmentItem | PersonItem)[];
+  children?: CompanyChildItem[];
 }
+
 
 export interface DepartmentItem extends BaseTreeItem {
   type: TreeItemType.DEPARTMENT;
@@ -62,6 +65,8 @@ export interface DepartmentItem extends BaseTreeItem {
   };
   children?: DepartmentChildItem[];
 }
+
+export type DivisionChildItem = PersonItem
 
 export interface StoreItem extends BaseTreeItem {
   type: TreeItemType.STORE;
@@ -112,6 +117,7 @@ export interface AddressItem extends BaseTreeItem {
     storeCount?: number;
     description?: string;
   };
+  children?: AddressChildItem[];
 }
 
 export interface DivisionItem extends BaseTreeItem {
@@ -124,9 +130,12 @@ export interface DivisionItem extends BaseTreeItem {
     employeeCount?: number;
     originalId?: number;
   };
+  children?: DivisionChildItem[];
 }
 
-export type DepartmentChildItem = DepartmentItem | DivisionItem | PersonItem | StoreItem;
+export type AddressChildItem = StoreItem
+
+export type DepartmentChildItem =  DivisionItem | PersonItem | StoreItem;
 
 export type TreeItem = CompanyItem | DepartmentItem | DivisionItem | StoreItem | PersonItem | AddressItem;
 
