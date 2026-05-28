@@ -126,7 +126,7 @@ const DepartmentsView: React.FC<DepartmentsViewProps> = ({ items }) => {
     return (
       <div className={styles.container}>
         <div className={styles.header}>
-          <button className={styles.backButton} onClick={handleBackToDivisions}>
+          <button className={"typeSelectorBackButtonGray"} onClick={handleBackToDivisions}>
             <ArrowLeft size={20} />
             <span>Назад</span>
           </button>
@@ -154,7 +154,7 @@ const DepartmentsView: React.FC<DepartmentsViewProps> = ({ items }) => {
     return (
       <div className={styles.container}>
         <div className={styles.header}>
-          <button className={styles.backButton} onClick={handleBackToDepartments}>
+          <button className={"typeSelectorBackButtonGray"} onClick={handleBackToDepartments}>
             <ArrowLeft size={20} />
             <span>Назад</span>
           </button>

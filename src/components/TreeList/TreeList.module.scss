@@ -5,9 +5,7 @@
   margin: 0 3px;
   position: relative;
 
-  &:first-child {
-    border-top: 1px solid #e1e1e1;
-  }
+
 }
 
 .treeItem {
@@ -400,7 +398,7 @@
 }
 
 .headerTop {
-  margin: 15px 20px;
+  border-bottom: 1px solid #e1e1e1;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -408,8 +406,13 @@
   flex-wrap: nowrap;
 
   @media (max-width: 767px) {
-    margin: 10px 15px;
+    margin-top: 10px;
+    padding: 0 15px 10px 15px;
     gap: 8px;
+  }
+  @media (min-width: 767px) {
+    margin-top: 15px;
+    padding: 0 20px 15px 20px;
   }
 }
 
