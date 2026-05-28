@@ -11,7 +11,6 @@ import {
 import { fetchMockTreeData, transformTreeDataByViewMode } from '@/utils/treeHelpers';
 import { treeApi } from '@/services/api';
 import { buildTreeFromApiData, enhanceTreeDataWithMockInfo, filterDepartmentsAndDescendants } from '@/utils/apiTransformers';
-import { applyCustomSortToTree } from '@/utils/customSort';
 import { transformToAddressView } from '@/utils/addressTransformer';
 
 const TREE_STORAGE_KEY = 'company-tree-data';
@@ -67,7 +66,6 @@ export const loadTreeData = createAsyncThunk(
       if (viewMode === 'hierarchy') {
         treeData = buildTreeFromApiData(apiData);
         treeData = enhanceTreeDataWithMockInfo(treeData);
-        treeData = applyCustomSortToTree(treeData);
       } else {
         treeData = buildTreeFromApiData(apiData);
         if (viewMode === 'addresses') {
