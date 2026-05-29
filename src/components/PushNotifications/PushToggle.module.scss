@@ -1,0 +1,27 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: white;
+  color: #666;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) {
+    border-color: #a5b4fc;
+    background: #f5f3ff;
+    color: #4f46e5;
+  }
+
+  &.active {
+    background: #eef2ff;
+    border-color: #a5b4fc;
+    color: #4338ca;
+  }
+
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
