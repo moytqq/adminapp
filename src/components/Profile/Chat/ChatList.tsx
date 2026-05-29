@@ -48,10 +48,13 @@ const ChatItem = memo(({
   };
 
   const getLastMessagePreview = () => {
-    if (typeof chat.last_message === 'string') {
-      return chat.last_message;
-    }
-    return chat.last_message.message || '';
+    const text = typeof chat.last_message === 'string'
+      ? chat.last_message
+      : (chat.last_message.message || '');
+
+    const attachmentMatch = text.match(/<attachment[^>]+name="([^"]+)"/);
+    if (attachmentMatch) return `📎 ${attachmentMatch[1]}`;
+    return text;
   };
 
   const getLastMessageTime = () => {
