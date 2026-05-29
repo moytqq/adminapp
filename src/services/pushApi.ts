@@ -32,6 +32,10 @@ export const pushApi = {
     const reg = await navigator.serviceWorker.register('/sw.js');
     await navigator.serviceWorker.ready;
 
+    // Сбросить старую подписку (например после смены VAPID-ключей)
+    const existing = await reg.pushManager.getSubscription();
+    if (existing) await existing.unsubscribe();
+
     const publicKey = await pushApi.getVapidKey();
     const subscription = await reg.pushManager.subscribe({
       userVisibleOnly: true,
