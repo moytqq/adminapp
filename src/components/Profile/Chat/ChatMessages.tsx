@@ -5,7 +5,7 @@ import { chatApi, ChatMessage, ChatDetails, ChatUser } from '@/services/chatApi'
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import styles from './ChatMessages.module.scss';
-import { Send, Check, CheckCheck, ArrowLeft, Paperclip, X, ImageOff } from 'lucide-react';
+import { Send, Check, CheckCheck, ArrowLeft, Paperclip, X, ImageOff, File } from 'lucide-react';
 
 const FILES_URL = process.env.NEXT_PUBLIC_FILES_URL ?? '';
 
@@ -143,9 +143,10 @@ const ChatMessages = memo(({
 
   // attachment state
   const [pendingFile, setPendingFile] = useState<File | null>(null);
-  const [pendingPreview, setPendingPreview] = useState<string | null>(null);
+  const [pendingPreview, setPendingPreview] = useState<string | null>(null); // только для картинок
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileAnyRef = useRef<HTMLInputElement>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -234,8 +235,11 @@ const ChatMessages = memo(({
     const file = e.target.files?.[0];
     if (!file) return;
     setPendingFile(file);
-    const url = URL.createObjectURL(file);
-    setPendingPreview(url);
+    if (file.type.startsWith('image/')) {
+      setPendingPreview(URL.createObjectURL(file));
+    } else {
+      setPendingPreview(null);
+    }
     e.target.value = '';
   };
 
@@ -367,9 +371,12 @@ const ChatMessages = memo(({
       </div>
 
       {/* Превью прикреплённого файла */}
-      {pendingPreview && (
+      {pendingFile && (
         <div className={styles.pendingAttachment}>
-          <img src={pendingPreview} alt="preview" className={styles.pendingImg} />
+          {pendingPreview
+            ? <img src={pendingPreview} alt="preview" className={styles.pendingImg} />
+            : <span className={styles.pendingFileName}>📎 {pendingFile.name}</span>
+          }
           <button className={styles.removePending} onClick={clearPending} title="Убрать">
             <X size={16} />
           </button>
@@ -377,14 +384,9 @@ const ChatMessages = memo(({
       )}
 
       <div className={styles.inputArea}>
-        {/* Скрытый input для файла */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          style={{ display: 'none' }}
-          onChange={handleFileChange}
-        />
+        {/* Скрытые inputs для файлов */}
+        <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
+        <input ref={fileAnyRef} type="file" style={{ display: 'none' }} onChange={handleFileChange} />
         <button
           className={styles.attachButton}
           onClick={() => fileInputRef.current?.click()}
@@ -392,6 +394,14 @@ const ChatMessages = memo(({
           title="Прикрепить изображение"
         >
           <Paperclip size={20} />
+        </button>
+        <button
+          className={styles.attachButton}
+          onClick={() => fileAnyRef.current?.click()}
+          disabled={isBusy}
+          title="Прикрепить файл"
+        >
+          <File size={20} />
         </button>
 
         <input

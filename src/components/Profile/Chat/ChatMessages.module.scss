@@ -315,6 +315,15 @@
   display: block;
 }
 
+.pendingFileName {
+  font-size: 13px;
+  color: #555;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .removePending {
   position: absolute;
   top: 4px;
