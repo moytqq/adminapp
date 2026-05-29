@@ -56,7 +56,6 @@ const ChatItem = memo(({
       const nameMatch = text.match(/name="([^"]+)"/);
       const ext = nameMatch?.[1].split('.').pop()?.toLowerCase() ?? '';
       if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return '📷 Фото';
-      if (['mp4', 'mov', 'avi'].includes(ext)) return '🎥 Видео';
       return '📎 Вложение';
     }
     return text;
