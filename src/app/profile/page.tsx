@@ -7,6 +7,7 @@ import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
 import SideMenu from '@/components/SideMenu/SideMenu';
 import PersonalView from '@/components/Profile/Personal/PersonalView';
 import PageTitle from '@/components/PageTitle/PageTitle';
+import PushToggle from '@/components/PushNotifications/PushToggle';
 
 const ProfilePage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -28,6 +29,7 @@ const ProfilePage = () => {
             </button>
             <h1 className={styles.title}>Личный кабинет</h1>
           </div>
+          <PushToggle />
         </header>
 
         <main className={styles.content}>
