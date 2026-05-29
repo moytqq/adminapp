@@ -12,6 +12,12 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Добавляем отступ снизу ко всем <main>, чтобы последний элемент
+   не прижимался вплотную к краю экрана (и прятался за home indicator на iPhone) */
+main {
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+}
+
 button {
   font-family: inherit;
 }
