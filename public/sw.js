@@ -1,6 +1,3 @@
-import { NextResponse } from 'next/server';
-
-const SW_CONTENT = `
 self.addEventListener('push', (event) => {
   if (!event.data) return;
   const { title, body } = event.data.json();
@@ -24,14 +21,3 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
-`.trim();
-
-export async function GET() {
-  return new NextResponse(SW_CONTENT, {
-    headers: {
-      'Content-Type': 'application/javascript',
-      'Service-Worker-Allowed': '/',
-      'Cache-Control': 'no-cache',
-    },
-  });
-}
