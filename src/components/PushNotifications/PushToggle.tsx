@@ -9,6 +9,7 @@ export default function PushToggle() {
   const [supported, setSupported] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
@@ -24,6 +25,7 @@ export default function PushToggle() {
 
   const toggle = async () => {
     setLoading(true);
+    setError(null);
     try {
       if (subscribed) {
         await pushApi.unsubscribe();
@@ -32,6 +34,9 @@ export default function PushToggle() {
         const ok = await pushApi.subscribe();
         setSubscribed(ok);
       }
+    } catch (e: any) {
+      console.error('Push toggle error:', e);
+      setError(e?.message || 'Ошибка');
     } finally {
       setLoading(false);
     }
@@ -40,14 +45,17 @@ export default function PushToggle() {
   if (!supported) return null;
 
   return (
-    <button
-      className={`${styles.btn} ${subscribed ? styles.active : ''}`}
-      onClick={toggle}
-      disabled={loading}
-      title={subscribed ? 'Отключить уведомления' : 'Включить уведомления'}
-    >
-      {subscribed ? <Bell size={16} /> : <BellOff size={16} />}
-      <span>{loading ? '...' : subscribed ? 'Уведомления вкл.' : 'Уведомления выкл.'}</span>
-    </button>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+      <button
+        className={`${styles.btn} ${subscribed ? styles.active : ''}`}
+        onClick={toggle}
+        disabled={loading}
+        title={subscribed ? 'Отключить уведомления' : 'Включить уведомления'}
+      >
+        {subscribed ? <Bell size={16} /> : <BellOff size={16} />}
+        <span>{loading ? '...' : subscribed ? 'Уведомления вкл.' : 'Уведомления выкл.'}</span>
+      </button>
+      {error && <span style={{ fontSize: 11, color: '#e53e3e' }}>{error}</span>}
+    </div>
   );
 }
