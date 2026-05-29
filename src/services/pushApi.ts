@@ -39,11 +39,16 @@ export const pushApi = {
     });
 
     const { endpoint, keys } = subscription.toJSON() as any;
-    await api.post('/push/subscribe', {
-      endpoint,
-      p256dh: keys.p256dh,
-      auth: keys.auth,
-    });
+    try {
+      await api.post('/push/subscribe', {
+        endpoint,
+        p256dh: keys.p256dh,
+        auth: keys.auth,
+      });
+    } catch (err) {
+      await subscription.unsubscribe();
+      throw err;
+    }
     return true;
   },
 
