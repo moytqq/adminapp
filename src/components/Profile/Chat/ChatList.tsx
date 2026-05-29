@@ -52,8 +52,13 @@ const ChatItem = memo(({
       ? chat.last_message
       : (chat.last_message.message || '');
 
-    const attachmentMatch = text.match(/<attachment[^>]+name="([^"]+)"/);
-    if (attachmentMatch) return `📎 ${attachmentMatch[1]}`;
+    if (/<attachment/.test(text)) {
+      const nameMatch = text.match(/name="([^"]+)"/);
+      const ext = nameMatch?.[1].split('.').pop()?.toLowerCase() ?? '';
+      if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return '📷 Фото';
+      if (['mp4', 'mov', 'avi'].includes(ext)) return '🎥 Видео';
+      return '📎 Вложение';
+    }
     return text;
   };
 
