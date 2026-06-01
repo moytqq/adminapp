@@ -5,6 +5,7 @@ import './globals.scss';
 import { Provider } from 'react-redux';
 import { makeStore } from '@/store/store';
 import AuthInitializer from '@/components/AuthInitializer/AuthInitializer';
+import PWAInstall from '@/components/PWAInstall/PWAInstall';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -31,6 +32,7 @@ export default function RootLayout({
     <body className={inter.className}>
     <Provider store={store}>
       <AuthInitializer />
+      <PWAInstall />
       {children}
     </Provider>
     </body>
