@@ -153,6 +153,15 @@ export const transformToAddressView = (
     storesByAddress.get(addressId)!.push(store);
   });
 
+  // При активном фильтре — плоский список сторов без адресов
+  if (storeFilter) {
+    const flatStores: StoreItem[] = filteredStoreItems.map(storeApiItem =>
+      ({ ...createStoreItem(storeApiItem, storeApiItem.parent_id), level: 0 })
+    );
+    flatStores.sort((a, b) => a.label.localeCompare(b.label, 'ru'));
+    return flatStores;
+  }
+
   const addressItems: AddressItem[] = addressApiItems.map(addressApiItem => {
     const addressStores = storesByAddress.get(addressApiItem.id) || [];
 
@@ -184,9 +193,7 @@ export const transformToAddressView = (
     return addressItem;
   });
 
-  const visibleAddresses = addressItems;
+  addressItems.sort((a, b) => a.label.localeCompare(b.label));
 
-  visibleAddresses.sort((a, b) => a.label.localeCompare(b.label));
-
-  return visibleAddresses;
+  return addressItems;
 };

@@ -262,7 +262,21 @@ export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
     }
   });
 
-  //rootItems.sort((a, b) => a.label.localeCompare(b.label, 'ru'));
+  // Дублируем "Руководство" на верхний уровень (без изменения иерархии)
+  const findRukovodstvo = (items: TreeItem[]): TreeItem | undefined => {
+    for (const item of items) {
+      if (item.label?.toLowerCase().includes('руководство')) return item;
+      if (item.children) {
+        const found = findRukovodstvo(item.children);
+        if (found) return found;
+      }
+    }
+    return undefined;
+  };
+  const rukovodstvo = findRukovodstvo(rootItems);
+  if (rukovodstvo) {
+    rootItems.unshift({ ...rukovodstvo, level: 0 });
+  }
 
   return rootItems;
 };
