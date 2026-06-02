@@ -185,7 +185,7 @@ const DepartmentsView: React.FC<DepartmentsViewProps> = ({ items }) => {
     <div className={styles.departmentsGrid}>
       {rukovodstvo && (
         <div
-          className={`${styles.departmentCard} ${styles.rukovodstvoCard}`}
+          className={styles.departmentCard}
           onClick={() => setLevel({
             view: 'employees',
             title: rukovodstvo.data.divisionName,
