@@ -72,28 +72,12 @@ const TreeItem: React.FC<TreeItemProps> = ({
   }, [showWidgets]);
 
   const getIndentStyle = (itemLevel: number) => {
-    const basePadding = 10;
-    let levelPadding = 0;
-
-    switch (itemLevel) {
-      case 1:
-        levelPadding = 10;
-        break;
-      case 2:
-        levelPadding = 10;
-        break;
-      case 3:
-        levelPadding = 15;
-        break;
-      case 4:
-        levelPadding = 19;
-        break;
-      default:
-        levelPadding = 0;
-    }
-
+    // Каждый уровень добавляет одинаковый отступ 24px.
+    // level 0 (департаменты) = 10px, level 1 = 34px, level 2 = 58px и т.д.
+    const INDENT_STEP = 24;
+    const BASE = 10;
     return {
-      paddingLeft: `${basePadding + levelPadding}px`,
+      paddingLeft: `${BASE + Math.max(0, itemLevel) * INDENT_STEP}px`,
     } as React.CSSProperties;
   };
 

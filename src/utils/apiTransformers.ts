@@ -252,9 +252,13 @@ export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
     return item;
   };
 
+  // Строим дерево от Company, но отображаем только его детей (департаменты) как корневые
   Array.from(itemsMap.values()).forEach(item => {
     if (item.type === TreeItemType.COMPANY) {
-      rootItems.push(buildTreeRecursive(item.id, 0));
+      const companyNode = buildTreeRecursive(item.id, -1);
+      if (companyNode.children) {
+        companyNode.children.forEach(child => rootItems.push(child));
+      }
     }
   });
 

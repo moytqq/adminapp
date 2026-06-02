@@ -103,20 +103,46 @@ const treeSlice = createSlice({
   initialState,
   reducers: {
     toggleExpand: (state, action: PayloadAction<string>) => {
+      const targetId = action.payload;
+
+      // Рекурсивно сворачивает элемент и всех его потомков
+      const collapseAll = (item: TreeItem): TreeItem => ({
+        ...item,
+        isExpanded: false,
+        children: item.children?.map(collapseAll),
+      } as TreeItem);
+
+      // Ищем целевой элемент на текущем уровне items.
+      // Если он здесь — переключаем его и при раскрытии сворачиваем всех соседей.
+      // Если не здесь — уходим глубже.
       const toggleItem = (items: TreeItem[]): TreeItem[] => {
+        const targetIsHere = items.some(item => item.id === targetId);
+
+        if (targetIsHere) {
+          const target = items.find(item => item.id === targetId)!;
+          const expanding = !target.isExpanded;
+
+          return items.map(item => {
+            if (item.id === targetId) {
+              return { ...item, isExpanded: expanding } as TreeItem;
+            }
+            // При раскрытии — свернуть всех соседей (accordion)
+            if (expanding) {
+              return collapseAll(item);
+            }
+            return item;
+          });
+        }
+
+        // Цель глубже — рекурсируем только в ветки, содержащие цель
         return items.map(item => {
-          if (item.id === action.payload) {
-            return { ...item, isExpanded: !item.isExpanded } as TreeItem;
-          }
           if (item.children) {
-            return {
-              ...item,
-              children: toggleItem(item.children),
-            } as TreeItem;
+            return { ...item, children: toggleItem(item.children) } as TreeItem;
           }
           return item;
         });
       };
+
       state.items = toggleItem(state.items);
       saveTreeToLocalStorage(state.items);
     },
