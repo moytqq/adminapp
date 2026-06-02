@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
 import SideMenu from '@/components/SideMenu/SideMenu';
@@ -10,7 +10,7 @@ import styles from './chat.module.scss';
 import { Menu } from 'lucide-react';
 import stylesSideMenu from '@/app/main/main.module.scss';
 
-const ChatPage = () => {
+const ChatContent = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const searchParams = useSearchParams();
   const chatIdParam = searchParams.get('chatId');
@@ -42,5 +42,11 @@ const ChatPage = () => {
     </ProtectedRoute>
   );
 };
+
+const ChatPage = () => (
+  <Suspense>
+    <ChatContent />
+  </Suspense>
+);
 
 export default ChatPage;
