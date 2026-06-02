@@ -1,6 +1,6 @@
 'use client';
 
-import React, { forwardRef, useEffect, useState, useRef } from 'react';
+import React, { forwardRef, useEffect, useState, useRef, useCallback } from 'react';
 import styles from './WidgetPopup.module.scss';
 import { FavoriteWidget, TreeItemType, WidgetItem } from '@/types/tree.types';
 import PersonInfoWidget from '../PersonInfoWidget/PersonInfoWidget';
@@ -10,6 +10,8 @@ import StoreInfoWidget from '@/components/StoreInfoWidget/StoreInfoWidget';
 import { useAppSelector } from '@/store/hooks/hooks';
 import StoreFinanceWidget from '@/components/StoreFinanceWidget/StoreFinanceWidget';
 import PersonnelManagementWidget from '../PersonnelManagementWidget/PersonnelManagementWidget';
+import { chatApi } from '@/services/chatApi';
+import { useRouter } from 'next/navigation';
 
 interface WidgetPopupProps {
   itemId: string;
@@ -45,21 +47,20 @@ const WIDGETS_BY_TYPE: Record<TreeItemType, WidgetItem[]> = {
     },
   ],
   [TreeItemType.COMPANY]: [],
-  [TreeItemType.DEPARTMENT]: [
-    {
-      id: 'department-personnel',
-      title: 'Сотрудники и вакансии',
-      description: 'Управление персоналом и вакансиями департамента',
-      type: 'personnel-management',
-      availableFor: [TreeItemType.DEPARTMENT],
-    },
-  ],
+  [TreeItemType.DEPARTMENT]: [],
   [TreeItemType.PERSON]: [
     {
       id: 'person-1',
       title: 'Информация о сотруднике',
       description: 'Основные данные и контакты сотрудника',
       type: 'person-info',
+      availableFor: [TreeItemType.PERSON],
+    },
+    {
+      id: 'person-chat',
+      title: 'Написать в чате',
+      description: 'Открыть или создать чат с этим сотрудником',
+      type: 'person-chat',
       availableFor: [TreeItemType.PERSON],
     },
   ],
@@ -75,6 +76,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
     const [selectedHid, setSelectedHid] = useState<string>('');
     const [selectedItemName, setSelectedItemName] = useState<string>('');
     const [favoriteWidgets, setFavoriteWidgets] = useState<FavoriteWidget[]>([]);
+    const [chatLoading, setChatLoading] = useState(false);
     const popupRef = useRef<HTMLDivElement>(null);
     const widgetContainerRef = useRef<HTMLDivElement>(null);
     const [activeWidget, setActiveWidget] = useState<'person' | 'store' | 'personnel' | 'finance' | null>(null);
@@ -83,6 +85,8 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
     const availableWidgets = WIDGETS_BY_TYPE[itemType] || [];
 
     const treeItems = useAppSelector((state) => state.tree.items);
+    const currentUserId = useAppSelector((state) => state.auth.userId);
+    const router = useRouter();
 
     useEffect(() => {
       const checkMobile = () => {
@@ -230,8 +234,45 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
       onClose();
     };
 
+    const handleOpenChat = useCallback(async (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (chatLoading) return;
+      setChatLoading(true);
+      try {
+        const personHid = parseInt(itemId, 10);
+        const myHid = currentUserId;
+        if (!myHid || !personHid || myHid === personHid) return;
+
+        const chats = await chatApi.getChatList();
+        const existing = chats.find(
+          c => (c.hid_from === myHid && c.hid_to === personHid) ||
+               (c.hid_from === personHid && c.hid_to === myHid)
+        );
+
+        if (existing) {
+          onClose();
+          router.push(`/chat?chatId=${existing.id}`);
+        } else {
+          const result = await chatApi.createChat(myHid, personHid);
+          if (result.status === 'success' && result.data?.id) {
+            onClose();
+            router.push(`/chat?chatId=${result.data.id}`);
+          }
+        }
+      } catch (err) {
+        console.error('Error opening chat:', err);
+      } finally {
+        setChatLoading(false);
+      }
+    }, [itemId, currentUserId, chatLoading, onClose, router]);
+
     const handleWidgetClick = (widgetType: string, e: React.MouseEvent) => {
       e.stopPropagation();
+
+      if (widgetType === 'person-chat') {
+        handleOpenChat(e);
+        return;
+      }
 
       setActiveWidget(null);
 
@@ -424,6 +465,7 @@ const WidgetPopup = forwardRef<HTMLDivElement, WidgetPopupProps>(
               itemName={selectedItemName}
               onClose={() => setActiveWidget(null)}
               isMobile={isMobile}
+              hideStaffCount={itemType === TreeItemType.STORE}
             />
           </div>,
           document.body,

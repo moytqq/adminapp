@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
 import SideMenu from '@/components/SideMenu/SideMenu';
 import ChatView from '@/components/Profile/Chat/ChatView';
@@ -12,7 +12,9 @@ import stylesSideMenu from '@/app/main/main.module.scss';
 
 const ChatPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const router = useRouter();
+  const searchParams = useSearchParams();
+  const chatIdParam = searchParams.get('chatId');
+  const initialChatId = chatIdParam ? parseInt(chatIdParam, 10) : undefined;
 
   return (
     <ProtectedRoute requiredFlags={['CHAT', 'ADMIN']} redirectTo="/main">
@@ -34,7 +36,7 @@ const ChatPage = () => {
         </header>
 
         <main className={styles.content}>
-          <ChatView />
+          <ChatView initialChatId={initialChatId} />
         </main>
       </div>
     </ProtectedRoute>

@@ -10,13 +10,15 @@ import { MessageCircle, Plus } from 'lucide-react';
 interface ChatViewProps {
   chatType?: string;
   isInProfile?: boolean;
+  initialChatId?: number;
 }
 
 const ChatView: React.FC<ChatViewProps> = ({
                                              chatType = 'write',
-                                             isInProfile = false
+                                             isInProfile = false,
+                                             initialChatId,
                                            }) => {
-  const [selectedChat, setSelectedChat] = useState<number | undefined>();
+  const [selectedChat, setSelectedChat] = useState<number | undefined>(initialChatId);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 

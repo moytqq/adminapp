@@ -262,7 +262,7 @@ export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
     }
   });
 
-  // Дублируем "Руководство" на верхний уровень (без изменения иерархии)
+  // Дублируем "Руководство" на верхний уровень, убираем из вложенных уровней
   const findRukovodstvo = (items: TreeItem[]): TreeItem | undefined => {
     for (const item of items) {
       if (item.label?.toLowerCase().includes('руководство')) return item;
@@ -273,9 +273,23 @@ export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
     }
     return undefined;
   };
+  const removeRukovodstvo = (items: TreeItem[]): TreeItem[] =>
+    items
+      .filter(item => !item.label?.toLowerCase().includes('руководство'))
+      .map(item => item.children
+        ? { ...item, children: removeRukovodstvo(item.children) }
+        : item
+      );
+
   const rukovodstvo = findRukovodstvo(rootItems);
   if (rukovodstvo) {
     rootItems.unshift({ ...rukovodstvo, level: 0 });
+    // Убираем из вложенных уровней (начиная с индекса 1 — оригинальные департаменты)
+    for (let i = 1; i < rootItems.length; i++) {
+      if (rootItems[i].children) {
+        rootItems[i] = { ...rootItems[i], children: removeRukovodstvo(rootItems[i].children!) };
+      }
+    }
   }
 
   return rootItems;

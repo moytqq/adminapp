@@ -19,6 +19,7 @@ interface PersonnelManagementWidgetProps {
   itemName?: string;
   onClose: () => void;
   isMobile?: boolean | null;
+  hideStaffCount?: boolean;
 }
 
 const PersonnelManagementWidget: React.FC<PersonnelManagementWidgetProps> = ({
@@ -26,6 +27,7 @@ const PersonnelManagementWidget: React.FC<PersonnelManagementWidgetProps> = ({
                                                                                itemName,
                                                                                onClose,
                                                                                isMobile,
+                                                                               hideStaffCount = false,
                                                                              }) => {
   const dispatch = useAppDispatch();
   const { positionsByHid, staff, loading } = useAppSelector((state) => state.personal);
@@ -116,10 +118,12 @@ const PersonnelManagementWidget: React.FC<PersonnelManagementWidgetProps> = ({
             <span className={styles.statValue}>{occupiedPositions.length}</span>
             <span className={styles.statLabel}>Занято</span>
           </div>
-          <div className={styles.statItem}>
-            <span className={styles.statValue}>{staff.length}</span>
-            <span className={styles.statLabel}>Сотрудников</span>
-          </div>
+          {!hideStaffCount && (
+            <div className={styles.statItem}>
+              <span className={styles.statValue}>{staff.length}</span>
+              <span className={styles.statLabel}>Сотрудников</span>
+            </div>
+          )}
         </div>
 
         <div className={styles.actions}>
