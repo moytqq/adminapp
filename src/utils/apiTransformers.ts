@@ -276,10 +276,10 @@ export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
   const removeRukovodstvo = (items: TreeItem[]): TreeItem[] =>
     items
       .filter(item => !item.label?.toLowerCase().includes('руководство'))
-      .map(item => item.children
-        ? { ...item, children: removeRukovodstvo(item.children) }
+      .map(item => (item.children
+        ? ({ ...item, children: removeRukovodstvo(item.children) } as TreeItem)
         : item
-      );
+      ));
 
   const rukovodstvo = findRukovodstvo(rootItems);
   if (rukovodstvo) {
@@ -287,7 +287,7 @@ export const buildTreeFromApiData = (apiItems: ApiTreeItem[]): TreeItem[] => {
     // Убираем из вложенных уровней (начиная с индекса 1 — оригинальные департаменты)
     for (let i = 1; i < rootItems.length; i++) {
       if (rootItems[i].children) {
-        rootItems[i] = { ...rootItems[i], children: removeRukovodstvo(rootItems[i].children!) };
+        rootItems[i] = { ...rootItems[i], children: removeRukovodstvo(rootItems[i].children!) } as TreeItem;
       }
     }
   }
