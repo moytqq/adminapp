@@ -226,3 +226,43 @@
 .emptyIcon {
   color: #ccc;
 }
+
+.rukovodstvoCard {
+  background: linear-gradient(135deg, #fce4ec 0%, #f48fb1 100%);
+  grid-column: 1 / -1;
+
+  @media (min-width: 600px) {
+    grid-column: span 1;
+  }
+}
+
+.employeeCard {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+  .cardIcon {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .cardContent {
+    align-items: flex-start;
+    text-align: left;
+    gap: 4px;
+  }
+
+  .divisionName {
+    font-size: 14px;
+  }
+
+  .divisionType {
+    font-size: 11px;
+    background: #f0f0f0;
+    color: #666;
+  }
+}

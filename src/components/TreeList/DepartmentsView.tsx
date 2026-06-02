@@ -1,13 +1,39 @@
 'use client';
 
 import React, { useState } from 'react';
-import { TreeItem, TreeItemType, DepartmentItem, DivisionItem } from '@/types/tree.types';
-import { Building2, Users, Store, User, MapPin, ArrowLeft } from 'lucide-react';
+import { TreeItem, TreeItemType, DepartmentItem, DivisionItem, PersonItem } from '@/types/tree.types';
+import { Building2, Users, User, ArrowLeft } from 'lucide-react';
 import styles from './DepartmentsView.module.scss';
 
 interface DepartmentsViewProps {
   items: TreeItem[];
 }
+
+type NavLevel =
+  | { view: 'departments' }
+  | { view: 'divisions'; department: DepartmentItem }
+  | { view: 'employees'; title: string; nodeId: string; back: NavLevel };
+
+const isDepartmentItem = (item: TreeItem): item is DepartmentItem =>
+  item.type === TreeItemType.DEPARTMENT && (item as any).divisionType !== 'division';
+
+const isDivisionItem = (item: TreeItem): item is DivisionItem =>
+  item.type === TreeItemType.DEPARTMENT && (item as any).divisionType === 'division';
+
+const findNode = (items: TreeItem[], id: string): TreeItem | undefined => {
+  for (const item of items) {
+    if (item.id === id) return item;
+    if (item.children) {
+      const found = findNode(item.children, id);
+      if (found) return found;
+    }
+  }
+};
+
+const getPersonChildren = (items: TreeItem[], nodeId: string): PersonItem[] => {
+  const node = findNode(items, nodeId);
+  return (node?.children?.filter(c => c.type === TreeItemType.PERSON) ?? []) as PersonItem[];
+};
 
 const DEPARTMENT_ORDER = [
   'Департамент РАЗВИТИЯ',
@@ -16,168 +42,124 @@ const DEPARTMENT_ORDER = [
   'ФИНАНСОВЫЙ Департамент',
   'ИНЖЕНЕРНЫЙ Департамент',
   'Департамент ПРОДАЖ',
+  'Департамент ЗАКУПОК',
 ];
 
-const getDepartmentIcon = (type: TreeItemType, divisionType?: string) => {
-  if (divisionType === 'division') {
-    return <Users size={32} className={styles.iconDivision} />;
-  }
-  switch (type) {
-    case TreeItemType.COMPANY:
-      return <Building2 size={32} className={styles.iconCompany} />;
-    case TreeItemType.DEPARTMENT:
-      return <Users size={32} className={styles.iconDepartment} />;
-    case TreeItemType.STORE:
-      return <Store size={32} className={styles.iconStore} />;
-    case TreeItemType.PERSON:
-      return <User size={32} className={styles.iconPerson} />;
-    case TreeItemType.ADDRESS:
-      return <MapPin size={32} className={styles.iconAddress} />;
-    default:
-      return <Building2 size={32} className={styles.iconCompany} />;
-  }
-};
-
-const isDepartmentItem = (item: TreeItem): item is DepartmentItem => {
-  return item.type === TreeItemType.DEPARTMENT &&
-    !('divisionType' in item && (item as any).divisionType === 'division');
-};
-
-const isDivisionItem = (item: TreeItem): item is DivisionItem => {
-  return item.type === TreeItemType.DEPARTMENT &&
-    'divisionType' in item && (item as any).divisionType === 'division';
-};
-
-const sortDepartmentsByOrder = (departments: DepartmentItem[]): DepartmentItem[] => {
-  return [...departments].sort((a, b) => {
-    const indexA = DEPARTMENT_ORDER.indexOf(a.data.departmentName);
-    const indexB = DEPARTMENT_ORDER.indexOf(b.data.departmentName);
-
-    if (indexA !== -1 && indexB !== -1) {
-      return indexA - indexB;
-    }
-    if (indexA !== -1) return -1;
-    if (indexB !== -1) return 1;
-    return a.data.departmentName.localeCompare(b.data.departmentName);
-  });
-};
-
 const DepartmentsView: React.FC<DepartmentsViewProps> = ({ items }) => {
-  const [selectedDepartment, setSelectedDepartment] = useState<DepartmentItem | null>(null);
-  const [selectedDivision, setSelectedDivision] = useState<DivisionItem | null>(null);
+  const [level, setLevel] = useState<NavLevel>({ view: 'departments' });
 
+  // Руководство — первый элемент верхнего уровня с divisionType='division' и 'руководство' в названии
+  const rukovodstvo = items.find(
+    item => isDivisionItem(item) && item.label?.toLowerCase().includes('руководство'),
+  ) as DivisionItem | undefined;
+
+  // Все департаменты из дерева
   const departments: DepartmentItem[] = [];
-
-  const extractDepartments = (treeItems: TreeItem[]) => {
+  const extractDepts = (treeItems: TreeItem[]) => {
     for (const item of treeItems) {
-      if (isDepartmentItem(item)) {
-        departments.push(item);
-      }
-      if (item.children && item.children.length > 0) {
-        extractDepartments(item.children);
-      }
+      if (isDepartmentItem(item)) departments.push(item);
+      if (item.children) extractDepts(item.children);
     }
   };
+  extractDepts(items);
 
-  extractDepartments(items);
+  const sortedDepts = [...departments].sort((a, b) => {
+    const ia = DEPARTMENT_ORDER.indexOf(a.data.departmentName);
+    const ib = DEPARTMENT_ORDER.indexOf(b.data.departmentName);
+    if (ia !== -1 && ib !== -1) return ia - ib;
+    if (ia !== -1) return -1;
+    if (ib !== -1) return 1;
+    return a.data.departmentName.localeCompare(b.data.departmentName, 'ru');
+  });
 
-  const sortedDepartments = sortDepartmentsByOrder(departments);
-
-  const getDivisionsForDepartment = (departmentId: string): DivisionItem[] => {
-    const divisions: DivisionItem[] = [];
-
-    const findDivisions = (treeItems: TreeItem[]) => {
+  // Отделы департамента
+  const getDivisions = (deptId: string): DivisionItem[] => {
+    const divs: DivisionItem[] = [];
+    const find = (treeItems: TreeItem[]) => {
       for (const item of treeItems) {
-        if (isDivisionItem(item) && item.parentId === departmentId) {
-          divisions.push(item);
-        }
-        if (item.children && item.children.length > 0) {
-          findDivisions(item.children);
-        }
+        if (isDivisionItem(item) && item.parentId === deptId) divs.push(item);
+        if (item.children) find(item.children);
       }
     };
+    find(items);
+    return divs.sort((a, b) => a.data.divisionName.localeCompare(b.data.divisionName, 'ru'));
+  };
 
-    findDivisions(items);
-
-    return divisions.sort((a, b) =>
-      a.data.divisionName.localeCompare(b.data.divisionName)
+  // Карточка сотрудника
+  const renderEmployee = (person: PersonItem) => {
+    const name = [person.data.lastName, person.data.firstName, person.data.middleName]
+      .filter(Boolean).join(' ') || person.label;
+    return (
+      <div key={person.id} className={styles.employeeCard}>
+        <div className={styles.cardIcon}>
+          <User size={28} className={styles.iconPerson} />
+        </div>
+        <div className={styles.cardContent}>
+          <h3 className={styles.divisionName}>{name}</h3>
+          {person.subLabel && (
+            <span className={styles.divisionType}>{person.subLabel}</span>
+          )}
+        </div>
+      </div>
     );
   };
 
-  const handleDepartmentClick = (department: DepartmentItem) => {
-    setSelectedDepartment(department);
-    setSelectedDivision(null);
-  };
-
-  const handleDivisionClick = (division: DivisionItem) => {
-    setSelectedDivision(division);
-  };
-
-  const handleBackToDepartments = () => {
-    setSelectedDepartment(null);
-    setSelectedDivision(null);
-  };
-
-  const handleBackToDivisions = () => {
-    setSelectedDivision(null);
-  };
-
-  if (selectedDivision) {
+  // --- Сотрудники ---
+  if (level.view === 'employees') {
+    const employees = getPersonChildren(items, level.nodeId);
     return (
       <div className={styles.container}>
         <div className={styles.header}>
-          <button className={"typeSelectorBackButtonGray"} onClick={handleBackToDivisions}>
-            <ArrowLeft size={20} />
-            <span>Назад</span>
+          <button className="typeSelectorBackButtonGray" onClick={() => setLevel(level.back)}>
+            <ArrowLeft size={20} /><span>Назад</span>
           </button>
-          <h2>{selectedDivision.data.divisionName}</h2>
+          <h2>{level.title}</h2>
         </div>
-        <div className={styles.divisionInfo}>
-          <div className={styles.infoCard}>
-            <div className={styles.infoIcon}>
-              {getDepartmentIcon(TreeItemType.DEPARTMENT, 'division')}
-            </div>
-            <div className={styles.infoContent}>
-              <p><strong>Описание:</strong> {selectedDivision.description || 'Нет описания'}</p>
-              <p><strong>Количество сотрудников:</strong> {selectedDivision.data.employeeCount || 'Не указано'}</p>
-            </div>
+        {employees.length === 0 ? (
+          <div className={styles.emptyState}>
+            <User size={48} className={styles.emptyIcon} />
+            <p>Сотрудников не найдено</p>
           </div>
-        </div>
+        ) : (
+          <div className={styles.divisionsGrid}>
+            {employees.map(renderEmployee)}
+          </div>
+        )}
       </div>
     );
   }
 
-  // Если выбран департамент - показываем список отделов
-  if (selectedDepartment) {
-    const divisions = getDivisionsForDepartment(selectedDepartment.id);
-
+  // --- Отделы департамента ---
+  if (level.view === 'divisions') {
+    const divisions = getDivisions(level.department.id);
     return (
       <div className={styles.container}>
         <div className={styles.header}>
-          <button className={"typeSelectorBackButtonGray"} onClick={handleBackToDepartments}>
-            <ArrowLeft size={20} />
-            <span>Назад</span>
+          <button className="typeSelectorBackButtonGray" onClick={() => setLevel({ view: 'departments' })}>
+            <ArrowLeft size={20} /><span>Назад</span>
           </button>
-          <h2>{selectedDepartment.data.departmentName}</h2>
+          <h2>{level.department.data.departmentName}</h2>
         </div>
-
         {divisions.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p>В этом департаменте пока нет отделов</p>
-          </div>
+          <div className={styles.emptyState}><p>В этом департаменте нет отделов</p></div>
         ) : (
           <div className={styles.divisionsGrid}>
-            {divisions.map(division => (
+            {divisions.map(div => (
               <div
-                key={division.id}
+                key={div.id}
                 className={styles.divisionCard}
-                onClick={() => handleDivisionClick(division)}
+                onClick={() => setLevel({
+                  view: 'employees',
+                  title: div.data.divisionName,
+                  nodeId: div.id,
+                  back: level,
+                })}
               >
                 <div className={styles.cardIcon}>
-                  {getDepartmentIcon(TreeItemType.DEPARTMENT, 'division')}
+                  <Users size={32} className={styles.iconDivision} />
                 </div>
                 <div className={styles.cardContent}>
-                  <h3 className={styles.divisionName}>{division.data.divisionName}</h3>
+                  <h3 className={styles.divisionName}>{div.data.divisionName}</h3>
                   <span className={styles.divisionType}>Отдел</span>
                 </div>
               </div>
@@ -188,30 +170,48 @@ const DepartmentsView: React.FC<DepartmentsViewProps> = ({ items }) => {
     );
   }
 
-  // Показываем сетку департаментов
-  if (sortedDepartments.length === 0) {
+  // --- Верхний уровень: Руководство + Департаменты ---
+  if (departments.length === 0 && !rukovodstvo) {
     return (
       <div className={styles.emptyState}>
         <Building2 size={64} className={styles.emptyIcon} />
-        <h3>Нет департаментов</h3>
-        <p>В данных не найдено департаментов</p>
+        <h3>Нет данных</h3>
+        <p>Структура компании не загружена</p>
       </div>
     );
   }
 
   return (
     <div className={styles.departmentsGrid}>
-      {sortedDepartments.map(department => (
+      {rukovodstvo && (
         <div
-          key={department.id}
-          className={styles.departmentCard}
-          onClick={() => handleDepartmentClick(department)}
+          className={`${styles.departmentCard} ${styles.rukovodstvoCard}`}
+          onClick={() => setLevel({
+            view: 'employees',
+            title: rukovodstvo.data.divisionName,
+            nodeId: rukovodstvo.id,
+            back: { view: 'departments' },
+          })}
         >
           <div className={styles.cardIcon}>
-            {getDepartmentIcon(department.type)}
+            <Building2 size={32} className={styles.iconCompany} />
           </div>
           <div className={styles.cardContent}>
-            <h3 className={styles.departmentName}>{department.data.departmentName}</h3>
+            <h3 className={styles.departmentName}>{rukovodstvo.data.divisionName}</h3>
+          </div>
+        </div>
+      )}
+      {sortedDepts.map(dept => (
+        <div
+          key={dept.id}
+          className={styles.departmentCard}
+          onClick={() => setLevel({ view: 'divisions', department: dept })}
+        >
+          <div className={styles.cardIcon}>
+            <Users size={32} className={styles.iconDepartment} />
+          </div>
+          <div className={styles.cardContent}>
+            <h3 className={styles.departmentName}>{dept.data.departmentName}</h3>
           </div>
         </div>
       ))}
