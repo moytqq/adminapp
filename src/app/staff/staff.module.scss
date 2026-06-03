@@ -6,6 +6,26 @@
   background: #f5f5f5;
 }
 
+.managerButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  background: #dc1e32;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+
+  &:hover {
+    background: #b81827;
+  }
+}
+
 .header {
   display: flex;
   justify-content: space-between;

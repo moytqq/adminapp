@@ -14,8 +14,10 @@ import PositionCard from '@/components/StaffPage/PositionCard';
 import AddPositionModal from '@/components/StaffPage/AddPositionModal';
 import AddStaffModal from '@/components/StaffPage/AddStaffModal';
 import Pagination from '@/components/Pagination/Pagination';
+import ManagerLsForm from '@/components/ManagerLsForm/ManagerLsForm';
+import { getUserFlags } from '@/services/api';
 import styles from './staff.module.scss';
-import { Users, Briefcase, Menu, ArrowUpDown, Filter, Search, ArrowLeft } from 'lucide-react';
+import { Users, Briefcase, Menu, ArrowUpDown, Filter, Search, ArrowLeft, ClipboardList } from 'lucide-react';
 import { TreeItemType } from '@/types/tree.types';
 import SideMenu from '@/components/SideMenu/SideMenu';
 import stylesSideMenu from '@/app/main/main.module.scss';
@@ -39,6 +41,10 @@ export default function StaffPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterVacant, setFilterVacant] = useState<boolean | null>(null);
+  const [showManagerForm, setShowManagerForm] = useState(false);
+
+  const flags = getUserFlags();
+  const hasManagerAccess = flags.includes('MANAGER') || flags.includes('ADMIN');
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
@@ -163,6 +169,15 @@ export default function StaffPage() {
             {!selectedCategory && <h1 className={styles.title}>Сотрудники и вакансии</h1>}
             {selectedCategory && <h1 className={styles.title}>{selectedCategoryName}</h1>}
           </div>
+          {hasManagerAccess && (
+            <button
+              className={styles.managerButton}
+              onClick={() => setShowManagerForm(true)}
+            >
+              <ClipboardList size={16} />
+              <span>Заполнить персонал</span>
+            </button>
+          )}
         </header>
 
         <main className={styles.content}>
@@ -337,6 +352,10 @@ export default function StaffPage() {
           isOpen={showAddStaffModal}
           onClose={() => setShowAddStaffModal(false)}
         />
+
+        {showManagerForm && (
+          <ManagerLsForm onClose={() => setShowManagerForm(false)} />
+        )}
       </div>
     </ProtectedRoute>
   );
