@@ -315,6 +315,17 @@ const EmployeesView: React.FC = () => {
 
   return (
     <>
+      {hasManagerAccess && (
+        <div className={styles.managerButtonRow}>
+          <button
+            className={styles.managerButton}
+            onClick={() => setShowManagerForm(true)}
+          >
+            <ClipboardList size={16} />
+            <span>Заполнить персонал</span>
+          </button>
+        </div>
+      )}
       <EmployeeCategorySelector
         onSelectCategory={handleSelectCategory}
         selectedCategory={null}
