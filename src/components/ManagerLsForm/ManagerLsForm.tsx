@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useAppSelector } from '@/store/hooks/hooks';
 import { personalApi } from '@/services/personalApi';
-import { X, Plus, Trash2, ChevronDown, ChevronUp, Check, Loader2 } from 'lucide-react';
+import { X, Plus, Trash2, Check, Loader2 } from 'lucide-react';
 import styles from './ManagerLsForm.module.scss';
 
 interface StaffInfoFields {
@@ -27,7 +27,6 @@ interface PositionItem {
   isDeleted: boolean;
   staffForm: StaffInfoFields | null;
   staffInfoLoaded: boolean;
-  expanded: boolean;
 }
 
 interface StoreData {
@@ -125,7 +124,6 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
         ? buildStaffForm(p.staff, p.staffInfo)
         : null,
       staffInfoLoaded: true,
-      expanded: false,
     })),
   []);
 
@@ -163,11 +161,11 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
 
   const handleStaffSelect = async (posIdx: number, lsid: string | null) => {
     if (!lsid) {
-      updatePosition(posIdx, { lsid: null, staffForm: null, staffInfoLoaded: true, expanded: false });
+      updatePosition(posIdx, { lsid: null, staffForm: null, staffInfoLoaded: true });
       return;
     }
     const staffMember = allStaff.find(s => s.lsid === lsid);
-    updatePosition(posIdx, { lsid, staffInfoLoaded: false, expanded: true });
+    updatePosition(posIdx, { lsid, staffInfoLoaded: false });
     try {
       const infoRecords = await personalApi.getInfo(lsid);
       const staffForm = buildStaffForm(
@@ -199,7 +197,6 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
       isDeleted: false,
       staffForm: null,
       staffInfoLoaded: true,
-      expanded: false,
     }]);
   };
 
@@ -332,16 +329,6 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
                           ))}
                         </select>
 
-                        {pos.lsid && (
-                          <button
-                            className={styles.expandBtn}
-                            onClick={() => updatePosition(idx, { expanded: !pos.expanded })}
-                            aria-label="Данные сотрудника"
-                          >
-                            {pos.expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                          </button>
-                        )}
-
                         <button
                           className={styles.deleteBtn}
                           onClick={() => deletePosition(idx)}
@@ -351,7 +338,7 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
                         </button>
                       </div>
 
-                      {pos.lsid && pos.expanded && (
+                      {pos.lsid && (
                         <div className={styles.staffFields}>
                           {!pos.staffInfoLoaded ? (
                             <Loader2 size={20} className={styles.spinner} />
