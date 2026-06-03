@@ -10,6 +10,7 @@ import {
   UserRound,
   Wrench,
   ArrowLeft,
+  ClipboardList,
 } from 'lucide-react';
 
 export interface StaffCategory {
@@ -25,6 +26,8 @@ interface StaffCategorySelectorProps {
   onSelectCategory: (categoryId: string, categoryName: string) => void;
   selectedCategory?: string | null;
   onBackToCategories?: () => void;
+  hasManagerAccess?: boolean;
+  onManagerAction?: () => void;
 }
 
 const staffCategories: StaffCategory[] = [
@@ -82,6 +85,8 @@ const StaffCategorySelector: React.FC<StaffCategorySelectorProps> = ({
                                                                        onSelectCategory,
                                                                        selectedCategory = null,
                                                                        onBackToCategories,
+                                                                       hasManagerAccess = false,
+                                                                       onManagerAction,
                                                                      }) => {
   if (selectedCategory) {
     const category = staffCategories.find(c => c.id === selectedCategory);
@@ -131,6 +136,20 @@ const StaffCategorySelector: React.FC<StaffCategorySelectorProps> = ({
             <div className={styles.arrow}>→</div>
           </button>
         ))}
+        {hasManagerAccess && (
+          <button
+            className={styles.card}
+            onClick={onManagerAction}
+            style={{ backgroundColor: '#fce8ea' }}
+          >
+            <div className={styles.iconWrapper} style={{ color: '#dc1e32' }}>
+              <ClipboardList size={32} />
+            </div>
+            <h3 className={styles.title}>Заполнить персонал</h3>
+            <p className={styles.description}>Учёт линейного персонала по адресам</p>
+            <div className={styles.arrow}>→</div>
+          </button>
+        )}
       </div>
     </div>
   );

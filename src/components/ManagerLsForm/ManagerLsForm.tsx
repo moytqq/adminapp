@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppSelector } from '@/store/hooks/hooks';
 import { personalApi } from '@/services/personalApi';
 import { X, Plus, Trash2, Check, Loader2 } from 'lucide-react';
@@ -112,6 +112,7 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
   const [done, setDone] = useState(false);
   const [totalFilledToday, setTotalFilledToday] = useState(0);
   const [totalStores, setTotalStores] = useState(0);
+  const bodyRef = useRef<HTMLDivElement>(null);
 
   const initPositions = useCallback((store: StoreData): PositionItem[] =>
     store.positions.map(p => ({
@@ -229,6 +230,7 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
       } else {
         setCurrentIndex(nextIndex);
         setPositions(initPositions(stores[nextIndex]));
+        bodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch {
       setError('Ошибка при сохранении');
@@ -257,7 +259,7 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
           </button>
         </div>
 
-        <div className={styles.body}>
+        <div className={styles.body} ref={bodyRef}>
           {loading && (
             <div className={styles.centered}>
               <Loader2 size={32} className={styles.spinner} />

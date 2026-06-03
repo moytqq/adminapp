@@ -17,7 +17,7 @@ import Pagination from '@/components/Pagination/Pagination';
 import ManagerLsForm from '@/components/ManagerLsForm/ManagerLsForm';
 import { getUserFlags } from '@/services/api';
 import styles from './staff.module.scss';
-import { Users, Briefcase, Menu, ArrowUpDown, Filter, Search, ArrowLeft, ClipboardList } from 'lucide-react';
+import { Users, Briefcase, Menu, ArrowUpDown, Filter, Search, ArrowLeft } from 'lucide-react';
 import { TreeItemType } from '@/types/tree.types';
 import SideMenu from '@/components/SideMenu/SideMenu';
 import stylesSideMenu from '@/app/main/main.module.scss';
@@ -169,15 +169,6 @@ export default function StaffPage() {
             {!selectedCategory && <h1 className={styles.title}>Сотрудники и вакансии</h1>}
             {selectedCategory && <h1 className={styles.title}>{selectedCategoryName}</h1>}
           </div>
-          {hasManagerAccess && (
-            <button
-              className={styles.managerButton}
-              onClick={() => setShowManagerForm(true)}
-            >
-              <ClipboardList size={16} />
-              <span>Заполнить персонал</span>
-            </button>
-          )}
         </header>
 
         <main className={styles.content}>
@@ -188,6 +179,8 @@ export default function StaffPage() {
               onSelectCategory={handleSelectCategory}
               selectedCategory={null}
               onBackToCategories={handleBackToCategories}
+              hasManagerAccess={hasManagerAccess}
+              onManagerAction={() => setShowManagerForm(true)}
             />
           ) : (
             <>
