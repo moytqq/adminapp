@@ -148,7 +148,7 @@ export default function StaffPage() {
   }, [currentPage, totalPages]);
 
   return (
-    <ProtectedRoute requiredFlags={['ADMIN']} redirectTo="/main">
+    <ProtectedRoute requiredFlags={['ADMIN', 'MANAGER']} redirectTo="/main">
       <PageTitle title="Сотрудники" />
       <div className={styles.container}>
         <header className={styles.header}>
