@@ -144,6 +144,25 @@
   }
 }
 
+.managerButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #dc1e32;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #b81827;
+  }
+}
+
 .addButton {
   composes: buttonHoverBlue;
   display: flex;

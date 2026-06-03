@@ -138,4 +138,27 @@ export const personalApi = {
       throw error;
     }
   },
+
+  getManagerStores: async () => {
+    try {
+      const response = await api.get('/personal/manager/stores');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching manager stores:', error);
+      throw error;
+    }
+  },
+
+  saveManagerStore: async (storeHid: number, positions: any[]) => {
+    try {
+      const response = await api.post('/personal/manager/save-store', {
+        store_hid: storeHid,
+        positions,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error saving manager store report:', error);
+      throw error;
+    }
+  },
 };

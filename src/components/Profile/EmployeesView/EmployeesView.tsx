@@ -12,8 +12,10 @@ import AddPositionModal from '@/components/StaffPage/AddPositionModal';
 import AddStaffModal from '@/components/StaffPage/AddStaffModal';
 import Pagination from '@/components/Pagination/Pagination';
 import EmployeeCategorySelector from './EmployeeCategorySelector';
+import ManagerLsForm from '@/components/ManagerLsForm/ManagerLsForm';
+import { getUserFlags } from '@/services/api';
 import styles from './EmployeesView.module.scss';
-import { Users, Briefcase, RefreshCw, ArrowUpDown, Filter, Search, ArrowLeft } from 'lucide-react';
+import { Users, Briefcase, RefreshCw, ArrowUpDown, Filter, Search, ArrowLeft, ClipboardList } from 'lucide-react';
 
 type SortOrder = 'asc' | 'desc';
 
@@ -43,6 +45,10 @@ const EmployeesView: React.FC = () => {
   const [filterVacant, setFilterVacant] = useState<boolean | null>(null);
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showManagerForm, setShowManagerForm] = useState(false);
+
+  const flags = getUserFlags();
+  const hasManagerAccess = flags.includes('MANAGER') || flags.includes('ADMIN');
 
   useEffect(() => {
     loadData();
@@ -180,6 +186,15 @@ const EmployeesView: React.FC = () => {
                   filterVacant ? 'Свободные' : 'Занятые'
               }</span>
             </button>
+            {hasManagerAccess && (
+              <button
+                className={styles.managerButton}
+                onClick={() => setShowManagerForm(true)}
+              >
+                <ClipboardList size={16} />
+                <span>Заполнить персонал</span>
+              </button>
+            )}
             <button
               className={styles.addButton}
               onClick={() => setShowAddPositionModal(true)}
@@ -299,11 +314,16 @@ const EmployeesView: React.FC = () => {
   }
 
   return (
-    <EmployeeCategorySelector
-      onSelectCategory={handleSelectCategory}
-      selectedCategory={null}
-      onBackToCategories={handleBackToCategories}
-    />
+    <>
+      <EmployeeCategorySelector
+        onSelectCategory={handleSelectCategory}
+        selectedCategory={null}
+        onBackToCategories={handleBackToCategories}
+      />
+      {showManagerForm && (
+        <ManagerLsForm onClose={() => setShowManagerForm(false)} />
+      )}
+    </>
   );
 };
 
