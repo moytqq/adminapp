@@ -8,15 +8,13 @@ import styles from './ManagerLsForm.module.scss';
 
 interface StaffInfoFields {
   fio: string;
-  doe: string;
-  middleName: string;
   birthDate: string;
   citizenship: string;
-  registration: string;
   contractType: string;
-  department: string;
-  email: string;
-  phone: string;
+  maritalStatus: string;
+  children: string;
+  vacationStart: string;
+  vacationEnd: string;
 }
 
 interface PositionItem {
@@ -39,7 +37,7 @@ interface StoreData {
     name: string;
     hid: number;
     lsid: string | null;
-    staff: { lsid: string; fio: string; doe: string } | null;
+    staff: { lsid: string; fio: string } | null;
     staffInfo: Array<{ label: string; value: string }>;
   }>;
 }
@@ -55,40 +53,49 @@ const CONTRACT_TYPES = [
   { value: 'patent', label: 'Патент' },
 ];
 
+const MARITAL_STATUS_OPTIONS = [
+  { value: '', label: 'Не указано' },
+  { value: 'Холост/не замужем', label: 'Холост / Не замужем' },
+  { value: 'Женат/замужем', label: 'Женат / Замужем' },
+  { value: 'Разведён/разведена', label: 'Разведён / Разведена' },
+  { value: 'Вдовец/вдова', label: 'Вдовец / Вдова' },
+];
+
+// Stored label values must match backend LABEL_MAP exactly (typos are intentional for existing data)
 const INFO_LABEL_MAP: Record<string, string> = {
-  middleName: 'Оотчество',
   birthDate: 'Дата ррождения',
   citizenship: 'Ггражданство',
-  registration: 'Ррегистрация',
   contractType: 'Ттип отношений',
-  department: 'Ддепартамент',
-  email: 'Eуmail',
-  phone: 'Туелефон',
+  maritalStatus: 'Семейное положение',
+  children: 'Дети',
+  vacationStart: 'Начало отпуска',
+  vacationEnd: 'Конец отпуска',
+};
+
+const addDays = (dateStr: string, days: number): string => {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split('T')[0];
 };
 
 const emptyStaffForm = (): StaffInfoFields => ({
   fio: '',
-  doe: '',
-  middleName: '',
   birthDate: '',
   citizenship: '',
-  registration: '',
   contractType: '',
-  department: '',
-  email: '',
-  phone: '',
+  maritalStatus: '',
+  children: '',
+  vacationStart: '',
+  vacationEnd: '',
 });
 
 const buildStaffForm = (
-  staffData: { fio: string; doe: string } | null,
+  staffData: { fio: string } | null,
   infoRecords: Array<{ label: string; value: string }>,
 ): StaffInfoFields => {
   const form = emptyStaffForm();
   if (staffData) {
     form.fio = staffData.fio || '';
-    form.doe = staffData.doe
-      ? new Date(staffData.doe).toISOString().split('T')[0]
-      : '';
   }
   const revMap: Record<string, keyof StaffInfoFields> = Object.fromEntries(
     Object.entries(INFO_LABEL_MAP).map(([k, v]) => [v, k as keyof StaffInfoFields]),
@@ -170,7 +177,7 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
     try {
       const infoRecords = await personalApi.getInfo(lsid);
       const staffForm = buildStaffForm(
-        staffMember ? { fio: staffMember.fio, doe: staffMember.doe } : null,
+        staffMember ? { fio: staffMember.fio } : null,
         infoRecords,
       );
       updatePosition(posIdx, { staffForm, staffInfoLoaded: true });
@@ -211,6 +218,28 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
     if (!currentStore) return;
     setSaving(true);
     setError(null);
+
+    for (const pos of positions) {
+      if (!pos.isDeleted && pos.lsid && pos.staffForm) {
+        const { vacationStart, vacationEnd } = pos.staffForm;
+        if (vacationStart && vacationEnd) {
+          const start = new Date(vacationStart);
+          const end = new Date(vacationEnd);
+          const diff = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+          if (diff < 0) {
+            setError(`«${pos.name}»: конец отпуска раньше начала`);
+            setSaving(false);
+            return;
+          }
+          if (diff > 14) {
+            setError(`«${pos.name}»: отпуск не может превышать 14 дней`);
+            setSaving(false);
+            return;
+          }
+        }
+      }
+    }
+
     try {
       const payload = positions.map(p => ({
         id: p.id,
@@ -355,19 +384,11 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
                                 />
                               </label>
                               <label className={styles.field}>
-                                <span>Дата трудоустройства</span>
+                                <span>Гражданство</span>
                                 <input
-                                  type="date"
-                                  value={pos.staffForm?.doe || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'doe', e.target.value)}
-                                />
-                              </label>
-                              <label className={styles.field}>
-                                <span>Отчество</span>
-                                <input
-                                  value={pos.staffForm?.middleName || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'middleName', e.target.value)}
-                                  placeholder="Отчество"
+                                  value={pos.staffForm?.citizenship || ''}
+                                  onChange={e => handleStaffFormChange(idx, 'citizenship', e.target.value)}
+                                  placeholder="Гражданство"
                                 />
                               </label>
                               <label className={styles.field}>
@@ -379,23 +400,7 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
                                 />
                               </label>
                               <label className={styles.field}>
-                                <span>Гражданство</span>
-                                <input
-                                  value={pos.staffForm?.citizenship || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'citizenship', e.target.value)}
-                                  placeholder="Гражданство"
-                                />
-                              </label>
-                              <label className={styles.field}>
-                                <span>Регистрация</span>
-                                <input
-                                  value={pos.staffForm?.registration || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'registration', e.target.value)}
-                                  placeholder="Адрес регистрации"
-                                />
-                              </label>
-                              <label className={styles.field}>
-                                <span>Тип отношений</span>
+                                <span>Договор</span>
                                 <select
                                   value={pos.staffForm?.contractType || ''}
                                   onChange={e => handleStaffFormChange(idx, 'contractType', e.target.value)}
@@ -406,29 +411,40 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
                                 </select>
                               </label>
                               <label className={styles.field}>
-                                <span>Отдел</span>
+                                <span>Семейное положение</span>
+                                <select
+                                  value={pos.staffForm?.maritalStatus || ''}
+                                  onChange={e => handleStaffFormChange(idx, 'maritalStatus', e.target.value)}
+                                >
+                                  {MARITAL_STATUS_OPTIONS.map(o => (
+                                    <option key={o.value} value={o.value}>{o.label}</option>
+                                  ))}
+                                </select>
+                              </label>
+                              <label className={styles.field}>
+                                <span>Дети</span>
                                 <input
-                                  value={pos.staffForm?.department || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'department', e.target.value)}
-                                  placeholder="Отдел"
+                                  value={pos.staffForm?.children || ''}
+                                  onChange={e => handleStaffFormChange(idx, 'children', e.target.value)}
+                                  placeholder="Количество или описание"
                                 />
                               </label>
                               <label className={styles.field}>
-                                <span>Email</span>
+                                <span>Начало отпуска</span>
                                 <input
-                                  type="email"
-                                  value={pos.staffForm?.email || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'email', e.target.value)}
-                                  placeholder="Email"
+                                  type="date"
+                                  value={pos.staffForm?.vacationStart || ''}
+                                  onChange={e => handleStaffFormChange(idx, 'vacationStart', e.target.value)}
                                 />
                               </label>
                               <label className={styles.field}>
-                                <span>Телефон</span>
+                                <span>Конец отпуска</span>
                                 <input
-                                  type="tel"
-                                  value={pos.staffForm?.phone || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'phone', e.target.value)}
-                                  placeholder="+7..."
+                                  type="date"
+                                  value={pos.staffForm?.vacationEnd || ''}
+                                  min={pos.staffForm?.vacationStart || undefined}
+                                  max={pos.staffForm?.vacationStart ? addDays(pos.staffForm.vacationStart, 14) : undefined}
+                                  onChange={e => handleStaffFormChange(idx, 'vacationEnd', e.target.value)}
                                 />
                               </label>
                             </div>
