@@ -3,12 +3,7 @@
 import React from 'react';
 import styles from './StaffCategorySelector.module.scss';
 import {
-  Phone,
-  Building2,
-  Users,
-  UserCog,
   UserRound,
-  Wrench,
   ArrowLeft,
   ClipboardList,
 } from 'lucide-react';
@@ -32,52 +27,12 @@ interface StaffCategorySelectorProps {
 
 const staffCategories: StaffCategory[] = [
   {
-    id: 'hotline',
-    title: 'Горячая линия',
-    description: 'Сотрудники горячей линии',
-    icon: <Phone size={32} />,
-    color: '#e91e63',
-    bgColor: '#fce4ec',
-  },
-  {
-    id: 'office',
-    title: 'Офис',
-    description: 'Офисные сотрудники',
-    icon: <Building2 size={32} />,
-    color: '#2196f3',
-    bgColor: '#e3f2fd',
-  },
-  {
-    id: 'managers',
-    title: 'Управляющие',
-    description: 'Управляющий состав',
-    icon: <UserCog size={32} />,
-    color: '#9c27b0',
-    bgColor: '#f3e5f5',
-  },
-  {
-    id: 'managers_line',
-    title: 'Менеджеры',
-    description: 'Менеджеры различных направлений',
-    icon: <Users size={32} />,
-    color: '#ff9800',
-    bgColor: '#fff3e0',
-  },
-  {
     id: 'linear',
     title: 'Линейный',
     description: 'Линейный персонал',
     icon: <UserRound size={32} />,
     color: '#4caf50',
     bgColor: '#e8f5e9',
-  },
-  {
-    id: 'engineers',
-    title: 'Инженеры',
-    description: 'Инженерно-технический персонал',
-    icon: <Wrench size={32} />,
-    color: '#607d8b',
-    bgColor: '#eceff1',
   },
 ];
 
