@@ -277,6 +277,14 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
     }
   };
 
+  const handleStoreJump = (index: number) => {
+    if (index === currentIndex) return;
+    setCurrentIndex(index);
+    setPositions(initPositions(stores[index]));
+    setError(null);
+    bodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const activePositions = positions.filter(p => !p.isDeleted);
   const isLastStore = currentIndex === stores.length - 1;
 
@@ -323,7 +331,26 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
           {!loading && !done && currentStore && (
             <>
               <div className={styles.storeInfo}>
-                <h3 className={styles.storeName}>{currentStore.name}</h3>
+                <select
+                  className={styles.storeSelect}
+                  value={currentIndex}
+                  onChange={e => handleStoreJump(Number(e.target.value))}
+                >
+                  {stores.map((store, i) => {
+                    let suffix = '';
+                    if (store.filledToday) suffix = ' ✓';
+                    else if (store.lastFilledAt) {
+                      suffix = ' · ' + new Date(store.lastFilledAt).toLocaleDateString('ru', { day: '2-digit', month: '2-digit' });
+                    } else {
+                      suffix = ' · не заполнялся';
+                    }
+                    return (
+                      <option key={store.hid} value={i}>
+                        {store.name}{suffix}
+                      </option>
+                    );
+                  })}
+                </select>
                 {currentStore.lastFilledAt && (
                   <span className={styles.lastFilled}>
                     Последнее заполнение:{' '}
