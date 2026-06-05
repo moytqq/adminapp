@@ -155,7 +155,7 @@ export default function StaffPage() {
 
   return (
     <ProtectedRoute requiredFlags={['ADMIN', 'MANAGER']} redirectTo="/main">
-      <PageTitle title="Сотрудники" />
+      <PageTitle title="Линейный персонал" />
       <div className={styles.container}>
         <header className={styles.header}>
           <div className={styles.headerLeft}>
@@ -166,7 +166,7 @@ export default function StaffPage() {
             >
               <Menu size={24} />
             </button>
-            {!selectedCategory && <h1 className={styles.title}>Сотрудники и вакансии</h1>}
+            {!selectedCategory && <h1 className={styles.title}>Линейный персонал</h1>}
             {selectedCategory && <h1 className={styles.title}>{selectedCategoryName}</h1>}
           </div>
         </header>

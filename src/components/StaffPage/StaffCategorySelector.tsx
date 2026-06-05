@@ -71,8 +71,8 @@ const StaffCategorySelector: React.FC<StaffCategorySelectorProps> = ({
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.headerContent}>
-          <h1>Сотрудники и вакансии</h1>
-          <p>Выберите категорию для просмотра сотрудников</p>
+          <h1>Линейный персонал</h1>
+          <p>Выберите категорию</p>
         </div>
       </div>
       <div className={styles.grid}>

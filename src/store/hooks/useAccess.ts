@@ -38,7 +38,7 @@ export const useAccess = () => {
       { path: '/profile', label: 'Личный кабинет', icon: 'User' },
       { path: '/autoOrders', label: 'Автозаказы', icon: 'ListOrdered', requiredFlags: ['TM_AUTOZAKAZI', 'ADMIN'] },
       { path: '/remainders', label: 'Остатки', icon: 'Package', requiredFlags: ['LS_AUTOZAKAZI', 'TM_AUTOZAKAZI', 'ADMIN'] },
-      { path: '/staff', label: 'Сотрудники', icon: 'Users', requiredFlags: ['ADMIN', 'MANAGER'] },
+      { path: '/staff', label: 'Линейный персонал', icon: 'Users', requiredFlags: ['ADMIN', 'MANAGER'] },
       { path: '/planner', label: 'Планировщик', icon: 'ClipboardCheck', requiredFlags: ['ADMIN'] },
       { path: '/results', label: 'Результаты', icon: 'FileText', requiredFlags: ['RESULTS', 'ADMIN'] },
       { path: '/services', label: 'Сервис', icon: 'Wrench', requiredFlags: ['SERVICE', 'SERVICE_ADMIN', 'ADMIN'] },
