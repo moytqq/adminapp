@@ -1,0 +1,245 @@
+.container {
+  position: relative;
+  flex: 2;
+  min-width: 160px;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+  background: #f9f9f9;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  text-align: left;
+  min-height: 38px;
+
+  &:focus {
+    outline: none;
+    border-color: #dc1e32;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.triggerOpen {
+  border-color: #dc1e32;
+  background: white;
+}
+
+.selectedLabel {
+  font-size: 14px;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.vacantLabel {
+  font-size: 14px;
+  color: #aaa;
+  flex: 1;
+}
+
+.chevron {
+  color: #999;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 200;
+  overflow: hidden;
+  min-width: 220px;
+}
+
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.searchIcon {
+  color: #aaa;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: #333;
+  background: transparent;
+
+  &::placeholder {
+    color: #bbb;
+  }
+}
+
+.clearSearch {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  color: #aaa;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    color: #666;
+  }
+}
+
+.list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  transition: background 0.1s;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+}
+
+.itemActive {
+  background: #fff0f0;
+  color: #dc1e32;
+  font-weight: 500;
+
+  &:hover {
+    background: #ffe8e8;
+  }
+}
+
+.empty {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #aaa;
+  margin: 0;
+  text-align: center;
+}
+
+.addSection {
+  border-top: 1px solid #f0f0f0;
+  padding: 6px 8px;
+}
+
+.addTrigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 7px 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #dc1e32;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 0.75;
+  }
+}
+
+.addForm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.addInput {
+  flex: 1;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+  outline: none;
+  color: #333;
+
+  &:focus {
+    border-color: #dc1e32;
+  }
+
+  &::placeholder {
+    color: #bbb;
+  }
+}
+
+.addSubmit {
+  background: #dc1e32;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.addCancel {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #aaa;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    color: #666;
+  }
+}
