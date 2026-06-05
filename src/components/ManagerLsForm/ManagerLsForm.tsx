@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppSelector } from '@/store/hooks/hooks';
 import { personalApi } from '@/services/personalApi';
 import { X, Plus, Trash2, Check, Loader2 } from 'lucide-react';
+import StaffPicker from './StaffPicker';
 import styles from './ManagerLsForm.module.scss';
 
 interface StaffInfoFields {
@@ -18,6 +19,7 @@ interface StaffInfoFields {
   phone: string;
   address: string;
   phoneBackup: string;
+  departureDate: string;
 }
 
 interface PositionItem {
@@ -76,6 +78,7 @@ const INFO_LABEL_MAP: Record<string, string> = {
   phone: 'Телефон',
   address: 'Адрес',
   phoneBackup: 'Запасной телефон',
+  departureDate: 'Дата ухода',
 };
 
 const addDays = (dateStr: string, days: number): string => {
@@ -96,6 +99,7 @@ const emptyStaffForm = (): StaffInfoFields => ({
   phone: '',
   address: '',
   phoneBackup: '',
+  departureDate: '',
 });
 
 const buildStaffForm = (
@@ -385,16 +389,12 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
                           placeholder="Название должности"
                         />
 
-                        <select
-                          className={styles.staffSelect}
-                          value={pos.lsid || ''}
-                          onChange={e => handleStaffSelect(idx, e.target.value || null)}
-                        >
-                          <option value="">Вакантно</option>
-                          {allStaff.map(s => (
-                            <option key={s.lsid} value={s.lsid}>{s.fio}</option>
-                          ))}
-                        </select>
+                        <StaffPicker
+                          allStaff={allStaff}
+                          value={pos.lsid}
+                          onChange={lsid => handleStaffSelect(idx, lsid)}
+                          loading={!pos.staffInfoLoaded}
+                        />
 
                         <button
                           className={styles.deleteBtn}
@@ -507,6 +507,14 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
                                   value={pos.staffForm?.address || ''}
                                   onChange={e => handleStaffFormChange(idx, 'address', e.target.value)}
                                   placeholder="Адрес проживания"
+                                />
+                              </label>
+                              <label className={styles.field}>
+                                <span>Дата ухода</span>
+                                <input
+                                  type="date"
+                                  value={pos.staffForm?.departureDate || ''}
+                                  onChange={e => handleStaffFormChange(idx, 'departureDate', e.target.value)}
                                 />
                               </label>
                             </div>
