@@ -5,6 +5,7 @@ import AutoOrdersTableView from './AutoOrdersTableView';
 import ItemsMatrix from './ItemsMatrix/ItemsMatrix';
 import SupplierSettingsComponent from './SupplierSettings/SupplierSettings';
 import TtkMatrix from './TtkMatrix/TtkMatrix';
+import OrdersCalculation from './OrdersCalculation/OrdersCalculation';
 import { ArrowLeft } from 'lucide-react';
 import styles from './AutoOrdersView.module.scss';
 
@@ -39,6 +40,10 @@ const AutoOrdersView: React.FC<AutoOrdersViewProps> = ({ autoOrderType, onBack }
 
   if (autoOrderType === 'ttk') {
     return <TtkMatrix onBack={onBack} />;
+  }
+
+  if (autoOrderType === 'calculation') {
+    return <OrdersCalculation onBack={onBack} />;
   }
 
   return (

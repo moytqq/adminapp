@@ -12,6 +12,7 @@ import {
   CalendarClock,
   Truck,
   FlaskConical,
+  Play,
 } from 'lucide-react';
 
 export interface AutoOrderType {
@@ -90,6 +91,15 @@ const allAutoOrderTypes: AutoOrderType[] = [
     icon: <CalendarClock size={32} />,
     color: '#ff5722',
     bgColor: '#fbe9e7',
+    requiredFlags: ['ADMIN'],
+  },
+  {
+    id: 'calculation',
+    title: 'Расчёт заказов',
+    description: 'Автоматический расчёт и логи',
+    icon: <Play size={32} />,
+    color: '#1565c0',
+    bgColor: '#e3f2fd',
     requiredFlags: ['ADMIN'],
   },
 ];
