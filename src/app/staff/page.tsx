@@ -45,6 +45,7 @@ export default function StaffPage() {
 
   const flags = getUserFlags();
   const hasManagerAccess = flags.includes('MANAGER') || flags.includes('ADMIN');
+  const hasLinearAccess = flags.includes('ADMIN');
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
@@ -181,6 +182,7 @@ export default function StaffPage() {
               onBackToCategories={handleBackToCategories}
               hasManagerAccess={hasManagerAccess}
               onManagerAction={() => setShowManagerForm(true)}
+              hasLinearAccess={hasLinearAccess}
             />
           ) : (
             <>

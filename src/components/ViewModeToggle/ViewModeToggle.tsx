@@ -6,6 +6,7 @@ import styles from './ViewModeToggle.module.scss';
 import { useAppDispatch, useAppSelector } from '@/store/hooks/hooks';
 import { switchViewMode, setStoreFilter } from '@/store/slices/treeSlice';
 import { TreeViewMode } from '@/types/tree.types';
+import { getUserFlags } from '@/services/api';
 
 const ViewModeToggle: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -15,7 +16,8 @@ const ViewModeToggle: React.FC = () => {
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const storeTypes = ['Колбаса', 'Мясо', 'Молоко'];
+  const isAdmin = getUserFlags().includes('ADMIN');
+  const storeTypes = ['Мясо', 'Колбасы', 'Молоко', 'Кулинария', 'Овощи'];
 
   useEffect(() => {
     const checkMobile = () => {
@@ -54,7 +56,7 @@ const ViewModeToggle: React.FC = () => {
     <div>
       <div className={`${styles.container} ${isMobile ? styles.mobile : styles.desktop}`}>
         <div className={styles.toggleGroup}>
-          {isAddressMode && (
+          {isAddressMode && isAdmin && (
             <div className={styles.filterWrapper}>
               <div className={styles.filterContainer}>
                 <button
@@ -135,7 +137,7 @@ const ViewModeToggle: React.FC = () => {
           </button>
         </div>
       </div>
-      {isAddressMode && storeFilter && isMobile && (
+      {isAddressMode && isAdmin && storeFilter && isMobile && (
         <div className={styles.mobileFilterIndicator}>
           <button
             className={styles.mobileFilterBadge}

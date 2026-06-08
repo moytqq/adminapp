@@ -23,6 +23,7 @@ interface StaffCategorySelectorProps {
   onBackToCategories?: () => void;
   hasManagerAccess?: boolean;
   onManagerAction?: () => void;
+  hasLinearAccess?: boolean;
 }
 
 const staffCategories: StaffCategory[] = [
@@ -42,6 +43,7 @@ const StaffCategorySelector: React.FC<StaffCategorySelectorProps> = ({
                                                                        onBackToCategories,
                                                                        hasManagerAccess = false,
                                                                        onManagerAction,
+                                                                       hasLinearAccess = false,
                                                                      }) => {
   if (selectedCategory) {
     const category = staffCategories.find(c => c.id === selectedCategory);
@@ -76,7 +78,7 @@ const StaffCategorySelector: React.FC<StaffCategorySelectorProps> = ({
         </div>
       </div>
       <div className={styles.grid}>
-        {staffCategories.map(category => (
+        {hasLinearAccess && staffCategories.map(category => (
           <button
             key={category.id}
             className={styles.card}

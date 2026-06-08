@@ -57,6 +57,7 @@ const TreeList: React.FC = () => {
   };
 
   const pageTitle = 'Компания';
+  const viewModeLabel = viewMode === 'hierarchy' ? 'Иерархия' : viewMode === 'departments' ? 'Департаменты' : 'Адреса';
 
   if (viewMode === 'departments') {
     return (
@@ -75,6 +76,7 @@ const TreeList: React.FC = () => {
                 </button>
               </div>
               <h1>{pageTitle}</h1>
+              <span className={styles.subtitle}>{viewModeLabel}</span>
             </div>
             <div className={styles.controlsSection}>
               <ViewModeToggle />
