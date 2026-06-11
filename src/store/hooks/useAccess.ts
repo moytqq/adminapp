@@ -44,7 +44,7 @@ export const useAccess = () => {
       { path: '/services', label: 'Сервис', icon: 'Wrench', requiredFlags: ['SERVICE', 'SERVICE_ADMIN', 'ADMIN'] },
       { path: '/chat', label: 'Чат', icon: 'MessageCircleMore', requiredFlags: ['CHAT', 'ADMIN'] },
       { path: '/mail', label: 'Почта', icon: 'Mail', requiredFlags: ['MAIL', 'ADMIN'] },
-      { path: '/proposes', label: 'Предложения', icon: 'Lightbulb' },
+      { path: '/proposes', label: 'Поддержка Экосистемы', icon: 'Lightbulb' },
     ];
 
     return menuItems.filter(item => {
