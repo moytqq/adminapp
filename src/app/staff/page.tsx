@@ -178,7 +178,9 @@ export default function StaffPage() {
           <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
           {showStaffView ? (
-            <StaffViewTable onBack={() => setShowStaffView(false)} />
+            <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
+              <StaffViewTable onBack={() => setShowStaffView(false)} />
+            </div>
           ) : !selectedCategory ? (
             <StaffCategorySelector
               onSelectCategory={handleSelectCategory}
