@@ -44,6 +44,7 @@ interface StoreData {
     lsid: string | null;
     staff: { lsid: string; fio: string } | null;
     staffInfo: Array<{ label: string; value: string }>;
+    reportStaff: Partial<StaffInfoFields> | null;
   }>;
 }
 
@@ -120,6 +121,21 @@ const buildStaffForm = (
   return form;
 };
 
+const buildStaffFormFromReport = (reportStaff: Partial<StaffInfoFields>): StaffInfoFields => ({
+  fio: reportStaff.fio || '',
+  birthDate: reportStaff.birthDate || '',
+  citizenship: reportStaff.citizenship || '',
+  contractType: reportStaff.contractType || '',
+  maritalStatus: reportStaff.maritalStatus || '',
+  children: reportStaff.children || '',
+  vacationStart: reportStaff.vacationStart || '',
+  vacationEnd: reportStaff.vacationEnd || '',
+  phone: reportStaff.phone || '',
+  address: reportStaff.address || '',
+  phoneBackup: reportStaff.phoneBackup || '',
+  departureDate: reportStaff.departureDate || '',
+});
+
 const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
   const { staff: allStaff } = useAppSelector(state => state.personal);
 
@@ -141,8 +157,10 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
       lsid: p.lsid,
       isNew: false,
       isDeleted: false,
-      staffForm: p.lsid && p.staff
-        ? buildStaffForm(p.staff, p.staffInfo)
+      staffForm: p.lsid
+        ? (p.reportStaff
+            ? buildStaffFormFromReport(p.reportStaff)
+            : (p.staff ? buildStaffForm(p.staff, p.staffInfo) : null))
         : null,
       staffInfoLoaded: true,
     })),
@@ -165,7 +183,14 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
           return;
         }
         setStores(result.stores);
-        setPositions(initPositions(result.stores[0]));
+        const firstUnfilled = result.stores.findIndex((s: StoreData) => !s.filledToday);
+        if (firstUnfilled === -1) {
+          setDone(true);
+          setLoading(false);
+          return;
+        }
+        setCurrentIndex(firstUnfilled);
+        setPositions(initPositions(result.stores[firstUnfilled]));
       } catch {
         setError('Ошибка при загрузке данных');
       } finally {
@@ -266,12 +291,24 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
         setError(result.message || 'Ошибка сохранения');
         return;
       }
-      const nextIndex = currentIndex + 1;
-      if (nextIndex >= stores.length) {
-        setDone(true);
+      const updatedStores = stores.map((s, i) =>
+        i === currentIndex ? { ...s, filledToday: true } : s,
+      );
+      setStores(updatedStores);
+      setTotalFilledToday(prev => prev + 1);
+      const nextIndex = updatedStores.findIndex((s, i) => i > currentIndex && !s.filledToday);
+      if (nextIndex === -1) {
+        const anyUnfilled = updatedStores.findIndex(s => !s.filledToday);
+        if (anyUnfilled === -1) {
+          setDone(true);
+        } else {
+          setCurrentIndex(anyUnfilled);
+          setPositions(initPositions(updatedStores[anyUnfilled]));
+          bodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       } else {
         setCurrentIndex(nextIndex);
-        setPositions(initPositions(stores[nextIndex]));
+        setPositions(initPositions(updatedStores[nextIndex]));
         bodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch {
@@ -290,7 +327,7 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
   };
 
   const activePositions = positions.filter(p => !p.isDeleted);
-  const isLastStore = currentIndex === stores.length - 1;
+  const isLastUnfilled = !stores.some((s, i) => i !== currentIndex && !s.filledToday);
 
   return (
     <div className={styles.overlay}>
@@ -298,11 +335,14 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
         <div className={styles.header}>
           <div className={styles.headerTitle}>
             <h2>Заполнение персонала</h2>
-            {!loading && !done && currentStore && (
-              <span className={styles.progress}>
-                {currentIndex + 1} / {stores.length}
-              </span>
-            )}
+            {!loading && !done && currentStore && (() => {
+              const unfilledCount = stores.filter(s => !s.filledToday).length;
+              return (
+                <span className={styles.progress}>
+                  {unfilledCount > 0 ? `${unfilledCount} из ${stores.length}` : `${stores.length} / ${stores.length}`}
+                </span>
+              );
+            })()}
           </div>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Закрыть">
             <X size={20} />
@@ -326,9 +366,24 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
               <p className={styles.doneSubtext}>
                 Заполнено сегодня: {totalFilledToday} из {totalStores}
               </p>
-              <button className={styles.closeButton} onClick={onClose}>
-                Закрыть
-              </button>
+              <div className={styles.doneActions}>
+                {stores.length > 0 && (
+                  <button
+                    className={styles.viewButton}
+                    onClick={() => {
+                      setDone(false);
+                      const idx = stores.length > 0 ? 0 : 0;
+                      setCurrentIndex(idx);
+                      setPositions(initPositions(stores[idx]));
+                    }}
+                  >
+                    Просмотреть адреса
+                  </button>
+                )}
+                <button className={styles.closeButton} onClick={onClose}>
+                  Закрыть
+                </button>
+              </div>
             </div>
           )}
 
@@ -542,7 +597,7 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
               disabled={saving}
             >
               {saving ? <Loader2 size={16} className={styles.spinner} /> : <Check size={16} />}
-              <span>{isLastStore ? 'Сохранить и завершить' : 'Сохранить и продолжить'}</span>
+              <span>{isLastUnfilled ? 'Сохранить и завершить' : 'Сохранить и продолжить'}</span>
             </button>
           </div>
         )}
