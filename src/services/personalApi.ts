@@ -139,6 +139,16 @@ export const personalApi = {
     }
   },
 
+  getViewStores: async () => {
+    try {
+      const response = await api.get('/personal/manager/view-stores');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching view stores:', error);
+      throw error;
+    }
+  },
+
   getManagerStores: async () => {
     try {
       const response = await api.get('/personal/manager/stores');

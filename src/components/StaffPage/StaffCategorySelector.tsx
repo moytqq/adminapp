@@ -6,6 +6,7 @@ import {
   UserRound,
   ArrowLeft,
   ClipboardList,
+  Eye,
 } from 'lucide-react';
 
 export interface StaffCategory {
@@ -23,6 +24,7 @@ interface StaffCategorySelectorProps {
   onBackToCategories?: () => void;
   hasManagerAccess?: boolean;
   onManagerAction?: () => void;
+  onViewAction?: () => void;
   hasLinearAccess?: boolean;
 }
 
@@ -43,6 +45,7 @@ const StaffCategorySelector: React.FC<StaffCategorySelectorProps> = ({
                                                                        onBackToCategories,
                                                                        hasManagerAccess = false,
                                                                        onManagerAction,
+                                                                       onViewAction,
                                                                        hasLinearAccess = false,
                                                                      }) => {
   if (selectedCategory) {
@@ -104,6 +107,20 @@ const StaffCategorySelector: React.FC<StaffCategorySelectorProps> = ({
             </div>
             <h3 className={styles.title}>Заполнить персонал</h3>
             <p className={styles.description}>Учёт линейного персонала по адресам</p>
+            <div className={styles.arrow}>→</div>
+          </button>
+        )}
+        {hasManagerAccess && (
+          <button
+            className={styles.card}
+            onClick={onViewAction}
+            style={{ backgroundColor: '#e8f0fe' }}
+          >
+            <div className={styles.iconWrapper} style={{ color: '#1a73e8' }}>
+              <Eye size={32} />
+            </div>
+            <h3 className={styles.title}>Просмотреть</h3>
+            <p className={styles.description}>Просмотр персонала по всем адресам</p>
             <div className={styles.arrow}>→</div>
           </button>
         )}

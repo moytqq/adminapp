@@ -15,6 +15,7 @@ import AddPositionModal from '@/components/StaffPage/AddPositionModal';
 import AddStaffModal from '@/components/StaffPage/AddStaffModal';
 import Pagination from '@/components/Pagination/Pagination';
 import ManagerLsForm from '@/components/ManagerLsForm/ManagerLsForm';
+import StaffViewTable from '@/components/StaffViewTable/StaffViewTable';
 import { getUserFlags } from '@/services/api';
 import styles from './staff.module.scss';
 import { Users, Briefcase, Menu, ArrowUpDown, Filter, Search, ArrowLeft } from 'lucide-react';
@@ -42,6 +43,7 @@ export default function StaffPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterVacant, setFilterVacant] = useState<boolean | null>(null);
   const [showManagerForm, setShowManagerForm] = useState(false);
+  const [showStaffView, setShowStaffView] = useState(false);
 
   const flags = getUserFlags();
   const hasManagerAccess = flags.includes('MANAGER') || flags.includes('ADMIN');
@@ -175,13 +177,16 @@ export default function StaffPage() {
         <main className={styles.content}>
           <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-          {!selectedCategory ? (
+          {showStaffView ? (
+            <StaffViewTable onBack={() => setShowStaffView(false)} />
+          ) : !selectedCategory ? (
             <StaffCategorySelector
               onSelectCategory={handleSelectCategory}
               selectedCategory={null}
               onBackToCategories={handleBackToCategories}
               hasManagerAccess={hasManagerAccess}
               onManagerAction={() => setShowManagerForm(true)}
+              onViewAction={() => setShowStaffView(true)}
               hasLinearAccess={hasLinearAccess}
             />
           ) : (
