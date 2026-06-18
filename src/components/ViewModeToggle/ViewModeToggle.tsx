@@ -17,7 +17,7 @@ const ViewModeToggle: React.FC = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const isAdmin = getUserFlags().includes('ADMIN');
-  const storeTypes = ['Мясо', 'Колбасы', 'Молоко', 'Кулинария', 'Овощи'];
+  const storeTypes = ['Мясо', 'Колбаса', 'Молоко', 'Кулинария', 'Овощи'];
 
   useEffect(() => {
     const checkMobile = () => {
