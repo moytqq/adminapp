@@ -9,13 +9,11 @@ interface StaffInfo {
   birthDate?: string | null;
   citizenship?: string | null;
   contractType?: string | null;
-  maritalStatus?: string | null;
   children?: string | null;
   vacationStart?: string | null;
   vacationEnd?: string | null;
   phone?: string | null;
-  address?: string | null;
-  phoneBackup?: string | null;
+  startDate?: string | null;
   departureDate?: string | null;
 }
 
@@ -204,13 +202,11 @@ const StaffViewTable: React.FC<Props> = ({ onBack }) => {
                             {renderInfoRow('Дата рождения', formatDate(pos.staffInfo!.birthDate))}
                             {renderInfoRow('Гражданство', pos.staffInfo!.citizenship)}
                             {renderInfoRow('Договор', contractTypeLabel(pos.staffInfo!.contractType))}
-                            {renderInfoRow('Семейное положение', pos.staffInfo!.maritalStatus)}
                             {renderInfoRow('Дети', pos.staffInfo!.children)}
+                            {renderInfoRow('Телефон', pos.staffInfo!.phone)}
+                            {renderInfoRow('Дата начала работы', formatDate(pos.staffInfo!.startDate))}
                             {renderInfoRow('Отпуск с', formatDate(pos.staffInfo!.vacationStart))}
                             {renderInfoRow('Отпуск по', formatDate(pos.staffInfo!.vacationEnd))}
-                            {renderInfoRow('Телефон', pos.staffInfo!.phone)}
-                            {renderInfoRow('Доп. телефон', pos.staffInfo!.phoneBackup)}
-                            {renderInfoRow('Адрес', pos.staffInfo!.address)}
                             {renderInfoRow('Дата ухода', formatDate(pos.staffInfo!.departureDate))}
                           </div>
                         )}
