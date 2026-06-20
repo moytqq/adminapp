@@ -46,6 +46,7 @@ const contractTypeLabel = (val: string | null | undefined) => {
 
 const formatDate = (val: string | null | undefined) => {
   if (!val) return null;
+  if (/^\d{2}\.\d{2}\.\d{4}$/.test(val)) return val;
   try {
     return new Date(val).toLocaleDateString('ru-RU');
   } catch {

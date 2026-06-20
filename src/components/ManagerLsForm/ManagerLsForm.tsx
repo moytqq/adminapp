@@ -5,6 +5,7 @@ import { useAppSelector } from '@/store/hooks/hooks';
 import { personalApi } from '@/services/personalApi';
 import { X, Plus, Trash2, Check, Loader2 } from 'lucide-react';
 import StaffPicker from './StaffPicker';
+import MaskedDateInput from '@/components/MaskedDateInput/MaskedDateInput';
 import styles from './ManagerLsForm.module.scss';
 
 interface StaffInfoFields {
@@ -478,12 +479,9 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
                               </label>
                               <label className={styles.field}>
                                 <span>Дата рождения</span>
-                                <input
-                                  type="text"
-                                  inputMode="numeric"
+                                <MaskedDateInput
                                   value={pos.staffForm?.birthDate || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'birthDate', e.target.value)}
-                                  placeholder="ГГГГ-ММ-ДД"
+                                  onChange={v => handleStaffFormChange(idx, 'birthDate', v)}
                                 />
                               </label>
                               <label className={styles.field}>
@@ -516,46 +514,34 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
                               </label>
                               <label className={styles.field}>
                                 <span>Дата начала работы</span>
-                                <input
-                                  type="text"
-                                  inputMode="numeric"
+                                <MaskedDateInput
                                   value={pos.staffForm?.startDate || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'startDate', e.target.value)}
-                                  placeholder="ГГГГ-ММ-ДД"
+                                  onChange={v => handleStaffFormChange(idx, 'startDate', v)}
                                 />
                               </label>
                               {([1, 2, 3] as const).map(n => (
                                 <React.Fragment key={n}>
                                   <label className={styles.field}>
                                     <span>Начало отпуска {n}</span>
-                                    <input
-                                      type="text"
-                                      inputMode="numeric"
+                                    <MaskedDateInput
                                       value={pos.staffForm?.[`vacation${n}Start`] || ''}
-                                      onChange={e => handleStaffFormChange(idx, `vacation${n}Start` as keyof StaffInfoFields, e.target.value)}
-                                      placeholder="ГГГГ-ММ-ДД"
-                                    />
+                                      onChange={v => handleStaffFormChange(idx, `vacation${n}Start` as keyof StaffInfoFields, v)}
+                                        />
                                   </label>
                                   <label className={styles.field}>
                                     <span>Конец отпуска {n}</span>
-                                    <input
-                                      type="text"
-                                      inputMode="numeric"
+                                    <MaskedDateInput
                                       value={pos.staffForm?.[`vacation${n}End`] || ''}
-                                      onChange={e => handleStaffFormChange(idx, `vacation${n}End` as keyof StaffInfoFields, e.target.value)}
-                                      placeholder="ГГГГ-ММ-ДД"
-                                    />
+                                      onChange={v => handleStaffFormChange(idx, `vacation${n}End` as keyof StaffInfoFields, v)}
+                                        />
                                   </label>
                                 </React.Fragment>
                               ))}
                               <label className={styles.field}>
                                 <span>Дата увольнения (если известно)</span>
-                                <input
-                                  type="text"
-                                  inputMode="numeric"
+                                <MaskedDateInput
                                   value={pos.staffForm?.dismissalDate || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'dismissalDate', e.target.value)}
-                                  placeholder="ГГГГ-ММ-ДД"
+                                  onChange={v => handleStaffFormChange(idx, 'dismissalDate', v)}
                                 />
                               </label>
                               <label className={`${styles.field} ${styles.fieldFullWidth}`}>
