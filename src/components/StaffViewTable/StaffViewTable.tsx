@@ -10,11 +10,16 @@ interface StaffInfo {
   citizenship?: string | null;
   contractType?: string | null;
   children?: string | null;
-  vacationStart?: string | null;
-  vacationEnd?: string | null;
+  vacation1Start?: string | null;
+  vacation1End?: string | null;
+  vacation2Start?: string | null;
+  vacation2End?: string | null;
+  vacation3Start?: string | null;
+  vacation3End?: string | null;
   phone?: string | null;
   startDate?: string | null;
-  departureDate?: string | null;
+  dismissalDate?: string | null;
+  dismissalReason?: string | null;
 }
 
 interface ViewPosition {
@@ -205,9 +210,19 @@ const StaffViewTable: React.FC<Props> = ({ onBack }) => {
                             {renderInfoRow('Дети', pos.staffInfo!.children)}
                             {renderInfoRow('Телефон', pos.staffInfo!.phone)}
                             {renderInfoRow('Дата начала работы', formatDate(pos.staffInfo!.startDate))}
-                            {renderInfoRow('Отпуск с', formatDate(pos.staffInfo!.vacationStart))}
-                            {renderInfoRow('Отпуск по', formatDate(pos.staffInfo!.vacationEnd))}
-                            {renderInfoRow('Дата ухода', formatDate(pos.staffInfo!.departureDate))}
+                            {([1, 2, 3] as const).map(n => {
+                              const s = pos.staffInfo![`vacation${n}Start` as keyof StaffInfo];
+                              const e = pos.staffInfo![`vacation${n}End` as keyof StaffInfo];
+                              if (!s && !e) return null;
+                              return (
+                                <React.Fragment key={n}>
+                                  {renderInfoRow(`Отпуск ${n} с`, formatDate(s))}
+                                  {renderInfoRow(`Отпуск ${n} по`, formatDate(e))}
+                                </React.Fragment>
+                              );
+                            })}
+                            {renderInfoRow('Дата увольнения', formatDate(pos.staffInfo!.dismissalDate))}
+                            {renderInfoRow('Причина увольнения', pos.staffInfo!.dismissalReason)}
                           </div>
                         )}
                       </div>

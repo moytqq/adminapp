@@ -13,11 +13,16 @@ interface StaffInfoFields {
   citizenship: string;
   contractType: string;
   children: string;
-  vacationStart: string;
-  vacationEnd: string;
+  vacation1Start: string;
+  vacation1End: string;
+  vacation2Start: string;
+  vacation2End: string;
+  vacation3Start: string;
+  vacation3End: string;
   phone: string;
   startDate: string;
-  departureDate: string;
+  dismissalDate: string;
+  dismissalReason: string;
 }
 
 interface PositionItem {
@@ -63,17 +68,16 @@ const INFO_LABEL_MAP: Record<string, string> = {
   citizenship: 'Ггражданство',
   contractType: 'Ттип отношений',
   children: 'Дети',
-  vacationStart: 'Начало отпуска',
-  vacationEnd: 'Конец отпуска',
+  vacation1Start: 'Начало отпуска 1',
+  vacation1End: 'Конец отпуска 1',
+  vacation2Start: 'Начало отпуска 2',
+  vacation2End: 'Конец отпуска 2',
+  vacation3Start: 'Начало отпуска 3',
+  vacation3End: 'Конец отпуска 3',
   phone: 'Телефон',
   startDate: 'Дата начала работы',
-  departureDate: 'Дата ухода',
-};
-
-const addDays = (dateStr: string, days: number): string => {
-  const d = new Date(dateStr);
-  d.setDate(d.getDate() + days);
-  return d.toISOString().split('T')[0];
+  dismissalDate: 'Дата увольнения',
+  dismissalReason: 'Причина увольнения',
 };
 
 const emptyStaffForm = (): StaffInfoFields => ({
@@ -82,11 +86,16 @@ const emptyStaffForm = (): StaffInfoFields => ({
   citizenship: '',
   contractType: '',
   children: '',
-  vacationStart: '',
-  vacationEnd: '',
+  vacation1Start: '',
+  vacation1End: '',
+  vacation2Start: '',
+  vacation2End: '',
+  vacation3Start: '',
+  vacation3End: '',
   phone: '',
   startDate: '',
-  departureDate: '',
+  dismissalDate: '',
+  dismissalReason: '',
 });
 
 const buildStaffForm = (
@@ -113,11 +122,16 @@ const buildStaffFormFromReport = (reportStaff: Partial<StaffInfoFields> & Record
   citizenship: reportStaff.citizenship || '',
   contractType: reportStaff.contractType || '',
   children: reportStaff.children || '',
-  vacationStart: reportStaff.vacationStart || '',
-  vacationEnd: reportStaff.vacationEnd || '',
+  vacation1Start: reportStaff.vacation1Start || reportStaff.vacationStart || '',
+  vacation1End: reportStaff.vacation1End || reportStaff.vacationEnd || '',
+  vacation2Start: reportStaff.vacation2Start || '',
+  vacation2End: reportStaff.vacation2End || '',
+  vacation3Start: reportStaff.vacation3Start || '',
+  vacation3End: reportStaff.vacation3End || '',
   phone: reportStaff.phone || '',
   startDate: reportStaff.startDate || '',
-  departureDate: reportStaff.departureDate || '',
+  dismissalDate: reportStaff.dismissalDate || reportStaff.departureDate || '',
+  dismissalReason: reportStaff.dismissalReason || '',
 });
 
 const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
@@ -243,20 +257,16 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
 
     for (const pos of positions) {
       if (!pos.isDeleted && pos.lsid && pos.staffForm) {
-        const { vacationStart, vacationEnd } = pos.staffForm;
-        if (vacationStart && vacationEnd) {
-          const start = new Date(vacationStart);
-          const end = new Date(vacationEnd);
-          const diff = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
-          if (diff < 0) {
-            setError(`«${pos.name}»: конец отпуска раньше начала`);
-            setSaving(false);
-            return;
-          }
-          if (diff > 14) {
-            setError(`«${pos.name}»: отпуск не может превышать 14 дней`);
-            setSaving(false);
-            return;
+        for (const n of [1, 2, 3] as const) {
+          const start = pos.staffForm[`vacation${n}Start` as keyof StaffInfoFields];
+          const end = pos.staffForm[`vacation${n}End` as keyof StaffInfoFields];
+          if (start && end) {
+            const diff = (new Date(end).getTime() - new Date(start).getTime()) / (1000 * 60 * 60 * 24);
+            if (diff < 0) {
+              setError(`«${pos.name}»: конец отпуска ${n} раньше начала`);
+              setSaving(false);
+              return;
+            }
           }
         }
       }
@@ -469,9 +479,11 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
                               <label className={styles.field}>
                                 <span>Дата рождения</span>
                                 <input
-                                  type="date"
+                                  type="text"
+                                  inputMode="numeric"
                                   value={pos.staffForm?.birthDate || ''}
                                   onChange={e => handleStaffFormChange(idx, 'birthDate', e.target.value)}
+                                  placeholder="ГГГГ-ММ-ДД"
                                 />
                               </label>
                               <label className={styles.field}>
@@ -505,35 +517,53 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
                               <label className={styles.field}>
                                 <span>Дата начала работы</span>
                                 <input
-                                  type="date"
+                                  type="text"
+                                  inputMode="numeric"
                                   value={pos.staffForm?.startDate || ''}
                                   onChange={e => handleStaffFormChange(idx, 'startDate', e.target.value)}
+                                  placeholder="ГГГГ-ММ-ДД"
                                 />
                               </label>
+                              {([1, 2, 3] as const).map(n => (
+                                <React.Fragment key={n}>
+                                  <label className={styles.field}>
+                                    <span>Начало отпуска {n}</span>
+                                    <input
+                                      type="text"
+                                      inputMode="numeric"
+                                      value={pos.staffForm?.[`vacation${n}Start`] || ''}
+                                      onChange={e => handleStaffFormChange(idx, `vacation${n}Start` as keyof StaffInfoFields, e.target.value)}
+                                      placeholder="ГГГГ-ММ-ДД"
+                                    />
+                                  </label>
+                                  <label className={styles.field}>
+                                    <span>Конец отпуска {n}</span>
+                                    <input
+                                      type="text"
+                                      inputMode="numeric"
+                                      value={pos.staffForm?.[`vacation${n}End`] || ''}
+                                      onChange={e => handleStaffFormChange(idx, `vacation${n}End` as keyof StaffInfoFields, e.target.value)}
+                                      placeholder="ГГГГ-ММ-ДД"
+                                    />
+                                  </label>
+                                </React.Fragment>
+                              ))}
                               <label className={styles.field}>
-                                <span>Начало отпуска</span>
+                                <span>Дата увольнения (если известно)</span>
                                 <input
-                                  type="date"
-                                  value={pos.staffForm?.vacationStart || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'vacationStart', e.target.value)}
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={pos.staffForm?.dismissalDate || ''}
+                                  onChange={e => handleStaffFormChange(idx, 'dismissalDate', e.target.value)}
+                                  placeholder="ГГГГ-ММ-ДД"
                                 />
                               </label>
-                              <label className={styles.field}>
-                                <span>Конец отпуска</span>
+                              <label className={`${styles.field} ${styles.fieldFullWidth}`}>
+                                <span>Причина увольнения</span>
                                 <input
-                                  type="date"
-                                  value={pos.staffForm?.vacationEnd || ''}
-                                  min={pos.staffForm?.vacationStart || undefined}
-                                  max={pos.staffForm?.vacationStart ? addDays(pos.staffForm.vacationStart, 14) : undefined}
-                                  onChange={e => handleStaffFormChange(idx, 'vacationEnd', e.target.value)}
-                                />
-                              </label>
-                              <label className={styles.field}>
-                                <span>Дата ухода</span>
-                                <input
-                                  type="date"
-                                  value={pos.staffForm?.departureDate || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'departureDate', e.target.value)}
+                                  value={pos.staffForm?.dismissalReason || ''}
+                                  onChange={e => handleStaffFormChange(idx, 'dismissalReason', e.target.value)}
+                                  placeholder="Причина"
                                 />
                               </label>
                             </div>
@@ -549,6 +579,7 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
                 <Plus size={16} />
                 <span>Добавить вакансию</span>
               </button>
+              <div style={{ height: 200 }} />
             </>
           )}
         </div>
