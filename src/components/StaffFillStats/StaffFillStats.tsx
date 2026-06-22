@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { personalApi } from '@/services/personalApi';
-import { ArrowLeft, ChevronDown, ChevronRight, Download, Search } from 'lucide-react';
+import { ArrowLeft, ArrowUpDown, ChevronDown, ChevronRight, Download, Search } from 'lucide-react';
 import styles from './StaffFillStats.module.scss';
 
 // Fields tracked in manager_ls_report staff data
@@ -96,6 +96,7 @@ const StaffFillStats: React.FC<Props> = ({ onBack }) => {
   const [expandedPositions, setExpandedPositions] = useState<Set<number>>(new Set());
   const [search, setSearch] = useState('');
   const [groupFilter, setGroupFilter] = useState<'all' | 'main' | 'vacation' | 'dismissal'>('all');
+  const [sortMode, setSortMode] = useState<'name' | 'fill-asc' | 'fill-desc'>('name');
 
   useEffect(() => {
     personalApi.getAdminManagerReport()
@@ -118,12 +119,26 @@ const StaffFillStats: React.FC<Props> = ({ onBack }) => {
   const visibleFields = groupFilter === 'all' ? FIELDS : FIELDS.filter(f => f.group === groupFilter);
   const visibleKeys = visibleFields.map(f => f.key);
 
-  const filteredManagers = search
-    ? managers.filter(m =>
-        m.name.toLowerCase().includes(search.toLowerCase()) ||
-        m.stores.some(s => s.name.toLowerCase().includes(search.toLowerCase()))
-      )
-    : managers;
+  const fillPct = (m: FillManager) => {
+    const { filledSlots, totalSlots } = managerStats(m);
+    return totalSlots > 0 ? filledSlots / totalSlots : 0;
+  };
+
+  const filteredManagers = React.useMemo(() => {
+    let list = search
+      ? managers.filter(m =>
+          m.name.toLowerCase().includes(search.toLowerCase()) ||
+          m.stores.some(s => s.name.toLowerCase().includes(search.toLowerCase()))
+        )
+      : [...managers];
+
+    if (sortMode === 'fill-desc') list.sort((a, b) => fillPct(b) - fillPct(a));
+    else if (sortMode === 'fill-asc') list.sort((a, b) => fillPct(a) - fillPct(b));
+    // 'name' — сортировка с бэкенда (по алфавиту), не трогаем
+
+    return list;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [managers, search, sortMode]);
 
   // Per-manager aggregate stats across all occupied positions, main fields only
   function managerStats(m: FillManager) {
@@ -212,6 +227,16 @@ const StaffFillStats: React.FC<Props> = ({ onBack }) => {
             onChange={e => setSearch(e.target.value)}
           />
         </div>
+        <button
+          className={`${styles.sortBtn} ${sortMode !== 'name' ? styles.sortActive : ''}`}
+          onClick={() => setSortMode(prev =>
+            prev === 'name' ? 'fill-desc' : prev === 'fill-desc' ? 'fill-asc' : 'name'
+          )}
+          title={{ name: 'Сортировка: по имени', 'fill-desc': 'Сортировка: убывание %', 'fill-asc': 'Сортировка: возрастание %' }[sortMode]}
+        >
+          <ArrowUpDown size={15} />
+          <span>{{ name: 'По имени', 'fill-desc': '% ↓', 'fill-asc': '% ↑' }[sortMode]}</span>
+        </button>
         <div className={styles.groupTabs}>
           {(['all', 'main', 'vacation', 'dismissal'] as const).map(g => (
             <button

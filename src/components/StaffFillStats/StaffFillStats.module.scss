@@ -55,6 +55,29 @@
   &:focus { border-color: #1a73e8; }
 }
 
+.sortBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  font-size: 13px;
+  background: none;
+  cursor: pointer;
+  color: #344054;
+  white-space: nowrap;
+  transition: all 0.15s;
+  &:hover { background: #f2f4f7; }
+}
+
+.sortActive {
+  border-color: #1a73e8;
+  color: #1a73e8;
+  background: #e8f0fe;
+  &:hover { background: #d2e3fc; }
+}
+
 .groupTabs {
   display: flex;
   gap: 4px;
