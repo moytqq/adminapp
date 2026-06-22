@@ -61,6 +61,8 @@ const CONTRACT_TYPES = [
   { value: 'employment', label: 'Трудовой договор' },
   { value: 'gph', label: 'ГПХ' },
   { value: 'patent', label: 'Патент' },
+  { value: 'internship', label: 'Стажировка' },
+  { value: 'outsource', label: 'Аутсорс' },
 ];
 
 // Stored label values must match backend LABEL_MAP exactly (typos are intentional for existing data)
@@ -460,98 +462,121 @@ const ManagerLsForm: React.FC<ManagerLsFormProps> = ({ onClose }) => {
                           {!pos.staffInfoLoaded ? (
                             <Loader2 size={20} className={styles.spinner} />
                           ) : (
-                            <div className={styles.fieldsGrid}>
-                              <label className={styles.field}>
-                                <span>ФИО</span>
-                                <input
-                                  value={pos.staffForm?.fio || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'fio', e.target.value)}
-                                  placeholder="ФИО"
-                                />
-                              </label>
-                              <label className={styles.field}>
-                                <span>Гражданство</span>
-                                <input
-                                  value={pos.staffForm?.citizenship || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'citizenship', e.target.value)}
-                                  placeholder="Гражданство"
-                                />
-                              </label>
-                              <label className={styles.field}>
-                                <span>Дата рождения</span>
-                                <MaskedDateInput
-                                  value={pos.staffForm?.birthDate || ''}
-                                  onChange={v => handleStaffFormChange(idx, 'birthDate', v)}
-                                />
-                              </label>
-                              <label className={styles.field}>
-                                <span>Договор</span>
-                                <select
-                                  value={pos.staffForm?.contractType || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'contractType', e.target.value)}
-                                >
-                                  {CONTRACT_TYPES.map(ct => (
-                                    <option key={ct.value} value={ct.value}>{ct.label}</option>
+                            <div className={styles.fieldsGroups}>
+                              <div className={styles.fieldGroup}>
+                                <h4 className={styles.groupTitle}>Основное</h4>
+                                <div className={styles.fieldsGrid}>
+                                  <label className={`${styles.field} ${styles.fieldFullWidth}`}>
+                                    <span>ФИО</span>
+                                    <input
+                                      value={pos.staffForm?.fio || ''}
+                                      onChange={e => handleStaffFormChange(idx, 'fio', e.target.value)}
+                                      placeholder="ФИО"
+                                    />
+                                  </label>
+                                  <label className={styles.field}>
+                                    <span>Гражданство</span>
+                                    <input
+                                      value={pos.staffForm?.citizenship || ''}
+                                      onChange={e => handleStaffFormChange(idx, 'citizenship', e.target.value)}
+                                      placeholder="Гражданство"
+                                    />
+                                  </label>
+                                  <label className={styles.field}>
+                                    <span>Дата рождения</span>
+                                    <MaskedDateInput
+                                      value={pos.staffForm?.birthDate || ''}
+                                      onChange={v => handleStaffFormChange(idx, 'birthDate', v)}
+                                    />
+                                  </label>
+                                  <label className={styles.field}>
+                                    <span>Договор</span>
+                                    <select
+                                      value={pos.staffForm?.contractType || ''}
+                                      onChange={e => handleStaffFormChange(idx, 'contractType', e.target.value)}
+                                    >
+                                      {CONTRACT_TYPES.map(ct => (
+                                        <option key={ct.value} value={ct.value}>{ct.label}</option>
+                                      ))}
+                                    </select>
+                                  </label>
+                                  <label className={styles.field}>
+                                    <span>Телефон</span>
+                                    <input
+                                      type="tel"
+                                      value={pos.staffForm?.phone || ''}
+                                      onChange={e => handleStaffFormChange(idx, 'phone', e.target.value)}
+                                      placeholder="+7..."
+                                    />
+                                  </label>
+                                  <label className={styles.field}>
+                                    <span>Дата начала работы</span>
+                                    <MaskedDateInput
+                                      value={pos.staffForm?.startDate || ''}
+                                      onChange={v => handleStaffFormChange(idx, 'startDate', v)}
+                                    />
+                                  </label>
+                                </div>
+                              </div>
+
+                              <div className={styles.fieldGroup}>
+                                <h4 className={styles.groupTitle}>Отпуска</h4>
+                                <div className={styles.fieldsGrid}>
+                                  {([1, 2, 3] as const).map(n => (
+                                    <React.Fragment key={n}>
+                                      <label className={styles.field}>
+                                        <span>Начало отпуска {n}</span>
+                                        <MaskedDateInput
+                                          value={pos.staffForm?.[`vacation${n}Start`] || ''}
+                                          onChange={v => handleStaffFormChange(idx, `vacation${n}Start` as keyof StaffInfoFields, v)}
+                                        />
+                                      </label>
+                                      <label className={styles.field}>
+                                        <span>Конец отпуска {n}</span>
+                                        <MaskedDateInput
+                                          value={pos.staffForm?.[`vacation${n}End`] || ''}
+                                          onChange={v => handleStaffFormChange(idx, `vacation${n}End` as keyof StaffInfoFields, v)}
+                                        />
+                                      </label>
+                                    </React.Fragment>
                                   ))}
-                                </select>
-                              </label>
-                              <label className={styles.field}>
-                                <span>Дети</span>
-                                <input
-                                  value={pos.staffForm?.children || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'children', e.target.value)}
-                                  placeholder="Количество или описание"
-                                />
-                              </label>
-                              <label className={styles.field}>
-                                <span>Телефон</span>
-                                <input
-                                  type="tel"
-                                  value={pos.staffForm?.phone || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'phone', e.target.value)}
-                                  placeholder="+7..."
-                                />
-                              </label>
-                              <label className={styles.field}>
-                                <span>Дата начала работы</span>
-                                <MaskedDateInput
-                                  value={pos.staffForm?.startDate || ''}
-                                  onChange={v => handleStaffFormChange(idx, 'startDate', v)}
-                                />
-                              </label>
-                              {([1, 2, 3] as const).map(n => (
-                                <React.Fragment key={n}>
-                                  <label className={styles.field}>
-                                    <span>Начало отпуска {n}</span>
-                                    <MaskedDateInput
-                                      value={pos.staffForm?.[`vacation${n}Start`] || ''}
-                                      onChange={v => handleStaffFormChange(idx, `vacation${n}Start` as keyof StaffInfoFields, v)}
-                                        />
+                                </div>
+                              </div>
+
+                              <div className={styles.fieldGroup}>
+                                <h4 className={styles.groupTitle}>Дополнительное</h4>
+                                <div className={styles.fieldsGrid}>
+                                  <label className={`${styles.field} ${styles.fieldFullWidth}`}>
+                                    <span>Дети</span>
+                                    <input
+                                      value={pos.staffForm?.children || ''}
+                                      onChange={e => handleStaffFormChange(idx, 'children', e.target.value)}
+                                      placeholder="Количество или описание"
+                                    />
                                   </label>
+                                </div>
+                              </div>
+
+                              <div className={styles.fieldGroup}>
+                                <h4 className={styles.groupTitle}>Увольнение</h4>
+                                <div className={styles.fieldsGrid}>
                                   <label className={styles.field}>
-                                    <span>Конец отпуска {n}</span>
+                                    <span>Дата увольнения (если известно)</span>
                                     <MaskedDateInput
-                                      value={pos.staffForm?.[`vacation${n}End`] || ''}
-                                      onChange={v => handleStaffFormChange(idx, `vacation${n}End` as keyof StaffInfoFields, v)}
-                                        />
+                                      value={pos.staffForm?.dismissalDate || ''}
+                                      onChange={v => handleStaffFormChange(idx, 'dismissalDate', v)}
+                                    />
                                   </label>
-                                </React.Fragment>
-                              ))}
-                              <label className={styles.field}>
-                                <span>Дата увольнения (если известно)</span>
-                                <MaskedDateInput
-                                  value={pos.staffForm?.dismissalDate || ''}
-                                  onChange={v => handleStaffFormChange(idx, 'dismissalDate', v)}
-                                />
-                              </label>
-                              <label className={`${styles.field} ${styles.fieldFullWidth}`}>
-                                <span>Причина увольнения</span>
-                                <input
-                                  value={pos.staffForm?.dismissalReason || ''}
-                                  onChange={e => handleStaffFormChange(idx, 'dismissalReason', e.target.value)}
-                                  placeholder="Причина"
-                                />
-                              </label>
+                                  <label className={`${styles.field} ${styles.fieldFullWidth}`}>
+                                    <span>Причина увольнения</span>
+                                    <input
+                                      value={pos.staffForm?.dismissalReason || ''}
+                                      onChange={e => handleStaffFormChange(idx, 'dismissalReason', e.target.value)}
+                                      placeholder="Причина"
+                                    />
+                                  </label>
+                                </div>
+                              </div>
                             </div>
                           )}
                         </div>
