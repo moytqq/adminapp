@@ -17,6 +17,7 @@ import Pagination from '@/components/Pagination/Pagination';
 import ManagerLsForm from '@/components/ManagerLsForm/ManagerLsForm';
 import StaffViewTable from '@/components/StaffViewTable/StaffViewTable';
 import StaffManagerReport from '@/components/StaffManagerReport/StaffManagerReport';
+import StaffFillStats from '@/components/StaffFillStats/StaffFillStats';
 import { getUserFlags } from '@/services/api';
 import styles from './staff.module.scss';
 import { Users, Briefcase, Menu, ArrowUpDown, Filter, Search, ArrowLeft } from 'lucide-react';
@@ -46,6 +47,7 @@ export default function StaffPage() {
   const [showManagerForm, setShowManagerForm] = useState(false);
   const [showStaffView, setShowStaffView] = useState(false);
   const [showManagerReport, setShowManagerReport] = useState(false);
+  const [showFillStats, setShowFillStats] = useState(false);
 
   const flags = getUserFlags();
   const hasManagerAccess = flags.includes('MANAGER') || flags.includes('ADMIN');
@@ -180,7 +182,11 @@ export default function StaffPage() {
         <main className={styles.content}>
           <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-          {showManagerReport ? (
+          {showFillStats ? (
+            <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
+              <StaffFillStats onBack={() => setShowFillStats(false)} />
+            </div>
+          ) : showManagerReport ? (
             <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
               <StaffManagerReport onBack={() => setShowManagerReport(false)} />
             </div>
@@ -197,6 +203,7 @@ export default function StaffPage() {
               onManagerAction={() => setShowManagerForm(true)}
               onViewAction={() => setShowStaffView(true)}
               onReportAction={() => setShowManagerReport(true)}
+              onFillStatsAction={() => setShowFillStats(true)}
               hasLinearAccess={hasLinearAccess}
               isAdmin={isAdmin}
             />

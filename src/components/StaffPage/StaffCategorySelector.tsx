@@ -8,6 +8,7 @@ import {
   ClipboardList,
   Eye,
   BarChart3,
+  TableProperties,
 } from 'lucide-react';
 
 export interface StaffCategory {
@@ -27,6 +28,7 @@ interface StaffCategorySelectorProps {
   onManagerAction?: () => void;
   onViewAction?: () => void;
   onReportAction?: () => void;
+  onFillStatsAction?: () => void;
   hasLinearAccess?: boolean;
   isAdmin?: boolean;
 }
@@ -50,6 +52,7 @@ const StaffCategorySelector: React.FC<StaffCategorySelectorProps> = ({
                                                                        onManagerAction,
                                                                        onViewAction,
                                                                        onReportAction,
+                                                                       onFillStatsAction,
                                                                        hasLinearAccess = false,
                                                                        isAdmin = false,
                                                                      }) => {
@@ -140,6 +143,20 @@ const StaffCategorySelector: React.FC<StaffCategorySelectorProps> = ({
             </div>
             <h3 className={styles.title}>Отчёт</h3>
             <p className={styles.description}>Заполненность адресов по управляющим</p>
+            <div className={styles.arrow}>→</div>
+          </button>
+        )}
+        {isAdmin && (
+          <button
+            className={styles.card}
+            onClick={onFillStatsAction}
+            style={{ backgroundColor: '#e8faf0' }}
+          >
+            <div className={styles.iconWrapper} style={{ color: '#137333' }}>
+              <TableProperties size={32} />
+            </div>
+            <h3 className={styles.title}>Анализ полей</h3>
+            <p className={styles.description}>Детальная заполненность анкет по полям</p>
             <div className={styles.arrow}>→</div>
           </button>
         )}
