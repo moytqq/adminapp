@@ -16,6 +16,7 @@ import AddStaffModal from '@/components/StaffPage/AddStaffModal';
 import Pagination from '@/components/Pagination/Pagination';
 import ManagerLsForm from '@/components/ManagerLsForm/ManagerLsForm';
 import StaffViewTable from '@/components/StaffViewTable/StaffViewTable';
+import StaffManagerReport from '@/components/StaffManagerReport/StaffManagerReport';
 import { getUserFlags } from '@/services/api';
 import styles from './staff.module.scss';
 import { Users, Briefcase, Menu, ArrowUpDown, Filter, Search, ArrowLeft } from 'lucide-react';
@@ -44,10 +45,12 @@ export default function StaffPage() {
   const [filterVacant, setFilterVacant] = useState<boolean | null>(null);
   const [showManagerForm, setShowManagerForm] = useState(false);
   const [showStaffView, setShowStaffView] = useState(false);
+  const [showManagerReport, setShowManagerReport] = useState(false);
 
   const flags = getUserFlags();
   const hasManagerAccess = flags.includes('MANAGER') || flags.includes('ADMIN');
   const hasLinearAccess = flags.includes('ADMIN');
+  const isAdmin = flags.includes('ADMIN');
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
@@ -177,7 +180,11 @@ export default function StaffPage() {
         <main className={styles.content}>
           <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-          {showStaffView ? (
+          {showManagerReport ? (
+            <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
+              <StaffManagerReport onBack={() => setShowManagerReport(false)} />
+            </div>
+          ) : showStaffView ? (
             <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
               <StaffViewTable onBack={() => setShowStaffView(false)} />
             </div>
@@ -189,7 +196,9 @@ export default function StaffPage() {
               hasManagerAccess={hasManagerAccess}
               onManagerAction={() => setShowManagerForm(true)}
               onViewAction={() => setShowStaffView(true)}
+              onReportAction={() => setShowManagerReport(true)}
               hasLinearAccess={hasLinearAccess}
+              isAdmin={isAdmin}
             />
           ) : (
             <>

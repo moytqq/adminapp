@@ -139,6 +139,16 @@ export const personalApi = {
     }
   },
 
+  getAdminManagerReport: async () => {
+    try {
+      const response = await api.get('/personal/manager/admin-view');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching admin manager report:', error);
+      throw error;
+    }
+  },
+
   getViewStores: async () => {
     try {
       const response = await api.get('/personal/manager/view-stores');

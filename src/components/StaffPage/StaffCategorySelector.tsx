@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   ClipboardList,
   Eye,
+  BarChart3,
 } from 'lucide-react';
 
 export interface StaffCategory {
@@ -25,7 +26,9 @@ interface StaffCategorySelectorProps {
   hasManagerAccess?: boolean;
   onManagerAction?: () => void;
   onViewAction?: () => void;
+  onReportAction?: () => void;
   hasLinearAccess?: boolean;
+  isAdmin?: boolean;
 }
 
 const staffCategories: StaffCategory[] = [
@@ -46,7 +49,9 @@ const StaffCategorySelector: React.FC<StaffCategorySelectorProps> = ({
                                                                        hasManagerAccess = false,
                                                                        onManagerAction,
                                                                        onViewAction,
+                                                                       onReportAction,
                                                                        hasLinearAccess = false,
+                                                                       isAdmin = false,
                                                                      }) => {
   if (selectedCategory) {
     const category = staffCategories.find(c => c.id === selectedCategory);
@@ -121,6 +126,20 @@ const StaffCategorySelector: React.FC<StaffCategorySelectorProps> = ({
             </div>
             <h3 className={styles.title}>Просмотреть</h3>
             <p className={styles.description}>Просмотр персонала по всем адресам</p>
+            <div className={styles.arrow}>→</div>
+          </button>
+        )}
+        {isAdmin && (
+          <button
+            className={styles.card}
+            onClick={onReportAction}
+            style={{ backgroundColor: '#f0ebff' }}
+          >
+            <div className={styles.iconWrapper} style={{ color: '#6c35de' }}>
+              <BarChart3 size={32} />
+            </div>
+            <h3 className={styles.title}>Отчёт</h3>
+            <p className={styles.description}>Заполненность адресов по управляющим</p>
             <div className={styles.arrow}>→</div>
           </button>
         )}
