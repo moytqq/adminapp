@@ -430,6 +430,11 @@
 }
 
 .cellEmpty {
+  background: #fff8f8;
+  border-color: #e5e7eb;
+}
+
+.cellRequired {
   background: #fff1f2;
   border-color: #fda4af;
 }
@@ -450,6 +455,10 @@
 }
 
 .cellEmpty .fieldCellValue {
+  color: #9ca3af;
+}
+
+.cellRequired .fieldCellValue {
   color: #f43f5e;
 }
 

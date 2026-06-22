@@ -7,16 +7,17 @@ import { ArrowLeft, ChevronDown, ChevronRight, Download, Search } from 'lucide-r
 import styles from './StaffFillStats.module.scss';
 
 // Fields tracked in manager_ls_report staff data
-const FIELDS: Array<{ key: string; label: string; group: 'main' | 'vacation' | 'dismissal' }> = [
-  { key: 'fio',            label: 'ФИО',                group: 'main' },
-  { key: 'birthDate',      label: 'Дата рождения',      group: 'main' },
-  { key: 'citizenship',    label: 'Гражданство',         group: 'main' },
-  { key: 'contractType',   label: 'Тип договора',        group: 'main' },
-  { key: 'phone',          label: 'Телефон',              group: 'main' },
-  { key: 'startDate',      label: 'Дата начала',          group: 'main' },
-  { key: 'children',       label: 'Дети',                 group: 'main' },
-  { key: 'vacation1Start', label: 'Отпуск 1 нач.',        group: 'vacation' },
-  { key: 'vacation1End',   label: 'Отпуск 1 кон.',        group: 'vacation' },
+// required: true → учитываются при подсчёте заполненности (первые 9)
+const FIELDS: Array<{ key: string; label: string; group: 'main' | 'vacation' | 'dismissal'; required?: boolean }> = [
+  { key: 'fio',            label: 'ФИО',                group: 'main',      required: true },
+  { key: 'birthDate',      label: 'Дата рождения',      group: 'main',      required: true },
+  { key: 'citizenship',    label: 'Гражданство',         group: 'main',      required: true },
+  { key: 'contractType',   label: 'Тип договора',        group: 'main',      required: true },
+  { key: 'phone',          label: 'Телефон',              group: 'main',      required: true },
+  { key: 'startDate',      label: 'Дата начала',          group: 'main',      required: true },
+  { key: 'children',       label: 'Дети',                 group: 'main',      required: true },
+  { key: 'vacation1Start', label: 'Отпуск 1 нач.',        group: 'vacation',  required: true },
+  { key: 'vacation1End',   label: 'Отпуск 1 кон.',        group: 'vacation',  required: true },
   { key: 'vacation2Start', label: 'Отпуск 2 нач.',        group: 'vacation' },
   { key: 'vacation2End',   label: 'Отпуск 2 кон.',        group: 'vacation' },
   { key: 'vacation3Start', label: 'Отпуск 3 нач.',        group: 'vacation' },
@@ -25,7 +26,7 @@ const FIELDS: Array<{ key: string; label: string; group: 'main' | 'vacation' | '
   { key: 'dismissalReason',label: 'Причина увольнения',   group: 'dismissal' },
 ];
 
-const MAIN_FIELDS = FIELDS.filter(f => f.group === 'main');
+const MAIN_FIELDS = FIELDS.filter(f => f.required);
 
 function fieldFill(staffData: any | null): Record<string, boolean> {
   const result: Record<string, boolean> = {};
@@ -340,8 +341,8 @@ const StaffFillStats: React.FC<Props> = ({ onBack }) => {
                                         {visibleFields.map(f => (
                                           <div
                                             key={f.key}
-                                            className={`${styles.fieldCell} ${fill[f.key] ? styles.cellFilled : styles.cellEmpty}`}
-                                            title={fill[f.key] ? String(pos.staffData[f.key]) : 'не заполнено'}
+                                            className={`${styles.fieldCell} ${fill[f.key] ? styles.cellFilled : f.required ? styles.cellRequired : styles.cellEmpty}`}
+                                            title={fill[f.key] ? String(pos.staffData[f.key]) : f.required ? 'обязательное — не заполнено' : 'не заполнено'}
                                           >
                                             <span className={styles.fieldCellLabel}>{f.label}</span>
                                             <span className={styles.fieldCellValue}>
