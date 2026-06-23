@@ -9,7 +9,7 @@ import { Lightbulb, Send, ChevronDown, ChevronUp, Loader } from 'lucide-react';
 
 const CATEGORY_LABELS: Record<string, string> = {
   correction: 'Исправление',
-  message: 'Сообщение команде',
+  message: 'Столкнулся с ошибкой',
 };
 
 const Proposes: React.FC = () => {
@@ -99,7 +99,7 @@ const Proposes: React.FC = () => {
                 className={`${styles.catBtn} ${category === 'message' ? styles.catBtnActive : ''}`}
                 onClick={() => setCategory('message')}
               >
-                Сообщение команде
+                Столкнулся с ошибкой
               </button>
               <button
                 type="button"
@@ -122,7 +122,7 @@ const Proposes: React.FC = () => {
               placeholder={
                 category === 'correction'
                   ? 'Опишите что именно и где исправить...'
-                  : 'Напишите своё предложение или пожелание...'
+                  : 'Опишите с какой ошибкой вы столкнулись...'
               }
               rows={5}
               required
