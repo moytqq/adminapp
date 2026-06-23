@@ -8,6 +8,7 @@ import {
   ClipboardList,
   Eye,
   CalendarDays,
+  TableProperties,
 } from 'lucide-react';
 
 export interface StaffCategory {
@@ -26,6 +27,7 @@ interface StaffCategorySelectorProps {
   hasManagerAccess?: boolean;
   onManagerAction?: () => void;
   onViewAction?: () => void;
+  onFillStatsAction?: () => void;
   onVacationsAction?: () => void;
   hasLinearAccess?: boolean;
   isAdmin?: boolean;
@@ -49,6 +51,7 @@ const StaffCategorySelector: React.FC<StaffCategorySelectorProps> = ({
                                                                        hasManagerAccess = false,
                                                                        onManagerAction,
                                                                        onViewAction,
+                                                                       onFillStatsAction,
                                                                        onVacationsAction,
                                                                        hasLinearAccess = false,
                                                                        isAdmin = false,
@@ -126,6 +129,20 @@ const StaffCategorySelector: React.FC<StaffCategorySelectorProps> = ({
             </div>
             <h3 className={styles.title}>Просмотреть</h3>
             <p className={styles.description}>Просмотр персонала по всем адресам</p>
+            <div className={styles.arrow}>→</div>
+          </button>
+        )}
+        {isAdmin && (
+          <button
+            className={styles.card}
+            onClick={onFillStatsAction}
+            style={{ backgroundColor: '#e8faf0' }}
+          >
+            <div className={styles.iconWrapper} style={{ color: '#137333' }}>
+              <TableProperties size={32} />
+            </div>
+            <h3 className={styles.title}>Анализ полей</h3>
+            <p className={styles.description}>Детальная заполненность анкет по полям</p>
             <div className={styles.arrow}>→</div>
           </button>
         )}

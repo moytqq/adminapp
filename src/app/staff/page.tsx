@@ -204,6 +204,7 @@ export default function StaffPage() {
               hasManagerAccess={hasManagerAccess}
               onManagerAction={() => setShowManagerForm(true)}
               onViewAction={() => setShowStaffView(true)}
+              onFillStatsAction={() => setShowFillStats(true)}
               onVacationsAction={() => router.push('/staff/vacations')}
               hasLinearAccess={hasLinearAccess}
               isAdmin={isAdmin}
