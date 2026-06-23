@@ -218,9 +218,9 @@ export default function VacationsPage({ onBack }: { onBack: () => void }) {
             <button
               className={styles.uploadSampleBtn}
               onClick={() => sampleInputRef.current?.click()}
-              disabled={uploadingample}
+              disabled={uploadingSample}
             >
-              {uploadingample ? <Loader2 size={16} className={styles.spinner} /> : <Upload size={16} />}
+              {uploadingSample ? <Loader2 size={16} className={styles.spinner} /> : <Upload size={16} />}
               Подгрузить пример
             </button>
             <input
