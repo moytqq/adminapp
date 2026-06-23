@@ -85,8 +85,8 @@ const Proposes: React.FC = () => {
         <div className={styles.formHeader}>
           <Lightbulb size={28} className={styles.headerIcon} />
           <div>
-            <h1 className={styles.title}>Предложения</h1>
-            <p className={styles.subtitle}>Напишите нам — мы читаем каждое сообщение</p>
+            <h1 className={styles.title}>Поддержка Экосистемы</h1>
+            <p className={styles.subtitle}>Сообщите нам об ошибке или предложите исправление</p>
           </div>
         </div>
 
@@ -113,7 +113,7 @@ const Proposes: React.FC = () => {
 
           <div className={styles.field}>
             <label className={styles.label}>
-              {category === 'correction' ? 'Что нужно исправить?' : 'Ваше сообщение'}
+              {category === 'correction' ? 'Что нужно исправить?' : 'Описание ошибки'}
             </label>
             <textarea
               className={styles.textarea}
@@ -121,8 +121,8 @@ const Proposes: React.FC = () => {
               onChange={e => setText(e.target.value)}
               placeholder={
                 category === 'correction'
-                  ? 'Опишите что именно и где исправить...'
-                  : 'Опишите с какой ошибкой вы столкнулись...'
+                  ? 'Опишите что именно нужно исправить и где...'
+                  : 'Опишите ошибку: что делали, что пошло не так...'
               }
               rows={5}
               required

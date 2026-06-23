@@ -13,7 +13,7 @@ const ProposesPage = () => {
 
   return (
     <>
-      <PageTitle title="Предложения" />
+      <PageTitle title="Поддержка Экосистемы" />
       <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       <div className={styles.container}>
         <header className={styles.header}>
@@ -24,7 +24,7 @@ const ProposesPage = () => {
           >
             <Menu size={24} />
           </button>
-          <h1 className={styles.title}>Предложения</h1>
+          <h1 className={styles.title}>Поддержка Экосистемы</h1>
         </header>
         <main className={styles.content}>
           <Proposes />
