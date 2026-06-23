@@ -7,8 +7,7 @@ import {
   ArrowLeft,
   ClipboardList,
   Eye,
-  BarChart3,
-  TableProperties,
+  CalendarDays,
 } from 'lucide-react';
 
 export interface StaffCategory {
@@ -27,8 +26,7 @@ interface StaffCategorySelectorProps {
   hasManagerAccess?: boolean;
   onManagerAction?: () => void;
   onViewAction?: () => void;
-  onReportAction?: () => void;
-  onFillStatsAction?: () => void;
+  onVacationsAction?: () => void;
   hasLinearAccess?: boolean;
   isAdmin?: boolean;
 }
@@ -51,8 +49,7 @@ const StaffCategorySelector: React.FC<StaffCategorySelectorProps> = ({
                                                                        hasManagerAccess = false,
                                                                        onManagerAction,
                                                                        onViewAction,
-                                                                       onReportAction,
-                                                                       onFillStatsAction,
+                                                                       onVacationsAction,
                                                                        hasLinearAccess = false,
                                                                        isAdmin = false,
                                                                      }) => {
@@ -132,31 +129,17 @@ const StaffCategorySelector: React.FC<StaffCategorySelectorProps> = ({
             <div className={styles.arrow}>→</div>
           </button>
         )}
-        {isAdmin && (
+        {hasManagerAccess && (
           <button
             className={styles.card}
-            onClick={onReportAction}
-            style={{ backgroundColor: '#f0ebff' }}
+            onClick={onVacationsAction}
+            style={{ backgroundColor: '#fff8e1' }}
           >
-            <div className={styles.iconWrapper} style={{ color: '#6c35de' }}>
-              <BarChart3 size={32} />
+            <div className={styles.iconWrapper} style={{ color: '#e65100' }}>
+              <CalendarDays size={32} />
             </div>
-            <h3 className={styles.title}>Отчёт</h3>
-            <p className={styles.description}>Заполненность адресов по управляющим</p>
-            <div className={styles.arrow}>→</div>
-          </button>
-        )}
-        {isAdmin && (
-          <button
-            className={styles.card}
-            onClick={onFillStatsAction}
-            style={{ backgroundColor: '#e8faf0' }}
-          >
-            <div className={styles.iconWrapper} style={{ color: '#137333' }}>
-              <TableProperties size={32} />
-            </div>
-            <h3 className={styles.title}>Анализ полей</h3>
-            <p className={styles.description}>Детальная заполненность анкет по полям</p>
+            <h3 className={styles.title}>Отпуска</h3>
+            <p className={styles.description}>Управление отпусками сотрудников</p>
             <div className={styles.arrow}>→</div>
           </button>
         )}

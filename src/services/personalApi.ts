@@ -181,4 +181,64 @@ export const personalApi = {
       throw error;
     }
   },
+
+  getUpcomingVacations: async () => {
+    try {
+      const response = await api.get('/personal/vacations/upcoming');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching upcoming vacations:', error);
+      throw error;
+    }
+  },
+
+  getMyStaffForVacations: async () => {
+    try {
+      const response = await api.get('/personal/vacations/employees');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching staff for vacations:', error);
+      throw error;
+    }
+  },
+
+  getVacationSample: async () => {
+    try {
+      const response = await api.get('/personal/vacations/sample');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching vacation sample:', error);
+      throw error;
+    }
+  },
+
+  uploadVacationSample: async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await api.post('/personal/vacations/upload-sample', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading vacation sample:', error);
+      throw error;
+    }
+  },
+
+  submitVacationApplication: async (employeeLsid: string, comment: string, file: File | null) => {
+    try {
+      const formData = new FormData();
+      formData.append('employee_lsid', employeeLsid);
+      formData.append('comment', comment);
+      if (file) formData.append('file', file);
+      const response = await api.post('/personal/vacations/submit', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error submitting vacation application:', error);
+      throw error;
+    }
+  },
 };

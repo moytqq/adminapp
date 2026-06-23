@@ -19,6 +19,7 @@ import StaffViewTable from '@/components/StaffViewTable/StaffViewTable';
 import StaffManagerReport from '@/components/StaffManagerReport/StaffManagerReport';
 import StaffFillStats from '@/components/StaffFillStats/StaffFillStats';
 import { getUserFlags } from '@/services/api';
+import { useRouter } from 'next/navigation';
 import styles from './staff.module.scss';
 import { Users, Briefcase, Menu, ArrowUpDown, Filter, Search, ArrowLeft } from 'lucide-react';
 import { TreeItemType } from '@/types/tree.types';
@@ -48,6 +49,7 @@ export default function StaffPage() {
   const [showStaffView, setShowStaffView] = useState(false);
   const [showManagerReport, setShowManagerReport] = useState(false);
   const [showFillStats, setShowFillStats] = useState(false);
+  const router = useRouter();
 
   const flags = getUserFlags();
   const hasManagerAccess = flags.includes('MANAGER') || flags.includes('ADMIN');
@@ -202,8 +204,7 @@ export default function StaffPage() {
               hasManagerAccess={hasManagerAccess}
               onManagerAction={() => setShowManagerForm(true)}
               onViewAction={() => setShowStaffView(true)}
-              onReportAction={() => setShowManagerReport(true)}
-              onFillStatsAction={() => setShowFillStats(true)}
+              onVacationsAction={() => router.push('/staff/vacations')}
               hasLinearAccess={hasLinearAccess}
               isAdmin={isAdmin}
             />
